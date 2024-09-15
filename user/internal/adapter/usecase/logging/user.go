@@ -10,6 +10,8 @@ import (
 	"github.com/google/uuid"
 )
 
+// TODO: Add logging WithFields for better logs parsing
+
 type LoggingUserUseCase struct {
 	useCase usecase.UserUseCase
 	logger  logger.Logger

@@ -23,12 +23,6 @@ func NewUserUseCase(repo repository.UserRepository) usecase.UserUseCase {
 }
 
 func (u *userUseCase) CreateUser(ctx context.Context, user *entity.User) error {
-	existing_user, _ := u.repo.GetUserByID(ctx, user.ID)
-
-	if existing_user != nil {
-		return errors.New("user already exists")
-	}
-
 	if !isValidEmail(user.Email) {
 		return errors.New("invalid email format")
 	}
@@ -46,8 +40,9 @@ func (u *userUseCase) CreateUser(ctx context.Context, user *entity.User) error {
 	if err != nil {
 		return err
 	}
-
 	user.PasswordHash = hashedPassword
+
+	user.ID = uuid.New()
 
 	return u.repo.CreateUser(ctx, user)
 }

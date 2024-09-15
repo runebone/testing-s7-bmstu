@@ -11,14 +11,14 @@ import (
 )
 
 type LoggingUserRepository struct {
-	baseRepo r.UserRepository
-	logger   logger.Logger
+	repo   r.UserRepository
+	logger logger.Logger
 }
 
-func NewLoggingUserRepository(baseRepo r.UserRepository, logger logger.Logger) r.UserRepository {
+func NewLoggingUserRepository(repo r.UserRepository, logger logger.Logger) r.UserRepository {
 	return &LoggingUserRepository{
-		baseRepo: baseRepo,
-		logger:   logger,
+		repo:   repo,
+		logger: logger,
 	}
 }
 
@@ -30,7 +30,7 @@ func (l *LoggingUserRepository) CreateUser(ctx context.Context, user *entity.Use
 		"user_id": user.ID,
 	}).Info(ctx, "Starting to create user")
 
-	err := l.baseRepo.CreateUser(ctx, user)
+	err := l.repo.CreateUser(ctx, user)
 	if err != nil {
 		l.logger.WithFields(map[string]interface{}{
 			"action":  "CreateUser",
@@ -56,7 +56,7 @@ func (l *LoggingUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (
 		"user_id": id,
 	}).Info(ctx, "Fetching user by ID")
 
-	user, err := l.baseRepo.GetUserByID(ctx, id)
+	user, err := l.repo.GetUserByID(ctx, id)
 	if err != nil {
 		l.logger.WithFields(map[string]interface{}{
 			"action":  "GetUserByID",
@@ -82,7 +82,7 @@ func (l *LoggingUserRepository) UpdateUser(ctx context.Context, user *entity.Use
 		"user_id": user.ID,
 	}).Info(ctx, "Updating user")
 
-	err := l.baseRepo.UpdateUser(ctx, user)
+	err := l.repo.UpdateUser(ctx, user)
 	if err != nil {
 		l.logger.WithFields(map[string]interface{}{
 			"action":  "UpdateUser",
@@ -108,7 +108,7 @@ func (l *LoggingUserRepository) DeleteUser(ctx context.Context, id uuid.UUID) er
 		"user_id": id,
 	}).Info(ctx, "Deleting user")
 
-	err := l.baseRepo.DeleteUser(ctx, id)
+	err := l.repo.DeleteUser(ctx, id)
 	if err != nil {
 		l.logger.WithFields(map[string]interface{}{
 			"action":  "DeleteUser",

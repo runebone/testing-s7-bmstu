@@ -36,7 +36,7 @@ func (r *SQLXUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*en
 
 func (r *SQLXUserRepository) GetUsersBatch(ctx context.Context, limit, offset int) ([]entity.User, error) {
 	var users []entity.User
-	err := r.db.GetContext(ctx, &users, "SELECT * FROM users ORDER BY created_at ASC LIMIT $1 OFFSET $2", limit, offset)
+	err := r.db.SelectContext(ctx, &users, "SELECT * FROM users ORDER BY created_at ASC LIMIT $1 OFFSET $2", limit, offset)
 	if err != nil {
 		return nil, err
 	}

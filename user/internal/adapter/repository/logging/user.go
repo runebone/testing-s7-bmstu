@@ -81,7 +81,7 @@ func (l *LoggingUserRepository) GetUsersBatch(ctx context.Context, limit, offset
 		"action": "GetUsersBatch",
 		"limit":  limit,
 		"offset": offset,
-	}).Info(ctx, "Fetching user by ID")
+	}).Info(ctx, "Fetching users batch")
 
 	users, err := l.repo.GetUsersBatch(ctx, limit, offset)
 	if err != nil {

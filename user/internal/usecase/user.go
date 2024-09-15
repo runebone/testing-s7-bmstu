@@ -4,30 +4,30 @@ import (
 	"context"
 	"errors"
 	"regexp"
-	"user/internal/entities"
-	"user/internal/repositories"
+	"user/internal/entity"
+	"user/internal/repository"
 
 	"github.com/google/uuid"
 )
 
 type UserUseCase interface {
-	CreateUser(ctx context.Context, user *entities.User) error
-	GetUserByID(ctx context.Context, id uuid.UUID) (*entities.User, error)
-	UpdateUser(ctx context.Context, user *entities.User) error
+	CreateUser(ctx context.Context, user *entity.User) error
+	GetUserByID(ctx context.Context, id uuid.UUID) (*entity.User, error)
+	UpdateUser(ctx context.Context, user *entity.User) error
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 }
 
 type userUseCase struct {
-	repo repositories.UserRepository
+	repo repository.UserRepository
 }
 
-func NewUserUseCase(repo repositories.UserRepository) UserUseCase {
+func NewUserUseCase(repo repository.UserRepository) UserUseCase {
 	return &userUseCase{
 		repo: repo,
 	}
 }
 
-func (u *userUseCase) CreateUser(ctx context.Context, user *entities.User) error {
+func (u *userUseCase) CreateUser(ctx context.Context, user *entity.User) error {
 	existing_user, _ := u.repo.GetUserByID(ctx, user.ID)
 
 	if existing_user != nil {
@@ -55,11 +55,11 @@ func isValidUsername(username string) bool {
 	return re.MatchString(username)
 }
 
-func (u *userUseCase) GetUserByID(ctx context.Context, id uuid.UUID) (*entities.User, error) {
+func (u *userUseCase) GetUserByID(ctx context.Context, id uuid.UUID) (*entity.User, error) {
 	return u.repo.GetUserByID(ctx, id)
 }
 
-func (u *userUseCase) UpdateUser(ctx context.Context, user *entities.User) error {
+func (u *userUseCase) UpdateUser(ctx context.Context, user *entity.User) error {
 	existing_user, _ := u.repo.GetUserByID(ctx, user.ID)
 
 	if existing_user == nil {

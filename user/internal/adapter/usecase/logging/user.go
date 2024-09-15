@@ -1,11 +1,11 @@
-package logging
+package usecase
 
 import (
 	"context"
 	"time"
 	"user/internal/common/logger"
-	"user/internal/entities"
-	usecase "user/internal/usecases"
+	"user/internal/entity"
+	"user/internal/usecase"
 
 	"github.com/google/uuid"
 )
@@ -22,7 +22,7 @@ func NewLoggingUserUseCase(u usecase.UserUseCase, l logger.Logger) usecase.UserU
 	}
 }
 
-func (l *LoggingUserUseCase) CreateUser(ctx context.Context, user *entities.User) error {
+func (l *LoggingUserUseCase) CreateUser(ctx context.Context, user *entity.User) error {
 	start := time.Now()
 	l.logger.Info(ctx, "CreateUser called", "user_id", user.ID)
 
@@ -36,7 +36,7 @@ func (l *LoggingUserUseCase) CreateUser(ctx context.Context, user *entities.User
 	return nil
 }
 
-func (l *LoggingUserUseCase) GetUserByID(ctx context.Context, id uuid.UUID) (*entities.User, error) {
+func (l *LoggingUserUseCase) GetUserByID(ctx context.Context, id uuid.UUID) (*entity.User, error) {
 	start := time.Now()
 	l.logger.Info(ctx, "GetUserByID called", "user_id", id)
 
@@ -50,7 +50,7 @@ func (l *LoggingUserUseCase) GetUserByID(ctx context.Context, id uuid.UUID) (*en
 	return user, nil
 }
 
-func (l *LoggingUserUseCase) UpdateUser(ctx context.Context, user *entities.User) error {
+func (l *LoggingUserUseCase) UpdateUser(ctx context.Context, user *entity.User) error {
 	start := time.Now()
 	l.logger.Info(ctx, "UpdateUser called", "user_id", user.ID)
 

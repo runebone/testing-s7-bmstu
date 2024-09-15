@@ -1,10 +1,10 @@
-package repositories
+package repository
 
 import (
 	"context"
-	"user/internal/entities"
+	"user/internal/entity"
 	"user/internal/middleware/cache"
-	r "user/internal/repositories"
+	r "user/internal/repository"
 
 	"github.com/google/uuid"
 )
@@ -21,7 +21,7 @@ func NewCachedUserRepository(baseRepo r.UserRepository, cache *cache.CacheMiddle
 	}
 }
 
-func (r *CachedUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*entities.User, error) {
+func (r *CachedUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*entity.User, error) {
 	cacheKey := id.String()
 
 	cachedData, err := r.cache.GetOrSet(ctx, cacheKey, func() (interface{}, error) {
@@ -32,15 +32,15 @@ func (r *CachedUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*
 		return nil, err
 	}
 
-	user := cachedData.(*entities.User)
+	user := cachedData.(*entity.User)
 	return user, nil
 }
 
-func (r *CachedUserRepository) CreateUser(ctx context.Context, user *entities.User) error {
+func (r *CachedUserRepository) CreateUser(ctx context.Context, user *entity.User) error {
 	return r.baseRepo.CreateUser(ctx, user)
 }
 
-func (r *CachedUserRepository) UpdateUser(ctx context.Context, user *entities.User) error {
+func (r *CachedUserRepository) UpdateUser(ctx context.Context, user *entity.User) error {
 	return r.baseRepo.UpdateUser(ctx, user)
 }
 

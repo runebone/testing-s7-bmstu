@@ -1,8 +1,8 @@
-package repositories
+package repository
 
 import (
 	"context"
-	"user/internal/entities"
+	"user/internal/entity"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -16,7 +16,7 @@ func NewSQLXUserRepository(db *sqlx.DB) *SQLXUserRepository {
 	return &SQLXUserRepository{db: db}
 }
 
-func (r *SQLXUserRepository) CreateUser(ctx context.Context, user *entities.User) error {
+func (r *SQLXUserRepository) CreateUser(ctx context.Context, user *entity.User) error {
 	query := `
     INSERT INTO users (id, username, email, password_hash, created_at, updated_at)
     VALUES (:id, :username, :email, :password_hash, :created_at, :updated_at)
@@ -25,8 +25,8 @@ func (r *SQLXUserRepository) CreateUser(ctx context.Context, user *entities.User
 	return err
 }
 
-func (r *SQLXUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*entities.User, error) {
-	var user entities.User
+func (r *SQLXUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*entity.User, error) {
+	var user entity.User
 	err := r.db.GetContext(ctx, &user, "SELECT * FROM users WHERE id = $1", id)
 	if err != nil {
 		return nil, err
@@ -34,7 +34,7 @@ func (r *SQLXUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*en
 	return &user, nil
 }
 
-func (r *SQLXUserRepository) UpdateUser(ctx context.Context, user *entities.User) error {
+func (r *SQLXUserRepository) UpdateUser(ctx context.Context, user *entity.User) error {
 	query := `
     UPDATE users SET username = :username, email = :email, password_hash = :password_hash, updated_at = :updated_at
     WHERE id = :id

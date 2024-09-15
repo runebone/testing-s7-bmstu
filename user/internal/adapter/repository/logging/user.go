@@ -1,28 +1,28 @@
-package logging
+package repository
 
 import (
 	"context"
 	"time"
 	"user/internal/common/logger"
-	"user/internal/entities"
-	"user/internal/repositories"
+	"user/internal/entity"
+	r "user/internal/repository"
 
 	"github.com/google/uuid"
 )
 
 type LoggingUserRepository struct {
-	baseRepo repositories.UserRepository
+	baseRepo r.UserRepository
 	logger   logger.Logger
 }
 
-func NewLoggingUserRepository(baseRepo repositories.UserRepository, logger logger.Logger) repositories.UserRepository {
+func NewLoggingUserRepository(baseRepo r.UserRepository, logger logger.Logger) r.UserRepository {
 	return &LoggingUserRepository{
 		baseRepo: baseRepo,
 		logger:   logger,
 	}
 }
 
-func (l *LoggingUserRepository) CreateUser(ctx context.Context, user *entities.User) error {
+func (l *LoggingUserRepository) CreateUser(ctx context.Context, user *entity.User) error {
 	start := time.Now()
 
 	l.logger.WithFields(map[string]interface{}{
@@ -48,7 +48,7 @@ func (l *LoggingUserRepository) CreateUser(ctx context.Context, user *entities.U
 	return nil
 }
 
-func (l *LoggingUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*entities.User, error) {
+func (l *LoggingUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*entity.User, error) {
 	start := time.Now()
 
 	l.logger.WithFields(map[string]interface{}{
@@ -74,7 +74,7 @@ func (l *LoggingUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (
 	return user, nil
 }
 
-func (l *LoggingUserRepository) UpdateUser(ctx context.Context, user *entities.User) error {
+func (l *LoggingUserRepository) UpdateUser(ctx context.Context, user *entity.User) error {
 	start := time.Now()
 
 	l.logger.WithFields(map[string]interface{}{

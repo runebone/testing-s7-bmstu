@@ -3,6 +3,7 @@ package v1
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"user/internal/dto"
 	"user/internal/entity"
 	"user/internal/usecase"
@@ -63,6 +64,32 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 		Username: user.Username,
 		Email:    user.Email,
 	})
+}
+
+func (h *UserHandler) GetUsersBatch(w http.ResponseWriter, r *http.Request) {
+	limitParam := r.URL.Query().Get("limit")
+	limit, err := strconv.Atoi(limitParam)
+	if err != nil {
+		http.Error(w, "Invalid limit", http.StatusBadRequest)
+		return
+	}
+
+	offsetParam := r.URL.Query().Get("offset")
+	offset, err := strconv.Atoi(offsetParam)
+	if err != nil {
+		http.Error(w, "Invalid offset", http.StatusBadRequest)
+		return
+	}
+
+	users, err := h.userUseCase.GetUsersBatch(r.Context(), limit, offset)
+	if err != nil {
+		http.Error(w, "Users not found", http.StatusNotFound)
+		return
+	}
+
+	userDTOs := dto.ToUserDTOs(users)
+
+	json.NewEncoder(w).Encode(userDTOs)
 }
 
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {

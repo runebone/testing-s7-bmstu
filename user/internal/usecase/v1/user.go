@@ -94,6 +94,10 @@ func (u *userUseCase) GetUserByID(ctx context.Context, id uuid.UUID) (*entity.Us
 	return u.repo.GetUserByID(ctx, id)
 }
 
+func (u *userUseCase) GetUsersBatch(ctx context.Context, limit, offset int) ([]entity.User, error) {
+	return u.repo.GetUsersBatch(ctx, limit, offset)
+}
+
 func (u *userUseCase) UpdateUser(ctx context.Context, user *entity.User) error {
 	existing_user, _ := u.repo.GetUserByID(ctx, user.ID)
 

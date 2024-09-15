@@ -74,6 +74,35 @@ func (l *LoggingUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (
 	return user, nil
 }
 
+func (l *LoggingUserRepository) GetUsersBatch(ctx context.Context, limit, offset int) ([]entity.User, error) {
+	start := time.Now()
+
+	l.logger.WithFields(map[string]interface{}{
+		"action": "GetUsersBatch",
+		"limit":  limit,
+		"offset": offset,
+	}).Info(ctx, "Fetching user by ID")
+
+	users, err := l.repo.GetUsersBatch(ctx, limit, offset)
+	if err != nil {
+		l.logger.WithFields(map[string]interface{}{
+			"action": "GetUsersBatch",
+			"limit":  limit,
+			"offset": offset,
+			"error":  err.Error(),
+		}).Error(ctx, "Failed to fetch users batch")
+		return nil, err
+	}
+
+	l.logger.WithFields(map[string]interface{}{
+		"action":   "GetUserBatch",
+		"limit":    limit,
+		"offset":   offset,
+		"duration": time.Since(start),
+	}).Info(ctx, "Users batch fetched successfully")
+	return users, nil
+}
+
 func (l *LoggingUserRepository) UpdateUser(ctx context.Context, user *entity.User) error {
 	start := time.Now()
 

@@ -34,6 +34,15 @@ func (r *SQLXUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*en
 	return &user, nil
 }
 
+func (r *SQLXUserRepository) GetUsersBatch(ctx context.Context, limit, offset int) ([]entity.User, error) {
+	var users []entity.User
+	err := r.db.GetContext(ctx, &users, "SELECT * FROM users ORDER BY created_at ASC LIMIT $1 OFFSET $2", limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
 func (r *SQLXUserRepository) UpdateUser(ctx context.Context, user *entity.User) error {
 	query := `
     UPDATE users SET username = :username, email = :email, password_hash = :password_hash, updated_at = :updated_at

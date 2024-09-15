@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"user/internal/common/cache"
 	"user/internal/entity"
 	r "user/internal/repository"
@@ -34,6 +35,21 @@ func (r *CachedUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*
 
 	user := cachedData.(*entity.User)
 	return user, nil
+}
+
+func (r *CachedUserRepository) GetUsersBatch(ctx context.Context, limit, offset int) ([]entity.User, error) {
+	cacheKey := fmt.Sprintf("l%do%d", limit, offset)
+
+	cachedData, err := r.cache.GetOrSet(ctx, cacheKey, func() (interface{}, error) {
+		return r.repo.GetUsersBatch(ctx, limit, offset)
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	users := cachedData.([]entity.User)
+	return users, nil
 }
 
 func (r *CachedUserRepository) CreateUser(ctx context.Context, user *entity.User) error {

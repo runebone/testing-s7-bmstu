@@ -9,6 +9,7 @@ import (
 	"user/internal/usecase"
 
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 )
 
 type UserHandler struct {
@@ -46,8 +47,10 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
-	idParam := r.URL.Query().Get("id")
-	id, err := uuid.Parse(idParam)
+	vars := mux.Vars(r)
+	idStr := vars["id"]
+
+	id, err := uuid.Parse(idStr)
 	if err != nil {
 		http.Error(w, "Invalid user ID", http.StatusBadRequest)
 		return

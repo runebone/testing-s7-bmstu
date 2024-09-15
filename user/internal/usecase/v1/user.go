@@ -9,6 +9,7 @@ import (
 	"user/internal/usecase"
 
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type userUseCase struct {
@@ -36,6 +37,18 @@ func (u *userUseCase) CreateUser(ctx context.Context, user *entity.User) error {
 		return errors.New("invalid username format")
 	}
 
+	err := ValidatePassword(user.PasswordHash) // NOTE: Plain password, unencrypted initially
+	if err != nil {
+		return err
+	}
+
+	hashedPassword, err := hashPassword(user.PasswordHash)
+	if err != nil {
+		return err
+	}
+
+	user.PasswordHash = hashedPassword
+
 	return u.repo.CreateUser(ctx, user)
 }
 
@@ -47,6 +60,39 @@ func isValidEmail(email string) bool {
 func isValidUsername(username string) bool {
 	re := regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9_]{4,}$`)
 	return re.MatchString(username)
+}
+
+func ValidatePassword(password string) error {
+	if len(password) < 8 || len(password) > 32 {
+		return errors.New("password must be between 8 and 32 characters long")
+	}
+
+	hasUpperCase := regexp.MustCompile(`[A-Z]`).MatchString(password)
+	if !hasUpperCase {
+		return errors.New("password must contain at least one uppercase letter")
+	}
+
+	hasLowerCase := regexp.MustCompile(`[a-z]`).MatchString(password)
+	if !hasLowerCase {
+		return errors.New("password must contain at least one lowercase letter")
+	}
+
+	hasDigit := regexp.MustCompile(`[0-9]`).MatchString(password)
+	if !hasDigit {
+		return errors.New("password must contain at least one digit")
+	}
+
+	hasSpecialChar := regexp.MustCompile(`[!@#~$%^&*(),.?":{}|<>]`).MatchString(password)
+	if !hasSpecialChar {
+		return errors.New("password must contain at least one special character")
+	}
+
+	return nil
+}
+
+func hashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(bytes), err
 }
 
 func (u *userUseCase) GetUserByID(ctx context.Context, id uuid.UUID) (*entity.User, error) {

@@ -37,7 +37,7 @@ func (u *userUseCase) CreateUser(ctx context.Context, user *entity.User) error {
 		return errors.New("invalid username format")
 	}
 
-	err := ValidatePassword(user.PasswordHash) // NOTE: Plain password, unencrypted initially
+	err := validatePassword(user.PasswordHash) // NOTE: Plain password, unencrypted initially
 	if err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func isValidUsername(username string) bool {
 	return re.MatchString(username)
 }
 
-func ValidatePassword(password string) error {
+func validatePassword(password string) error {
 	if len(password) < 8 || len(password) > 32 {
 		return errors.New("password must be between 8 and 32 characters long")
 	}

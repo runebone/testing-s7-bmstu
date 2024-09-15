@@ -2,22 +2,22 @@ package repository
 
 import (
 	"context"
+	"user/internal/common/cache"
 	"user/internal/entity"
-	"user/internal/middleware/cache"
 	r "user/internal/repository"
 
 	"github.com/google/uuid"
 )
 
 type CachedUserRepository struct {
-	baseRepo r.UserRepository
-	cache    *cache.CacheMiddleware
+	repo  r.UserRepository
+	cache cache.Cache
 }
 
-func NewCachedUserRepository(baseRepo r.UserRepository, cache *cache.CacheMiddleware) *CachedUserRepository {
+func NewCachedUserRepository(repo r.UserRepository, cache cache.Cache) *CachedUserRepository {
 	return &CachedUserRepository{
-		baseRepo: baseRepo,
-		cache:    cache,
+		repo:  repo,
+		cache: cache,
 	}
 }
 
@@ -25,7 +25,7 @@ func (r *CachedUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*
 	cacheKey := id.String()
 
 	cachedData, err := r.cache.GetOrSet(ctx, cacheKey, func() (interface{}, error) {
-		return r.baseRepo.GetUserByID(ctx, id)
+		return r.repo.GetUserByID(ctx, id)
 	})
 
 	if err != nil {
@@ -37,13 +37,13 @@ func (r *CachedUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*
 }
 
 func (r *CachedUserRepository) CreateUser(ctx context.Context, user *entity.User) error {
-	return r.baseRepo.CreateUser(ctx, user)
+	return r.repo.CreateUser(ctx, user)
 }
 
 func (r *CachedUserRepository) UpdateUser(ctx context.Context, user *entity.User) error {
-	return r.baseRepo.UpdateUser(ctx, user)
+	return r.repo.UpdateUser(ctx, user)
 }
 
 func (r *CachedUserRepository) DeleteUser(ctx context.Context, id uuid.UUID) error {
-	return r.baseRepo.DeleteUser(ctx, id)
+	return r.repo.DeleteUser(ctx, id)
 }

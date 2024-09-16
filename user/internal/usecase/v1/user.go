@@ -31,6 +31,8 @@ func (u *userUseCase) CreateUser(ctx context.Context, user *entity.User) error {
 		return errors.New("invalid username format")
 	}
 
+	// TODO: Maybe move password validation to auth service,
+	// and deal only with hashes in user service.
 	err := validatePassword(user.PasswordHash) // NOTE: Plain password, unencrypted initially
 	if err != nil {
 		return err

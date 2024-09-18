@@ -7,9 +7,10 @@ import (
 )
 
 type UserDTO struct {
-	ID       uuid.UUID `json:"id"`
-	Username string    `json:"username"`
-	Email    string    `json:"email"`
+	ID           uuid.UUID `json:"id"`
+	Username     string    `json:"username"`
+	Email        string    `json:"email"`
+	PasswordHash string    `json:"password_hash"`
 }
 
 type CreateUserDTO struct {
@@ -23,16 +24,12 @@ type UpdateUserDTO struct {
 	Email    *string `json:"email,omitempty"`
 }
 
-type UsersDTO struct {
-	Users []*UserDTO `json:"users"`
-	Total int        `json:"total"`
-}
-
 func ToUserDTO(user entity.User) UserDTO {
 	return UserDTO{
-		ID:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
+		ID:           user.ID,
+		Username:     user.Username,
+		Email:        user.Email,
+		PasswordHash: user.PasswordHash,
 	}
 }
 

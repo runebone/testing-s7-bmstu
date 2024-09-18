@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
 	"user/internal/dto"
 	"user/internal/entity"
 	"user/internal/repository"
@@ -41,9 +42,10 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(dto.UserDTO{
-		ID:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
+		ID:           user.ID,
+		Username:     user.Username,
+		Email:        user.Email,
+		PasswordHash: user.PasswordHash,
 	})
 }
 
@@ -64,9 +66,10 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(dto.UserDTO{
-		ID:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
+		ID:           user.ID,
+		Username:     user.Username,
+		Email:        user.Email,
+		PasswordHash: user.PasswordHash,
 	})
 }
 
@@ -161,6 +164,7 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	if input.Email != nil {
 		user.Email = *input.Email
 	}
+	user.UpdatedAt = time.Now()
 
 	err = h.userUseCase.UpdateUser(r.Context(), user)
 	if err != nil {
@@ -170,9 +174,10 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(dto.UserDTO{
-		ID:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
+		ID:           user.ID,
+		Username:     user.Username,
+		Email:        user.Email,
+		PasswordHash: user.PasswordHash,
 	})
 }
 

@@ -87,7 +87,7 @@ func (r *SQLXUserRepository) GetUsersBatch(ctx context.Context, limit, offset in
 
 func (r *SQLXUserRepository) UpdateUser(ctx context.Context, user *entity.User) error {
 	query := `
-    UPDATE users SET username = :username, email = :email, password_hash = :password_hash, updated_at = :updated_at
+    UPDATE users SET username = :username, email = :email, updated_at = :updated_at
     WHERE id = :id
     `
 	_, err := r.db.NamedExecContext(ctx, query, user)

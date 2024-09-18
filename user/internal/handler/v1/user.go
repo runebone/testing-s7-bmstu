@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"user/internal/dto"
 	"user/internal/entity"
+	"user/internal/repository"
 	"user/internal/usecase"
 
 	"github.com/google/uuid"
@@ -67,6 +68,48 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 		Username: user.Username,
 		Email:    user.Email,
 	})
+}
+
+func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+
+	var id *string = new(string)
+	var email *string = new(string)
+	var username *string = new(string)
+
+	if _, ok := query["id"]; ok {
+		*id = query.Get("id")
+	} else {
+		id = nil
+	}
+
+	if _, ok := query["email"]; ok {
+		*email = query.Get("email")
+	} else {
+		email = nil
+	}
+
+	if _, ok := query["username"]; ok {
+		*username = query.Get("username")
+	} else {
+		username = nil
+	}
+
+	filter := repository.UserFilter{
+		ID:       id,
+		Email:    email,
+		Username: username,
+	}
+
+	users, err := h.userUseCase.GetUsers(r.Context(), filter)
+	if err != nil {
+		http.Error(w, "Users not found", http.StatusNotFound)
+		return
+	}
+
+	userDTOs := dto.ToUserDTOs(users)
+
+	json.NewEncoder(w).Encode(userDTOs)
 }
 
 func (h *UserHandler) GetUsersBatch(w http.ResponseWriter, r *http.Request) {

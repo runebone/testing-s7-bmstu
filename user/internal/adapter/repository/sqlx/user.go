@@ -2,7 +2,9 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"user/internal/entity"
+	"user/internal/repository"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -32,6 +34,46 @@ func (r *SQLXUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*en
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (r *SQLXUserRepository) GetUsers(ctx context.Context, filter repository.UserFilter) ([]entity.User, error) {
+	query := "SELECT * FROM users WHERE 1=1"
+	args := []interface{}{}
+	i := 1
+
+	if filter.ID != nil {
+		str := fmt.Sprintf(" AND id = $%d", i)
+		query += str
+		args = append(args, *filter.ID)
+		i += 1
+	}
+
+	if filter.Email != nil {
+		str := fmt.Sprintf(" AND email = $%d", i)
+		query += str
+		args = append(args, *filter.Email)
+		i += 1
+	}
+
+	if filter.Username != nil {
+		str := fmt.Sprintf(" AND username = $%d", i)
+		query += str
+		args = append(args, *filter.Username)
+		i += 1
+	}
+
+	var users []entity.User
+	stmt, err := r.db.PreparexContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	err = stmt.SelectContext(ctx, &users, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
 
 func (r *SQLXUserRepository) GetUsersBatch(ctx context.Context, limit, offset int) ([]entity.User, error) {

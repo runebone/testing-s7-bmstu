@@ -5,6 +5,7 @@ import (
 	"time"
 	"user/internal/common/logger"
 	"user/internal/entity"
+	"user/internal/repository"
 	r "user/internal/repository"
 
 	"github.com/google/uuid"
@@ -72,6 +73,32 @@ func (l *LoggingUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (
 		"duration": time.Since(start),
 	}).Info(ctx, "User fetched successfully")
 	return user, nil
+}
+
+func (l *LoggingUserRepository) GetUsers(ctx context.Context, filter repository.UserFilter) ([]entity.User, error) {
+	start := time.Now()
+
+	l.logger.WithFields(map[string]interface{}{
+		"action": "GetUsers",
+		"filter": filter,
+	}).Info(ctx, "Fetching users by filter")
+
+	users, err := l.repo.GetUsers(ctx, filter)
+	if err != nil {
+		l.logger.WithFields(map[string]interface{}{
+			"action": "GetUsers",
+			"filter": filter,
+			"error":  err.Error(),
+		}).Error(ctx, "Failed to fetch users by filter")
+		return nil, err
+	}
+
+	l.logger.WithFields(map[string]interface{}{
+		"action":   "GetUsers",
+		"filter":   filter,
+		"duration": time.Since(start),
+	}).Info(ctx, "Users fetched successfully")
+	return users, nil
 }
 
 func (l *LoggingUserRepository) GetUsersBatch(ctx context.Context, limit, offset int) ([]entity.User, error) {

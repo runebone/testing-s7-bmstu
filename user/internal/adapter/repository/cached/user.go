@@ -37,6 +37,8 @@ func (r *CachedUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*
 	return user, nil
 }
 
+// TODO: GetUsers (with filter)
+
 func (r *CachedUserRepository) GetUsersBatch(ctx context.Context, limit, offset int) ([]entity.User, error) {
 	cacheKey := fmt.Sprintf("l%do%d", limit, offset)
 

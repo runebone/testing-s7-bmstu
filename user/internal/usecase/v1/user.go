@@ -96,6 +96,10 @@ func (u *userUseCase) GetUserByID(ctx context.Context, id uuid.UUID) (*entity.Us
 	return u.repo.GetUserByID(ctx, id)
 }
 
+func (u *userUseCase) GetUsers(ctx context.Context, filter repository.UserFilter) ([]entity.User, error) {
+	return u.repo.GetUsers(ctx, filter)
+}
+
 func (u *userUseCase) GetUsersBatch(ctx context.Context, limit, offset int) ([]entity.User, error) {
 	return u.repo.GetUsersBatch(ctx, limit, offset)
 }

@@ -5,6 +5,7 @@ import (
 	"time"
 	"user/internal/common/logger"
 	"user/internal/entity"
+	"user/internal/repository"
 	"user/internal/usecase"
 
 	"github.com/google/uuid"
@@ -50,6 +51,20 @@ func (l *LoggingUserUseCase) GetUserByID(ctx context.Context, id uuid.UUID) (*en
 
 	l.logger.Info(ctx, "GetUserByID succeeded", "duration", time.Since(start))
 	return user, nil
+}
+
+func (l *LoggingUserUseCase) GetUsers(ctx context.Context, filter repository.UserFilter) ([]entity.User, error) {
+	start := time.Now()
+	l.logger.Info(ctx, "GetUsers called", "filter", filter)
+
+	users, err := l.useCase.GetUsers(ctx, filter)
+	if err != nil {
+		l.logger.Error(ctx, "GetUsers failed", "error", err)
+		return nil, err
+	}
+
+	l.logger.Info(ctx, "GetUsers succeeded", "duration", time.Since(start))
+	return users, nil
 }
 
 func (l *LoggingUserUseCase) GetUsersBatch(ctx context.Context, limit, offset int) ([]entity.User, error) {

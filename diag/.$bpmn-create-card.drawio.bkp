@@ -1,0 +1,149 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.7.8 Chrome/128.0.6613.120 Electron/32.1.0 Safari/537.36" version="24.7.8">
+  <diagram name="Page-1" id="QzjLn1SZSdujIkb1C91d">
+    <mxGraphModel dx="1056" dy="789" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="3l5RPIl40PxHx7laBUkO-1" value="Создание карточки" style="swimlane;html=1;childLayout=stackLayout;resizeParent=1;resizeParentMax=0;horizontal=1;startSize=20;horizontalStack=0;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="540" y="210" width="1300" height="740" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-2" value="Пользователь" style="swimlane;html=1;startSize=20;horizontal=0;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-1">
+          <mxGeometry y="20" width="1300" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="3l5RPIl40PxHx7laBUkO-2" source="3l5RPIl40PxHx7laBUkO-5" target="3l5RPIl40PxHx7laBUkO-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-5" value="" style="points=[[0.145,0.145,0],[0.5,0,0],[0.855,0.145,0],[1,0.5,0],[0.855,0.855,0],[0.5,1,0],[0.145,0.855,0],[0,0.5,0]];shape=mxgraph.bpmn.event;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;align=center;perimeter=ellipsePerimeter;outlineConnect=0;aspect=fixed;outline=standard;symbol=general;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-2">
+          <mxGeometry x="60" y="85" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-6" value="Желание&lt;div&gt;создать карточку&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-2">
+          <mxGeometry x="25" y="45" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="3l5RPIl40PxHx7laBUkO-2" source="3l5RPIl40PxHx7laBUkO-7" target="3l5RPIl40PxHx7laBUkO-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-7" value="Нажать на кнопку&lt;br&gt;&amp;lt;&amp;lt;Создать карточку&amp;gt;&amp;gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;labelBackgroundColor=#ffffff;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-2">
+          <mxGeometry x="155" y="80" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="3l5RPIl40PxHx7laBUkO-2" source="3l5RPIl40PxHx7laBUkO-9" target="3l5RPIl40PxHx7laBUkO-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-9" value="Ввести название карточки и ее описание" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;labelBackgroundColor=#ffffff;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-2">
+          <mxGeometry x="355" y="80" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-43" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="3l5RPIl40PxHx7laBUkO-2" source="3l5RPIl40PxHx7laBUkO-11" target="3l5RPIl40PxHx7laBUkO-42">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-11" value="Нажать на кнопку&lt;div&gt;&amp;lt;&amp;lt;Создать&amp;gt;&amp;gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;labelBackgroundColor=#ffffff;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-2">
+          <mxGeometry x="555" y="80" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-47" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="3l5RPIl40PxHx7laBUkO-2" source="3l5RPIl40PxHx7laBUkO-40" target="3l5RPIl40PxHx7laBUkO-45">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-40" value="" style="points=[[0.145,0.145,0],[0.5,0,0],[0.855,0.145,0],[1,0.5,0],[0.855,0.855,0],[0.5,1,0],[0.145,0.855,0],[0,0.5,0]];shape=mxgraph.bpmn.event;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;align=center;perimeter=ellipsePerimeter;outlineConnect=0;aspect=fixed;outline=catching;symbol=message;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-2">
+          <mxGeometry x="1070" y="85" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-46" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="3l5RPIl40PxHx7laBUkO-2" source="3l5RPIl40PxHx7laBUkO-42" target="3l5RPIl40PxHx7laBUkO-40">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-42" value="" style="points=[[0.25,0.25,0],[0.5,0,0],[0.75,0.25,0],[1,0.5,0],[0.75,0.75,0],[0.5,1,0],[0.25,0.75,0],[0,0.5,0]];shape=mxgraph.bpmn.gateway2;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;align=center;perimeter=rhombusPerimeter;outlineConnect=0;outline=catching;symbol=multiple;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-2">
+          <mxGeometry x="850" y="85" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-44" value="Карточка создана" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-2">
+          <mxGeometry x="1035" y="55" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-45" value="" style="points=[[0.145,0.145,0],[0.5,0,0],[0.855,0.145,0],[1,0.5,0],[0.855,0.855,0],[0.5,1,0],[0.145,0.855,0],[0,0.5,0]];shape=mxgraph.bpmn.event;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;align=center;perimeter=ellipsePerimeter;outlineConnect=0;aspect=fixed;outline=end;symbol=terminate2;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-2">
+          <mxGeometry x="1200" y="85" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-54" value="Карточка создана" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-2">
+          <mxGeometry x="1160" y="55" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-3" value="Система" style="swimlane;html=1;startSize=20;horizontal=0;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-1">
+          <mxGeometry y="250" width="1300" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-20" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="3l5RPIl40PxHx7laBUkO-3" source="3l5RPIl40PxHx7laBUkO-13" target="3l5RPIl40PxHx7laBUkO-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-13" value="" style="points=[[0.145,0.145,0],[0.5,0,0],[0.855,0.145,0],[1,0.5,0],[0.855,0.855,0],[0.5,1,0],[0.145,0.855,0],[0,0.5,0]];shape=mxgraph.bpmn.event;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;align=center;perimeter=ellipsePerimeter;outlineConnect=0;aspect=fixed;outline=standard;symbol=message;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-3">
+          <mxGeometry x="590" y="100" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-33" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="3l5RPIl40PxHx7laBUkO-3" source="3l5RPIl40PxHx7laBUkO-19" target="3l5RPIl40PxHx7laBUkO-29">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="860" y="140" />
+              <mxPoint x="860" y="140" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-19" value="Передать запрос на&lt;div&gt;создание карточки&lt;/div&gt;&lt;div&gt;в Todo-сервис&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;labelBackgroundColor=#ffffff;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-3">
+          <mxGeometry x="685" y="95" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-14" value="Пришел запрос на&lt;div&gt;создание карточки&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-3">
+          <mxGeometry x="550" y="60" width="130" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="3l5RPIl40PxHx7laBUkO-3" source="3l5RPIl40PxHx7laBUkO-29" target="3l5RPIl40PxHx7laBUkO-30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-29" value="" style="points=[[0.25,0.25,0],[0.5,0,0],[0.75,0.25,0],[1,0.5,0],[0.75,0.75,0],[0.5,1,0],[0.25,0.75,0],[0,0.5,0]];shape=mxgraph.bpmn.gateway2;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;align=center;perimeter=rhombusPerimeter;outlineConnect=0;outline=catching;symbol=multiple;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-3">
+          <mxGeometry x="850" y="100" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-37" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="3l5RPIl40PxHx7laBUkO-3" source="3l5RPIl40PxHx7laBUkO-30" target="3l5RPIl40PxHx7laBUkO-36">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-30" value="" style="points=[[0.145,0.145,0],[0.5,0,0],[0.855,0.145,0],[1,0.5,0],[0.855,0.855,0],[0.5,1,0],[0.145,0.855,0],[0,0.5,0]];shape=mxgraph.bpmn.event;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;align=center;perimeter=ellipsePerimeter;outlineConnect=0;aspect=fixed;outline=catching;symbol=message;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-3">
+          <mxGeometry x="940" y="100" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-35" value="Доска создана" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-3">
+          <mxGeometry x="915" y="70" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-39" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="3l5RPIl40PxHx7laBUkO-3" source="3l5RPIl40PxHx7laBUkO-36" target="3l5RPIl40PxHx7laBUkO-38">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-36" value="Отправить сообщение об успешном создании карточки" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;labelBackgroundColor=#ffffff;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-3">
+          <mxGeometry x="1035" y="87" width="120" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-38" value="" style="points=[[0.145,0.145,0],[0.5,0,0],[0.855,0.145,0],[1,0.5,0],[0.855,0.855,0],[0.5,1,0],[0.145,0.855,0],[0,0.5,0]];shape=mxgraph.bpmn.event;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;align=center;perimeter=ellipsePerimeter;outlineConnect=0;aspect=fixed;outline=end;symbol=terminate2;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-3">
+          <mxGeometry x="1200" y="99.5" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;" edge="1" parent="3l5RPIl40PxHx7laBUkO-1" source="3l5RPIl40PxHx7laBUkO-22" target="3l5RPIl40PxHx7laBUkO-30">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="870" y="540" />
+              <mxPoint x="965" y="540" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;" edge="1" parent="3l5RPIl40PxHx7laBUkO-1" source="3l5RPIl40PxHx7laBUkO-36" target="3l5RPIl40PxHx7laBUkO-40">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-48" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;" edge="1" parent="3l5RPIl40PxHx7laBUkO-1" source="3l5RPIl40PxHx7laBUkO-11" target="3l5RPIl40PxHx7laBUkO-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-49" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;dashPattern=8 8;" edge="1" parent="3l5RPIl40PxHx7laBUkO-1" source="3l5RPIl40PxHx7laBUkO-19" target="3l5RPIl40PxHx7laBUkO-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-4" value="Сервис Todo" style="swimlane;html=1;startSize=20;horizontal=0;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-1">
+          <mxGeometry y="500" width="1300" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="3l5RPIl40PxHx7laBUkO-4" source="3l5RPIl40PxHx7laBUkO-21" target="3l5RPIl40PxHx7laBUkO-22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-21" value="" style="points=[[0.145,0.145,0],[0.5,0,0],[0.855,0.145,0],[1,0.5,0],[0.855,0.855,0],[0.5,1,0],[0.145,0.855,0],[0,0.5,0]];shape=mxgraph.bpmn.event;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;align=center;perimeter=ellipsePerimeter;outlineConnect=0;aspect=fixed;outline=standard;symbol=message;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-4">
+          <mxGeometry x="720" y="95" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="3l5RPIl40PxHx7laBUkO-4" source="3l5RPIl40PxHx7laBUkO-22" target="3l5RPIl40PxHx7laBUkO-28">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-22" value="Создать карточку" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;labelBackgroundColor=#ffffff;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-4">
+          <mxGeometry x="815" y="90" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-28" value="" style="points=[[0.145,0.145,0],[0.5,0,0],[0.855,0.145,0],[1,0.5,0],[0.855,0.855,0],[0.5,1,0],[0.145,0.855,0],[0,0.5,0]];shape=mxgraph.bpmn.event;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;align=center;perimeter=ellipsePerimeter;outlineConnect=0;aspect=fixed;outline=end;symbol=terminate2;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-4">
+          <mxGeometry x="980" y="95" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="3l5RPIl40PxHx7laBUkO-52" value="Пришел запрос на&lt;div&gt;создание карточки&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="3l5RPIl40PxHx7laBUkO-4">
+          <mxGeometry x="680" y="55" width="130" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

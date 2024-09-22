@@ -23,6 +23,17 @@ var (
 	ErrCardNoColumnID         = errors.New("card should have a column id")
 	ErrCardNegativePosition   = errors.New("card cannot have a negative position")
 	ErrCardEmptyTitle         = errors.New("card should have a title")
+	ErrGetBoardByID           = errors.New("failed to get board by id")
+	ErrUpdateBoard            = errors.New("failed to update board")
+	ErrDeleteBoard            = errors.New("failed to delete board")
+	ErrGetColumnByID          = errors.New("failed to get column by id")
+	ErrGetColumnsByBoard      = errors.New("failed to get columns by board")
+	ErrUpdateColumn           = errors.New("failed to update column")
+	ErrDeleteColumn           = errors.New("failed to delete column")
+	ErrGetCardByID            = errors.New("failed to get card by id")
+	ErrGetCardsByColumn       = errors.New("failed to get cards by column")
+	ErrUpdateCard             = errors.New("failed to update card")
+	ErrDeleteCard             = errors.New("failed to delete card")
 )
 
 type todoUseCase struct {
@@ -41,6 +52,7 @@ func NewTodoUseCase(boardRepo repository.BoardRepository, columnRepo repository.
 
 func (uc *todoUseCase) CreateBoard(ctx context.Context, board *entity.Board) error {
 	err := validateBoard(board)
+
 	if err != nil {
 		return err
 	}
@@ -63,24 +75,44 @@ func validateBoard(board *entity.Board) error {
 }
 
 func (uc *todoUseCase) GetBoardByID(ctx context.Context, id uuid.UUID) (*entity.Board, error) {
-	return uc.boardRepo.GetBoardByID(ctx, id)
+	board, err := uc.boardRepo.GetBoardByID(ctx, id)
+
+	if err != nil {
+		return nil, ErrGetBoardByID
+	}
+
+	return board, nil
 }
 
 func (uc *todoUseCase) UpdateBoard(ctx context.Context, board *entity.Board) error {
 	err := validateBoard(board)
+
 	if err != nil {
 		return err
 	}
 
-	return uc.boardRepo.UpdateBoard(ctx, board)
+	err = uc.boardRepo.UpdateBoard(ctx, board)
+
+	if err != nil {
+		return ErrUpdateBoard
+	}
+
+	return nil
 }
 
 func (uc *todoUseCase) DeleteBoard(ctx context.Context, id uuid.UUID) error {
-	return uc.boardRepo.DeleteBoard(ctx, id)
+	err := uc.boardRepo.DeleteBoard(ctx, id)
+
+	if err != nil {
+		return ErrDeleteBoard
+	}
+
+	return nil
 }
 
 func (uc *todoUseCase) CreateColumn(ctx context.Context, column *entity.Column) error {
 	err := validateColumn(column)
+
 	if err != nil {
 		return err
 	}
@@ -111,16 +143,29 @@ func validateColumn(column *entity.Column) error {
 }
 
 func (uc *todoUseCase) GetColumnByID(ctx context.Context, id uuid.UUID) (*entity.Column, error) {
-	return uc.columnRepo.GetColumnByID(ctx, id)
+	column, err := uc.columnRepo.GetColumnByID(ctx, id)
+
+	if err != nil {
+		return nil, ErrGetColumnByID
+	}
+
+	return column, nil
 }
 
 func (uc *todoUseCase) GetColumnsByBoard(ctx context.Context, boardID uuid.UUID, limit, offset int) ([]entity.Column, error) {
 	err := validateLimitAndOffset(limit, offset)
+
 	if err != nil {
 		return nil, err
 	}
 
-	return uc.columnRepo.GetColumnsByBoard(ctx, boardID, limit, offset)
+	columns, err := uc.columnRepo.GetColumnsByBoard(ctx, boardID, limit, offset)
+
+	if err != nil {
+		return nil, ErrGetColumnsByBoard
+	}
+
+	return columns, nil
 }
 
 func validateLimitAndOffset(limit, offset int) error {
@@ -137,19 +182,33 @@ func validateLimitAndOffset(limit, offset int) error {
 
 func (uc *todoUseCase) UpdateColumn(ctx context.Context, column *entity.Column) error {
 	err := validateColumn(column)
+
 	if err != nil {
 		return err
 	}
 
-	return uc.columnRepo.UpdateColumn(ctx, column)
+	err = uc.columnRepo.UpdateColumn(ctx, column)
+
+	if err != nil {
+		return ErrUpdateColumn
+	}
+
+	return nil
 }
 
 func (uc *todoUseCase) DeleteColumn(ctx context.Context, id uuid.UUID) error {
-	return uc.columnRepo.DeleteColumn(ctx, id)
+	err := uc.columnRepo.DeleteColumn(ctx, id)
+
+	if err != nil {
+		return ErrDeleteColumn
+	}
+
+	return nil
 }
 
 func (uc *todoUseCase) CreateCard(ctx context.Context, card *entity.Card) error {
 	err := validateCard(card)
+
 	if err != nil {
 		return err
 	}
@@ -180,27 +239,53 @@ func validateCard(card *entity.Card) error {
 }
 
 func (uc *todoUseCase) GetCardByID(ctx context.Context, id uuid.UUID) (*entity.Card, error) {
-	return uc.cardRepo.GetCardByID(ctx, id)
+	card, err := uc.cardRepo.GetCardByID(ctx, id)
+
+	if err != nil {
+		return nil, ErrGetCardByID
+	}
+
+	return card, nil
 }
 
 func (uc *todoUseCase) GetCardsByColumn(ctx context.Context, columnID uuid.UUID, limit, offset int) ([]entity.Card, error) {
 	err := validateLimitAndOffset(limit, offset)
+
 	if err != nil {
 		return nil, err
 	}
 
-	return uc.cardRepo.GetCardsByColumn(ctx, columnID, limit, offset)
+	cards, err := uc.cardRepo.GetCardsByColumn(ctx, columnID, limit, offset)
+
+	if err != nil {
+		return nil, ErrGetCardsByColumn
+	}
+
+	return cards, nil
 }
 
 func (uc *todoUseCase) UpdateCard(ctx context.Context, card *entity.Card) error {
 	err := validateCard(card)
+
 	if err != nil {
 		return err
 	}
 
-	return uc.cardRepo.UpdateCard(ctx, card)
+	err = uc.cardRepo.UpdateCard(ctx, card)
+
+	if err != nil {
+		return ErrUpdateCard
+	}
+
+	return nil
 }
 
 func (uc *todoUseCase) DeleteCard(ctx context.Context, id uuid.UUID) error {
-	return uc.cardRepo.DeleteCard(ctx, id)
+	err := uc.cardRepo.DeleteCard(ctx, id)
+
+	if err != nil {
+		return ErrDeleteCard
+	}
+
+	return nil
 }

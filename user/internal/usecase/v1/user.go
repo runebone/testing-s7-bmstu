@@ -93,7 +93,13 @@ func hashPassword(password string) (string, error) {
 }
 
 func (u *userUseCase) GetUserByID(ctx context.Context, id uuid.UUID) (*entity.User, error) {
-	return u.repo.GetUserByID(ctx, id)
+	user, err := u.repo.GetUserByID(ctx, id)
+
+	if err != nil {
+		return nil, errors.New("failed to get user by id")
+	}
+
+	return user, nil
 }
 
 func (u *userUseCase) GetUsers(ctx context.Context, filter repository.UserFilter) ([]entity.User, error) {
@@ -101,6 +107,12 @@ func (u *userUseCase) GetUsers(ctx context.Context, filter repository.UserFilter
 }
 
 func (u *userUseCase) GetUsersBatch(ctx context.Context, limit, offset int) ([]entity.User, error) {
+	if limit < 0 || offset < 0 {
+		return nil, errors.New("limit and offset can't be negative")
+	} else if limit == 0 {
+		return nil, errors.New("limit should be greater than zero")
+	}
+
 	return u.repo.GetUsersBatch(ctx, limit, offset)
 }
 

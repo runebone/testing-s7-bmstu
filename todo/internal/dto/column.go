@@ -9,10 +9,6 @@ type CreateColumnRequest struct {
 	Position float64   `json:"position"`
 }
 
-type CreateColumnResponse struct {
-	ID uuid.UUID `json:"id"`
-}
-
 type Column struct {
 	ID       uuid.UUID `json:"id"`
 	BoardID  uuid.UUID `json:"board_id"`

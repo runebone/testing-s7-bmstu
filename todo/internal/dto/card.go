@@ -10,10 +10,6 @@ type CreateCardRequest struct {
 	Position    float64   `json:"position"`
 }
 
-type CreateCardResponse struct {
-	ID uuid.UUID `json:"id"`
-}
-
 type Card struct {
 	ID          uuid.UUID `json:"id"`
 	ColumnID    uuid.UUID `json:"column_id"`

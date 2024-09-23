@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	config "todo/internal/config/handler"
+	"todo/internal/config"
 	"todo/internal/dto"
 	"todo/internal/entity"
 	"todo/internal/usecase"
@@ -22,10 +22,10 @@ var (
 
 type TodoHandler struct {
 	todoUseCase usecase.TodoUseCase
-	config      config.Config
+	config      config.PaginationConfig
 }
 
-func NewTodoHandler(todoUseCase usecase.TodoUseCase, config config.Config) *TodoHandler {
+func NewTodoHandler(todoUseCase usecase.TodoUseCase, config config.PaginationConfig) *TodoHandler {
 	return &TodoHandler{todoUseCase: todoUseCase, config: config}
 }
 
@@ -82,7 +82,7 @@ func (h *TodoHandler) GetBoardsByUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	limit := h.config.Pagination.DefaultLimit
+	limit := h.config.DefaultLimit
 	if _, ok := query["limit"]; ok {
 		limitStr := query.Get("limit")
 		limitInt, err := strconv.Atoi(limitStr)
@@ -91,7 +91,7 @@ func (h *TodoHandler) GetBoardsByUser(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	offset := h.config.Pagination.DefaultOffset
+	offset := h.config.DefaultOffset
 	if _, ok := query["offset"]; ok {
 		offsetStr := query.Get("offset")
 		offsetInt, err := strconv.Atoi(offsetStr)
@@ -208,7 +208,7 @@ func (h *TodoHandler) GetColumnsByBoard(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	limit := h.config.Pagination.DefaultLimit
+	limit := h.config.DefaultLimit
 	if _, ok := query["limit"]; ok {
 		limitStr := query.Get("limit")
 		limitInt, err := strconv.Atoi(limitStr)
@@ -217,7 +217,7 @@ func (h *TodoHandler) GetColumnsByBoard(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	offset := h.config.Pagination.DefaultOffset
+	offset := h.config.DefaultOffset
 	if _, ok := query["offset"]; ok {
 		offsetStr := query.Get("offset")
 		offsetInt, err := strconv.Atoi(offsetStr)
@@ -336,7 +336,7 @@ func (h *TodoHandler) GetCardsByColumn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	limit := h.config.Pagination.DefaultLimit
+	limit := h.config.DefaultLimit
 	if _, ok := query["limit"]; ok {
 		limitStr := query.Get("limit")
 		limitInt, err := strconv.Atoi(limitStr)
@@ -345,7 +345,7 @@ func (h *TodoHandler) GetCardsByColumn(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	offset := h.config.Pagination.DefaultOffset
+	offset := h.config.DefaultOffset
 	if _, ok := query["offset"]; ok {
 		offsetStr := query.Get("offset")
 		offsetInt, err := strconv.Atoi(offsetStr)

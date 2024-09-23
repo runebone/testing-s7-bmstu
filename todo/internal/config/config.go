@@ -7,22 +7,23 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-type Config struct {
-	Database DatabaseConfig
-	Logger   LoggerConfig
-}
-
 type DatabaseConfig struct {
-	Host     string
-	Port     int
-	User     string
-	Password string
-	DBName   string
-	SSLMode  string
+	Host     string `toml:"host"`
+	Port     int    `toml:"port"`
+	User     string `toml:"user"`
+	Password string `toml:"password"`
+	DBName   string `toml:"dbname"`
+	SSLMode  string `toml:"sslmode"`
 }
 
-type LoggerConfig struct {
-	Level string
+type PaginationConfig struct {
+	DefaultLimit  int `toml:"default_limit"`
+	DefaultOffset int `toml:"default_offset"`
+}
+
+type Config struct {
+	Database   DatabaseConfig   `toml:"database"`
+	Pagination PaginationConfig `toml:"pagination"`
 }
 
 func LoadConfig(path string) (Config, error) {

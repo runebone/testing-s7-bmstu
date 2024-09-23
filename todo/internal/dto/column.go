@@ -1,6 +1,10 @@
 package dto
 
-import "github.com/google/uuid"
+import (
+	"todo/internal/entity"
+
+	"github.com/google/uuid"
+)
 
 type CreateColumnRequest struct {
 	UserID   uuid.UUID `json:"user_id"`
@@ -20,4 +24,17 @@ type UpdateColumnRequest struct {
 	ID       uuid.UUID `json:"id"`
 	Title    string    `json:"title,omitempty"`
 	Position float64   `json:"position,omitempty"`
+}
+
+func ToColumnDTOs(columns []entity.Column) []Column {
+	columnDTOs := make([]Column, len(columns))
+	for i, column := range columns {
+		columnDTOs[i] = Column{
+			ID:       column.ID,
+			BoardID:  column.BoardID,
+			Title:    column.Title,
+			Position: column.Position,
+		}
+	}
+	return columnDTOs
 }

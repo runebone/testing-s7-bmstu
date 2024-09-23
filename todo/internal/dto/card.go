@@ -1,6 +1,10 @@
 package dto
 
-import "github.com/google/uuid"
+import (
+	"todo/internal/entity"
+
+	"github.com/google/uuid"
+)
 
 type CreateCardRequest struct {
 	UserID      uuid.UUID `json:"user_id"`
@@ -24,4 +28,18 @@ type UpdateCardRequest struct {
 	Title       string    `json:"title,omitempty"`
 	Description string    `json:"description,omitempty"`
 	Position    float64   `json:"position,omitempty"`
+}
+
+func ToCardDTOs(cards []entity.Card) []Card {
+	cardDTOs := make([]Card, len(cards))
+	for i, card := range cards {
+		cardDTOs[i] = Card{
+			ID:          card.ID,
+			ColumnID:    card.ColumnID,
+			Title:       card.Title,
+			Description: card.Description,
+			Position:    card.Position,
+		}
+	}
+	return cardDTOs
 }

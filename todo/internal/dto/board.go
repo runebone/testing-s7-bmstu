@@ -1,6 +1,10 @@
 package dto
 
-import "github.com/google/uuid"
+import (
+	"todo/internal/entity"
+
+	"github.com/google/uuid"
+)
 
 type CreateBoardRequest struct {
 	UserID uuid.UUID `json:"user_id"`
@@ -14,4 +18,15 @@ type Board struct {
 
 type UpdateBoardRequest struct {
 	Board
+}
+
+func ToBoardDTOs(boards []entity.Board) []Board {
+	boardDTOs := make([]Board, len(boards))
+	for i, board := range boards {
+		boardDTOs[i] = Board{
+			ID:    board.ID,
+			Title: board.Title,
+		}
+	}
+	return boardDTOs
 }

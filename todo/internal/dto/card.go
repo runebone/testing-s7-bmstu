@@ -30,16 +30,20 @@ type UpdateCardRequest struct {
 	Position    float64   `json:"position,omitempty"`
 }
 
+func ToCardDTO(card *entity.Card) Card {
+	return Card{
+		ID:          card.ID,
+		ColumnID:    card.ColumnID,
+		Title:       card.Title,
+		Description: card.Description,
+		Position:    card.Position,
+	}
+}
+
 func ToCardDTOs(cards []entity.Card) []Card {
 	cardDTOs := make([]Card, len(cards))
 	for i, card := range cards {
-		cardDTOs[i] = Card{
-			ID:          card.ID,
-			ColumnID:    card.ColumnID,
-			Title:       card.Title,
-			Description: card.Description,
-			Position:    card.Position,
-		}
+		cardDTOs[i] = ToCardDTO(&card)
 	}
 	return cardDTOs
 }

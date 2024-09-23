@@ -26,15 +26,19 @@ type UpdateColumnRequest struct {
 	Position float64   `json:"position,omitempty"`
 }
 
+func ToColumnDTO(column *entity.Column) Column {
+	return Column{
+		ID:       column.ID,
+		BoardID:  column.BoardID,
+		Title:    column.Title,
+		Position: column.Position,
+	}
+}
+
 func ToColumnDTOs(columns []entity.Column) []Column {
 	columnDTOs := make([]Column, len(columns))
 	for i, column := range columns {
-		columnDTOs[i] = Column{
-			ID:       column.ID,
-			BoardID:  column.BoardID,
-			Title:    column.Title,
-			Position: column.Position,
-		}
+		columnDTOs[i] = ToColumnDTO(&column)
 	}
 	return columnDTOs
 }

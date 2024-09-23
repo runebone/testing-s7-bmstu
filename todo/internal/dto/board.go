@@ -20,13 +20,17 @@ type UpdateBoardRequest struct {
 	Board
 }
 
+func ToBoardDTO(board *entity.Board) Board {
+	return Board{
+		ID:    board.ID,
+		Title: board.Title,
+	}
+}
+
 func ToBoardDTOs(boards []entity.Board) []Board {
 	boardDTOs := make([]Board, len(boards))
 	for i, board := range boards {
-		boardDTOs[i] = Board{
-			ID:    board.ID,
-			Title: board.Title,
-		}
+		boardDTOs[i] = ToBoardDTO(&board)
 	}
 	return boardDTOs
 }

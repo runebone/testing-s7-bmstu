@@ -154,6 +154,36 @@ func (_m *TodoUseCase) GetBoardByID(ctx context.Context, id uuid.UUID) (*entity.
 	return r0, r1
 }
 
+// GetBoardsByUser provides a mock function with given fields: ctx, userID, limit, offset
+func (_m *TodoUseCase) GetBoardsByUser(ctx context.Context, userID uuid.UUID, limit int, offset int) ([]entity.Board, error) {
+	ret := _m.Called(ctx, userID, limit, offset)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetBoardsByUser")
+	}
+
+	var r0 []entity.Board
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, int, int) ([]entity.Board, error)); ok {
+		return rf(ctx, userID, limit, offset)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, int, int) []entity.Board); ok {
+		r0 = rf(ctx, userID, limit, offset)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]entity.Board)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, int, int) error); ok {
+		r1 = rf(ctx, userID, limit, offset)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetCardByID provides a mock function with given fields: ctx, id
 func (_m *TodoUseCase) GetCardByID(ctx context.Context, id uuid.UUID) (*entity.Card, error) {
 	ret := _m.Called(ctx, id)

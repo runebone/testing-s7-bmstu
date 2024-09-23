@@ -10,6 +10,7 @@ import (
 type TodoUseCase interface {
 	CreateBoard(ctx context.Context, board *entity.Board) error
 	GetBoardByID(ctx context.Context, id uuid.UUID) (*entity.Board, error)
+	GetBoardsByUser(ctx context.Context, userID uuid.UUID, limit, offset int) ([]entity.Board, error)
 	UpdateBoard(ctx context.Context, board *entity.Board) error
 	DeleteBoard(ctx context.Context, id uuid.UUID) error
 

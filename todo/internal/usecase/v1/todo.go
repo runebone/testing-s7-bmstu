@@ -24,6 +24,7 @@ var (
 	ErrCardNegativePosition   = errors.New("card cannot have a negative position")
 	ErrCardEmptyTitle         = errors.New("card should have a title")
 	ErrGetBoardByID           = errors.New("failed to get board by id")
+	ErrGetBoardsByUser        = errors.New("failed to get boards by user")
 	ErrUpdateBoard            = errors.New("failed to update board")
 	ErrDeleteBoard            = errors.New("failed to delete board")
 	ErrGetColumnByID          = errors.New("failed to get column by id")
@@ -82,6 +83,22 @@ func (uc *todoUseCase) GetBoardByID(ctx context.Context, id uuid.UUID) (*entity.
 	}
 
 	return board, nil
+}
+
+func (uc *todoUseCase) GetBoardsByUser(ctx context.Context, userID uuid.UUID, limit, offset int) ([]entity.Board, error) {
+	err := validateLimitAndOffset(limit, offset)
+
+	if err != nil {
+		return nil, err
+	}
+
+	columns, err := uc.boardRepo.GetBoardsByUser(ctx, userID, limit, offset)
+
+	if err != nil {
+		return nil, ErrGetBoardsByUser
+	}
+
+	return columns, nil
 }
 
 func (uc *todoUseCase) UpdateBoard(ctx context.Context, board *entity.Board) error {

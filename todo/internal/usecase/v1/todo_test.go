@@ -154,6 +154,145 @@ func TestGetBoardByID(t *testing.T) {
 	}
 }
 
+// GetBoardsByUser(ctx context.Context, userID uuid.UUID, limit, offset int) ([]entity.Board, error)
+func TestGetBoardsByUser(t *testing.T) {
+	ts := setup()
+
+	userID := uuid.New()
+	boards := []entity.Board{
+		{
+			ID:     uuid.New(),
+			UserID: userID,
+			Title:  "Board 1",
+		},
+		{
+			ID:     uuid.New(),
+			UserID: userID,
+			Title:  "Board 2",
+		},
+		{
+			ID:     uuid.New(),
+			UserID: userID,
+			Title:  "Board 3",
+		},
+		{
+			ID:     uuid.New(),
+			UserID: userID,
+			Title:  "Board 4",
+		},
+		{
+			ID:     uuid.New(),
+			UserID: userID,
+			Title:  "Board 5",
+		},
+	}
+
+	tests := []struct {
+		name          string
+		userID        uuid.UUID
+		limit, offset int
+		boards        []entity.Board
+		mockRepoFn    func(userID uuid.UUID, limit, offset int, boards []entity.Board)
+		wantErr       bool
+		errMsg        string
+	}{
+		{
+			name:   "success, all",
+			userID: userID,
+			limit:  5,
+			offset: 0,
+			boards: boards[0:5],
+			mockRepoFn: func(userID uuid.UUID, limit, offset int, boards []entity.Board) {
+				ts.mockBoardRepo.On("GetBoardsByUser", ts.ctx, userID, limit, offset).Return(boards, nil)
+			},
+			wantErr: false,
+		},
+		{
+			name:   "success, skip first",
+			userID: userID,
+			limit:  4,
+			offset: 1,
+			boards: boards[1:5],
+			mockRepoFn: func(userID uuid.UUID, limit, offset int, boards []entity.Board) {
+				ts.mockBoardRepo.On("GetBoardsByUser", ts.ctx, userID, limit, offset).Return(boards, nil)
+			},
+			wantErr: false,
+		},
+		{
+			name:   "success, skip first and two last",
+			userID: userID,
+			limit:  2,
+			offset: 1,
+			boards: boards[1:3],
+			mockRepoFn: func(userID uuid.UUID, limit, offset int, boards []entity.Board) {
+				ts.mockBoardRepo.On("GetBoardsByUser", ts.ctx, userID, limit, offset).Return(boards, nil)
+			},
+			wantErr: false,
+		},
+		{
+			name:       "negative limit",
+			userID:     userID,
+			limit:      -5,
+			offset:     0,
+			boards:     boards,
+			mockRepoFn: func(boardID uuid.UUID, limit, offset int, boards []entity.Board) {},
+			wantErr:    true,
+			errMsg:     v1.ErrNegativeLimitOrOffset.Error(),
+		},
+		{
+			name:       "negative offset",
+			userID:     userID,
+			limit:      5,
+			offset:     -1,
+			boards:     boards,
+			mockRepoFn: func(boardID uuid.UUID, limit, offset int, boards []entity.Board) {},
+			wantErr:    true,
+			errMsg:     v1.ErrNegativeLimitOrOffset.Error(),
+		},
+		{
+			name:       "zero limit",
+			userID:     userID,
+			limit:      0,
+			offset:     0,
+			boards:     boards,
+			mockRepoFn: func(boardID uuid.UUID, limit, offset int, boards []entity.Board) {},
+			wantErr:    true,
+			errMsg:     v1.ErrZeroLimit.Error(),
+		},
+		{
+			name:   "failed to get boards by user (not found for example)",
+			userID: uuid.New(),
+			limit:  5,
+			offset: 0,
+			boards: boards,
+			mockRepoFn: func(userID uuid.UUID, limit, offset int, boards []entity.Board) {
+				ts.mockBoardRepo.On("GetBoardsByUser", ts.ctx, userID, limit, offset).Return(nil, errors.New(""))
+			},
+			wantErr: true,
+			errMsg:  v1.ErrGetBoardsByUser.Error(),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			tt.mockRepoFn(tt.userID, tt.limit, tt.offset, tt.boards)
+
+			var err error
+			boards, err := ts.todoUseCase.GetBoardsByUser(ts.ctx, tt.userID, tt.limit, tt.offset)
+
+			if tt.wantErr {
+				assert.NotNil(t, err)
+				assert.EqualError(t, err, tt.errMsg)
+			} else {
+				assert.Nil(t, err)
+				assert.Equal(t, boards, tt.boards)
+				ts.mockBoardRepo.AssertCalled(t, "GetBoardsByUser", ts.ctx, mock.Anything, mock.Anything, mock.Anything)
+			}
+		})
+	}
+}
+
 // UpdateBoard(ctx context.Context, board *entity.Board) error
 func TestUpdateBoard(t *testing.T) {
 	ts := setup()

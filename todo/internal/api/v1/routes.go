@@ -9,6 +9,7 @@ import (
 func InitializeV1Routes(router *mux.Router, todoHandler *v1.TodoHandler) {
 	router.HandleFunc("/api/v1/boards", todoHandler.CreateBoard).Methods("POST")
 	router.HandleFunc("/api/v1/boards/{id}", todoHandler.GetBoardByID).Methods("GET")
+	router.HandleFunc("/api/v1/boards", todoHandler.GetBoardsByUser).Methods("GET")
 	router.HandleFunc("/api/v1/boards", todoHandler.UpdateBoard).Methods("PUT")
 	router.HandleFunc("/api/v1/boards", todoHandler.DeleteBoard).Methods("DELETE")
 

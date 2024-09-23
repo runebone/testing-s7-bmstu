@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 	"time"
-	"user/internal/common/logger"
+	"todo/internal/common/logger"
 )
 
 type LoggingMiddleware struct {

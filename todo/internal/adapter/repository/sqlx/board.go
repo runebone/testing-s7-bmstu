@@ -18,8 +18,8 @@ func NewSQLXBoardRepository(db *sqlx.DB) *SQLXBoardRepository {
 
 func (r *SQLXBoardRepository) CreateBoard(ctx context.Context, board *entity.Board) error {
 	query := `
-    INSERT INTO boards (id, user_id, title, description, created_at, updated_at)
-	VALUES (:id, :user_id, :title, :description, :created_at, :updated_at)
+    INSERT INTO boards (id, user_id, title, created_at, updated_at)
+	VALUES (:id, :user_id, :title, :created_at, :updated_at)
     `
 
 	_, err := r.db.NamedExecContext(ctx, query, board)
@@ -64,7 +64,6 @@ func (r *SQLXBoardRepository) UpdateBoard(ctx context.Context, board *entity.Boa
 	query := `
     UPDATE boards SET
 	title = :title
-	description = :description
 	updated_at = :updated_at
     WHERE id = :id
     `

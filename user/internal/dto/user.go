@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"time"
 	"user/internal/entity"
 
 	"github.com/google/uuid"
@@ -11,6 +12,7 @@ type UserDTO struct {
 	Username     string    `json:"username"`
 	Email        string    `json:"email"`
 	PasswordHash string    `json:"password_hash"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 
 type CreateUserDTO struct {
@@ -30,6 +32,7 @@ func ToUserDTO(user entity.User) UserDTO {
 		Username:     user.Username,
 		Email:        user.Email,
 		PasswordHash: user.PasswordHash,
+		CreatedAt:    user.CreatedAt,
 	}
 }
 

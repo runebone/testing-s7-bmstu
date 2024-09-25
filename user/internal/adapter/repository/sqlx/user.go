@@ -90,7 +90,7 @@ func (r *SQLXUserRepository) GetNewUsers(ctx context.Context, from time.Time, to
 	var users []entity.User
 	query := `
 	SELECT * FROM users
-	WHERE $1 <= created_at <= $2
+	WHERE $1 <= created_at AND created_at <= $2
 	`
 
 	err := r.db.SelectContext(ctx, &users, query, from, to)

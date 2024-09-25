@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"time"
 	"todo/internal/entity"
 
 	"github.com/google/uuid"
@@ -16,10 +17,12 @@ type CreateCardRequest struct {
 
 type Card struct {
 	ID          uuid.UUID `json:"id"`
+	UserID      uuid.UUID `json:"user_id"`
 	ColumnID    uuid.UUID `json:"column_id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description,omitempty"`
 	Position    float64   `json:"position"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 type UpdateCardRequest struct {
@@ -33,10 +36,12 @@ type UpdateCardRequest struct {
 func ToCardDTO(card *entity.Card) Card {
 	return Card{
 		ID:          card.ID,
+		UserID:      card.UserID,
 		ColumnID:    card.ColumnID,
 		Title:       card.Title,
 		Description: card.Description,
 		Position:    card.Position,
+		CreatedAt:   card.CreatedAt,
 	}
 }
 

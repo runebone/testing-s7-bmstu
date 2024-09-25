@@ -52,7 +52,7 @@ func (r *SQLXCardRepository) GetCardsByColumn(ctx context.Context, columnID uuid
 	`
 
 	var cards []entity.Card
-	err := r.db.SelectContext(ctx, cards, query, columnID, limit, offset)
+	err := r.db.SelectContext(ctx, &cards, query, columnID, limit, offset)
 
 	if err != nil {
 		return nil, err

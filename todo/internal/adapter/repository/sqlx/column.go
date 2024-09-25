@@ -51,7 +51,7 @@ func (r *SQLXColumnRepository) GetColumnsByBoard(ctx context.Context, boardID uu
 	`
 
 	var columns []entity.Column
-	err := r.db.SelectContext(ctx, columns, query, boardID, limit, offset)
+	err := r.db.SelectContext(ctx, &columns, query, boardID, limit, offset)
 
 	if err != nil {
 		return nil, err

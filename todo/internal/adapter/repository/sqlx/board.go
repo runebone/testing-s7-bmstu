@@ -51,7 +51,7 @@ func (r *SQLXBoardRepository) GetBoardsByUser(ctx context.Context, userID uuid.U
 	`
 
 	var boards []entity.Board
-	err := r.db.SelectContext(ctx, boards, query, userID, limit, offset)
+	err := r.db.SelectContext(ctx, &boards, query, userID, limit, offset)
 
 	if err != nil {
 		return nil, err

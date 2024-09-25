@@ -141,6 +141,34 @@ func (h *UserHandler) GetUsersBatch(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(userDTOs)
 }
 
+func (h *UserHandler) GetNewUsers(w http.ResponseWriter, r *http.Request) {
+	layout := "02-01-2006" // DD-MM-YYYY
+
+	fromParam := r.URL.Query().Get("from")
+	from, err := time.Parse(layout, fromParam)
+	if err != nil {
+		http.Error(w, "Invalid <<from>> date", http.StatusBadRequest)
+		return
+	}
+
+	toParam := r.URL.Query().Get("to")
+	to, err := time.Parse(layout, toParam)
+	if err != nil {
+		http.Error(w, "Invalid <<to>> date", http.StatusBadRequest)
+		return
+	}
+
+	users, err := h.userUseCase.GetNewUsers(r.Context(), from, to)
+	if err != nil {
+		http.Error(w, "New users not found", http.StatusNotFound)
+		return
+	}
+
+	userDTOs := dto.ToUserDTOs(users)
+
+	json.NewEncoder(w).Encode(userDTOs)
+}
+
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	var input dto.UpdateUserDTO
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {

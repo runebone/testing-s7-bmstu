@@ -4,12 +4,17 @@ import (
 	"context"
 	"errors"
 	"regexp"
+	"time"
 	"user/internal/entity"
 	"user/internal/repository"
 	"user/internal/usecase"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+)
+
+var (
+	ErrInvalidFromTo = errors.New("<<to>> date should be not less than <<from>>")
 )
 
 type userUseCase struct {
@@ -114,6 +119,14 @@ func (u *userUseCase) GetUsersBatch(ctx context.Context, limit, offset int) ([]e
 	}
 
 	return u.repo.GetUsersBatch(ctx, limit, offset)
+}
+
+func (u *userUseCase) GetNewUsers(ctx context.Context, from time.Time, to time.Time) ([]entity.User, error) {
+	if from.Unix() > to.Unix() {
+		return nil, ErrInvalidFromTo
+	}
+
+	return u.repo.GetNewUsers(ctx, from, to)
 }
 
 func (u *userUseCase) UpdateUser(ctx context.Context, user *entity.User) error {

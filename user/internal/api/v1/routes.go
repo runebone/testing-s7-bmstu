@@ -8,6 +8,7 @@ import (
 
 func InitializeV1Routes(router *mux.Router, userHandler *v1.UserHandler) {
 	router.HandleFunc("/api/v1/users", userHandler.CreateUser).Methods("POST")
+	router.HandleFunc("/api/v1/users/new", userHandler.GetNewUsers).Methods("GET")
 	router.HandleFunc("/api/v1/users/{id}", userHandler.GetUserByID).Methods("GET")
 	router.HandleFunc("/api/v1/users", userHandler.GetUsers).Methods("GET")
 	// TODO: GetUsersBatch

@@ -10,6 +10,8 @@ import (
 
 	repository "user/internal/repository"
 
+	time "time"
+
 	uuid "github.com/google/uuid"
 )
 
@@ -52,6 +54,36 @@ func (_m *UserUseCase) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	}
 
 	return r0
+}
+
+// GetNewUsers provides a mock function with given fields: ctx, from, to
+func (_m *UserUseCase) GetNewUsers(ctx context.Context, from time.Time, to time.Time) ([]entity.User, error) {
+	ret := _m.Called(ctx, from, to)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetNewUsers")
+	}
+
+	var r0 []entity.User
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, time.Time, time.Time) ([]entity.User, error)); ok {
+		return rf(ctx, from, to)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, time.Time, time.Time) []entity.User); ok {
+		r0 = rf(ctx, from, to)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]entity.User)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, time.Time, time.Time) error); ok {
+		r1 = rf(ctx, from, to)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // GetUserByID provides a mock function with given fields: ctx, id

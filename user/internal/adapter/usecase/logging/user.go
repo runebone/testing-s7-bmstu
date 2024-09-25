@@ -81,6 +81,20 @@ func (l *LoggingUserUseCase) GetUsersBatch(ctx context.Context, limit, offset in
 	return users, nil
 }
 
+func (l *LoggingUserUseCase) GetNewUsers(ctx context.Context, from time.Time, to time.Time) ([]entity.User, error) {
+	start := time.Now()
+	l.logger.Info(ctx, "GetUsersNew called", "from", from, "to", to)
+
+	users, err := l.useCase.GetNewUsers(ctx, from, to)
+	if err != nil {
+		l.logger.Error(ctx, "GetUsersNew failed", "error", err)
+		return nil, err
+	}
+
+	l.logger.Info(ctx, "GetUsersNew succeeded", "duration", time.Since(start))
+	return users, nil
+}
+
 func (l *LoggingUserUseCase) UpdateUser(ctx context.Context, user *entity.User) error {
 	start := time.Now()
 	l.logger.Info(ctx, "UpdateUser called", "user_id", user.ID)

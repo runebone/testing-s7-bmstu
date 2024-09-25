@@ -3,7 +3,9 @@ package v1_test
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
+	"time"
 	"user/internal/entity"
 	"user/internal/repository"
 	"user/internal/usecase"
@@ -448,6 +450,93 @@ func TestGetUsersBatch(t *testing.T) {
 				assert.Equal(t, users, tt.users)
 				ts.mockRepo.AssertCalled(t, "GetUsersBatch", ts.ctx, mock.Anything, mock.Anything)
 			}
+		})
+	}
+}
+
+func TestGetNewUsers(t *testing.T) {
+	ts := setup()
+
+	users := []entity.User{
+		{
+			ID:       uuid.New(),
+			Username: "Username1",
+			Email:    "email1@test.com",
+		},
+		{
+			ID:       uuid.New(),
+			Username: "Username2",
+			Email:    "email2@test.com",
+		},
+	}
+
+	fromTime := time.Date(2023, 9, 1, 0, 0, 0, 0, time.UTC)
+	toTime := time.Date(2023, 9, 30, 23, 59, 59, 0, time.UTC)
+
+	mockRepoFnOk := func(from, to time.Time, users []entity.User) {
+		ts.mockRepo.On("GetNewUsers", ts.ctx, from, to).Return(users, nil)
+	}
+
+	tests := []struct {
+		name       string
+		users      []entity.User
+		from, to   time.Time
+		mockRepoFn func(from, to time.Time, users []entity.User)
+		wantErr    bool
+		errMsg     string
+	}{
+		{
+			name:       "success - get users within date range",
+			users:      users,
+			from:       fromTime,
+			to:         toTime,
+			mockRepoFn: mockRepoFnOk,
+			wantErr:    false,
+		},
+		{
+			name:       "fail - 'from' date is after 'to' date",
+			from:       toTime,
+			to:         fromTime,
+			mockRepoFn: func(from, to time.Time, users []entity.User) {},
+			wantErr:    true,
+			errMsg:     v1.ErrInvalidFromTo.Error(),
+		},
+		{
+			name:       "success - no users in date range",
+			users:      []entity.User{},
+			from:       fromTime,
+			to:         toTime,
+			mockRepoFn: mockRepoFnOk,
+			wantErr:    false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// t.Parallel()
+			tt.mockRepoFn(tt.from, tt.to, tt.users)
+
+			fmt.Println(tt.name, tt.users)
+
+			users, err := ts.userUseCase.GetNewUsers(ts.ctx, tt.from, tt.to)
+
+			if tt.wantErr {
+				assert.NotNil(t, err)
+				assert.EqualError(t, err, tt.errMsg)
+				ts.mockRepo.AssertNotCalled(t, "GetNewUsers")
+			} else {
+				assert.Nil(t, err)
+				assert.Equal(t, tt.users, users)
+				ts.mockRepo.AssertCalled(t, "GetNewUsers", ts.ctx, mock.Anything, mock.Anything)
+			}
+
+			// TODO: Probably add this to some other tests and remove Parallel(),
+			// because mockRepo.On(...) is hardcoded throughout the test suit, so
+			// it will always expect A if mockRepo.On(...).Return(A) was called first.
+			t.Cleanup(func() {
+				ts.mockRepo.ExpectedCalls = nil
+				ts.mockRepo.Calls = nil
+			})
 		})
 	}
 }

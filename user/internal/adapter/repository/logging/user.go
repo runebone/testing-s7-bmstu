@@ -130,6 +130,37 @@ func (l *LoggingUserRepository) GetUsersBatch(ctx context.Context, limit, offset
 	return users, nil
 }
 
+func (l *LoggingUserRepository) GetNewUsers(ctx context.Context, from time.Time, to time.Time) ([]entity.User, error) {
+	start := time.Now()
+
+	l.logger.WithFields(map[string]interface{}{
+		"action": "GetNewUsers",
+		"from":   from,
+		"to":     to,
+	}).Info(ctx, "Fetching new users")
+
+	users, err := l.repo.GetNewUsers(ctx, from, to)
+
+	if err != nil {
+		l.logger.WithFields(map[string]interface{}{
+			"action": "GetNewUsers",
+			"from":   from,
+			"to":     to,
+			"error":  err.Error(),
+		}).Error(ctx, "Failed to fetch new users")
+		return nil, err
+	}
+
+	l.logger.WithFields(map[string]interface{}{
+		"action":   "GetNewUsers",
+		"from":     from,
+		"to":       to,
+		"duration": time.Since(start),
+	}).Info(ctx, "New users fetched successfully")
+
+	return users, nil
+}
+
 func (l *LoggingUserRepository) UpdateUser(ctx context.Context, user *entity.User) error {
 	start := time.Now()
 

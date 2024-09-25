@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"time"
 	"user/internal/entity"
 	"user/internal/repository"
 
@@ -82,6 +83,21 @@ func (r *SQLXUserRepository) GetUsersBatch(ctx context.Context, limit, offset in
 	if err != nil {
 		return nil, err
 	}
+	return users, nil
+}
+
+func (r *SQLXUserRepository) GetNewUsers(ctx context.Context, from time.Time, to time.Time) ([]entity.User, error) {
+	var users []entity.User
+	query := `
+	SELECT * FROM users
+	WHERE $1 <= created_at <= $2
+	`
+
+	err := r.db.SelectContext(ctx, &users, query, from, to)
+	if err != nil {
+		return nil, err
+	}
+
 	return users, nil
 }
 

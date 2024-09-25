@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 	"todo/internal/entity"
 
 	"github.com/google/uuid"
@@ -84,4 +85,20 @@ func (r *SQLXCardRepository) DeleteCard(ctx context.Context, id uuid.UUID) error
 	_, err := r.db.ExecContext(ctx, query, id)
 
 	return err
+}
+
+func (r *SQLXCardRepository) GetNewCards(ctx context.Context, from, to time.Time) ([]entity.Card, error) {
+	query := `
+	SELECT FROM cards
+	WHERE $1 <= created_at AND created_at <= $2
+	`
+
+	var cards []entity.Card
+	err := r.db.SelectContext(ctx, &cards, query, from, to)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return cards, nil
 }

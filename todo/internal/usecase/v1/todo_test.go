@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 	"todo/internal/entity"
 	"todo/internal/usecase"
 	v1 "todo/internal/usecase/v1"
@@ -1172,6 +1173,89 @@ func TestGetCardsByColumn(t *testing.T) {
 				assert.Equal(t, cards, tt.cards)
 				ts.mockCardRepo.AssertCalled(t, "GetCardsByColumn", ts.ctx, mock.Anything, mock.Anything, mock.Anything)
 			}
+		})
+	}
+}
+
+func TestGetNewCards(t *testing.T) {
+	ts := setup()
+
+	cards := []entity.Card{
+		{
+			ID:    uuid.New(),
+			Title: "Card 1",
+		},
+		{
+			ID:    uuid.New(),
+			Title: "Card 2",
+		},
+		{
+			ID:    uuid.New(),
+			Title: "Card 3",
+		},
+	}
+
+	fromTime := time.Date(2023, 9, 1, 0, 0, 0, 0, time.UTC)
+	toTime := time.Date(2023, 9, 30, 23, 59, 59, 0, time.UTC)
+
+	mockRepoFnOk := func(from, to time.Time, cards []entity.Card) {
+		ts.mockCardRepo.On("GetNewCards", ts.ctx, from, to).Return(cards, nil)
+	}
+
+	tests := []struct {
+		name       string
+		from, to   time.Time
+		cards      []entity.Card
+		mockRepoFn func(from, to time.Time, cards []entity.Card)
+		wantErr    bool
+		errMsg     string
+	}{
+		{
+			name:       "success, all",
+			from:       fromTime,
+			to:         toTime,
+			cards:      cards,
+			mockRepoFn: mockRepoFnOk,
+			wantErr:    false,
+		},
+		{
+			name:       "invalid time range (from greater than to)",
+			from:       toTime,
+			to:         fromTime,
+			cards:      cards,
+			mockRepoFn: func(from, to time.Time, cards []entity.Card) {},
+			wantErr:    true,
+			errMsg:     v1.ErrInvalidTimeRange.Error(),
+		},
+		{
+			name:       "success, but no cards found",
+			from:       fromTime,
+			to:         toTime,
+			cards:      []entity.Card{},
+			mockRepoFn: mockRepoFnOk,
+			wantErr:    false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mockRepoFn(tt.from, tt.to, tt.cards)
+
+			cards, err := ts.todoUseCase.GetNewCards(ts.ctx, tt.from, tt.to)
+
+			if tt.wantErr {
+				assert.NotNil(t, err)
+				assert.EqualError(t, err, tt.errMsg)
+			} else {
+				assert.Nil(t, err)
+				assert.Equal(t, cards, tt.cards)
+				ts.mockCardRepo.AssertCalled(t, "GetNewCards", ts.ctx, mock.Anything, mock.Anything, mock.Anything)
+			}
+
+			t.Cleanup(func() {
+				ts.mockCardRepo.ExpectedCalls = nil
+				ts.mockCardRepo.Calls = nil
+			})
 		})
 	}
 }

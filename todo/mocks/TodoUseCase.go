@@ -8,6 +8,8 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 
+	time "time"
+
 	uuid "github.com/google/uuid"
 )
 
@@ -297,6 +299,36 @@ func (_m *TodoUseCase) GetColumnsByBoard(ctx context.Context, boardID uuid.UUID,
 
 	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID, int, int) error); ok {
 		r1 = rf(ctx, boardID, limit, offset)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetNewCards provides a mock function with given fields: ctx, from, to
+func (_m *TodoUseCase) GetNewCards(ctx context.Context, from time.Time, to time.Time) ([]entity.Card, error) {
+	ret := _m.Called(ctx, from, to)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetNewCards")
+	}
+
+	var r0 []entity.Card
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, time.Time, time.Time) ([]entity.Card, error)); ok {
+		return rf(ctx, from, to)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, time.Time, time.Time) []entity.Card); ok {
+		r0 = rf(ctx, from, to)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]entity.Card)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, time.Time, time.Time) error); ok {
+		r1 = rf(ctx, from, to)
 	} else {
 		r1 = ret.Error(1)
 	}

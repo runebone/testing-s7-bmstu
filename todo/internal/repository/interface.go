@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 	"todo/internal/entity"
 
 	"github.com/google/uuid"
@@ -27,6 +28,7 @@ type CardRepository interface {
 	CreateCard(ctx context.Context, card *entity.Card) error
 	GetCardByID(ctx context.Context, id uuid.UUID) (*entity.Card, error)
 	GetCardsByColumn(ctx context.Context, columnID uuid.UUID, limit, offset int) ([]entity.Card, error)
+	GetNewCards(ctx context.Context, from, to time.Time) ([]entity.Card, error)
 	UpdateCard(ctx context.Context, card *entity.Card) error
 	DeleteCard(ctx context.Context, id uuid.UUID) error
 }

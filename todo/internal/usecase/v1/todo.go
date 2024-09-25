@@ -3,6 +3,7 @@ package v1
 import (
 	"context"
 	"errors"
+	"time"
 	"todo/internal/entity"
 	"todo/internal/repository"
 	"todo/internal/usecase"
@@ -35,6 +36,8 @@ var (
 	ErrGetCardsByColumn       = errors.New("failed to get cards by column")
 	ErrUpdateCard             = errors.New("failed to update card")
 	ErrDeleteCard             = errors.New("failed to delete card")
+	ErrInvalidTimeRange       = errors.New("<<from>> cannot be greater than <<to>> date")
+	ErrGetNewCards            = errors.New("failed to get new cards")
 )
 
 type todoUseCase struct {
@@ -279,6 +282,30 @@ func (uc *todoUseCase) GetCardsByColumn(ctx context.Context, columnID uuid.UUID,
 	}
 
 	return cards, nil
+}
+
+func (uc *todoUseCase) GetNewCards(ctx context.Context, from, to time.Time) ([]entity.Card, error) {
+	err := validateFromToDate(from, to)
+
+	if err != nil {
+		return nil, err
+	}
+
+	cards, err := uc.cardRepo.GetNewCards(ctx, from, to)
+
+	if err != nil {
+		return nil, ErrGetNewCards
+	}
+
+	return cards, nil
+}
+
+func validateFromToDate(from, to time.Time) error {
+	if from.Unix() > to.Unix() {
+		return ErrInvalidTimeRange
+	}
+
+	return nil
 }
 
 func (uc *todoUseCase) UpdateCard(ctx context.Context, card *entity.Card) error {

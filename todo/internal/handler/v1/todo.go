@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
 	"todo/internal/config"
 	"todo/internal/dto"
 	"todo/internal/entity"
@@ -18,6 +19,8 @@ var (
 	ErrInvalidBoardID  = "invalid board id"
 	ErrInvalidColumnID = "invalid column id"
 	ErrInvalidCardID   = "invalid card id"
+	ErrInvalidFromDate = "invalid <<from>> date"
+	ErrInvalidToDate   = "invalid <<to>> date"
 )
 
 type TodoHandler struct {
@@ -357,6 +360,34 @@ func (h *TodoHandler) GetCardsByColumn(w http.ResponseWriter, r *http.Request) {
 	cards, err := h.todoUseCase.GetCardsByColumn(r.Context(), id, limit, offset)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	cardDTOs := dto.ToCardDTOs(cards)
+
+	json.NewEncoder(w).Encode(cardDTOs)
+}
+
+func (h *TodoHandler) GetNewCards(w http.ResponseWriter, r *http.Request) {
+	layout := "02-01-2006" // DD-MM-YYYY
+
+	fromParam := r.URL.Query().Get("from")
+	from, err := time.Parse(layout, fromParam)
+	if err != nil {
+		http.Error(w, ErrInvalidFromDate, http.StatusBadRequest)
+		return
+	}
+
+	toParam := r.URL.Query().Get("to")
+	to, err := time.Parse(layout, toParam)
+	if err != nil {
+		http.Error(w, ErrInvalidToDate, http.StatusBadRequest)
+		return
+	}
+
+	cards, err := h.todoUseCase.GetNewCards(r.Context(), from, to)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 

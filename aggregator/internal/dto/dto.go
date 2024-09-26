@@ -14,12 +14,20 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-func UserToEntity(userDTO User) *entity.User {
-	return &entity.User{
+func UserToEntity(userDTO *User) entity.User {
+	return entity.User{
 		ID:       userDTO.ID,
 		Username: userDTO.Username,
 		Email:    userDTO.Email,
 	}
+}
+
+func ToUserEntities(userDTOs []User) []entity.User {
+	users := make([]entity.User, len(userDTOs))
+	for i, userDTO := range userDTOs {
+		users[i] = UserToEntity(&userDTO)
+	}
+	return users
 }
 
 type Card struct {
@@ -30,11 +38,19 @@ type Card struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-func CardToEntity(cardDTO Card) *entity.Card {
-	return &entity.Card{
+func CardToEntity(cardDTO *Card) entity.Card {
+	return entity.Card{
 		ID:          cardDTO.ID,
 		UserID:      cardDTO.UserID,
 		Title:       cardDTO.Title,
 		Description: cardDTO.Description,
 	}
+}
+
+func ToCardEntities(cardDTOs []Card) []entity.Card {
+	cards := make([]entity.Card, len(cardDTOs))
+	for i, cardDTO := range cardDTOs {
+		cards[i] = CardToEntity(&cardDTO)
+	}
+	return cards
 }

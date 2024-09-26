@@ -15,9 +15,10 @@ import (
 )
 
 var (
-	ErrInvalidTimeRange error = errors.New("<<from>> should be not greater than <<to>>")
-	ErrGetNewUsers      error = errors.New("failed to get new users")
-	ErrGetNewCards      error = errors.New("failed to get new cards")
+	dateLayout          string = "2006-01-02"
+	ErrInvalidTimeRange error  = errors.New("<<from>> should be not greater than <<to>>")
+	ErrGetNewUsers      error  = errors.New("failed to get new users")
+	ErrGetNewCards      error  = errors.New("failed to get new cards")
 )
 
 type AggregatorUseCase struct {
@@ -44,17 +45,26 @@ func (uc *AggregatorUseCase) GetStats(ctx context.Context, from, to time.Time) (
 		return nil, ErrGetNewUsers
 	}
 
+	dateUsersMap, newUsersMap := getDateUsersAndNewUsersMap(users)
+
 	cards, err := uc.todoSvc.GetNewCards(ctx, from, to)
 	if err != nil {
 		return nil, ErrGetNewCards
 	}
 
-	layout := "2006-01-02"
+	dateCardsMap, numCardsByNewUsersMap := getDateCardsAndNumCardsByNewUsersMap(cards, newUsersMap)
+
+	stats := getStats(dateUsersMap, dateCardsMap, numCardsByNewUsersMap)
+
+	return stats, nil
+}
+
+func getDateUsersAndNewUsersMap(users []dto.User) (map[string][]entity.User, map[uuid.UUID]dto.User) {
 	dateUsersMap := map[string][]entity.User{}
 	newUsersMap := map[uuid.UUID]dto.User{}
 
 	for _, userDTO := range users {
-		dateKey := userDTO.CreatedAt.Format(layout)
+		dateKey := userDTO.CreatedAt.Format(dateLayout)
 		user := dto.UserToEntity(&userDTO)
 
 		dateUsersMap[dateKey] = append(dateUsersMap[dateKey], user)
@@ -62,11 +72,15 @@ func (uc *AggregatorUseCase) GetStats(ctx context.Context, from, to time.Time) (
 		newUsersMap[user.ID] = userDTO
 	}
 
+	return dateUsersMap, newUsersMap
+}
+
+func getDateCardsAndNumCardsByNewUsersMap(cards []dto.Card, newUsersMap map[uuid.UUID]dto.User) (map[string][]entity.Card, map[string]int) {
 	dateCardsMap := map[string][]entity.Card{}
 	numCardsByNewUsersMap := map[string]int{}
 
 	for _, cardDTO := range cards {
-		dateKey := cardDTO.CreatedAt.Format(layout)
+		dateKey := cardDTO.CreatedAt.Format(dateLayout)
 		card := dto.CardToEntity(&cardDTO)
 
 		dateCardsMap[dateKey] = append(dateCardsMap[dateKey], card)
@@ -76,20 +90,16 @@ func (uc *AggregatorUseCase) GetStats(ctx context.Context, from, to time.Time) (
 		}
 	}
 
-	dates := map[string]bool{}
+	return dateCardsMap, numCardsByNewUsersMap
+}
 
-	for k := range dateUsersMap {
-		dates[k] = true
-	}
-
-	for k := range dateCardsMap {
-		dates[k] = true
-	}
-
+func getStats(dateUsersMap map[string][]entity.User, dateCardsMap map[string][]entity.Card, numCardsByNewUsersMap map[string]int) []entity.NewUsersAndCardsStats {
 	stats := []entity.NewUsersAndCardsStats{}
 
+	dates := mergeKeys(dateUsersMap, dateCardsMap)
+
 	for dateKey := range dates {
-		date, _ := time.Parse(layout, dateKey)
+		date, _ := time.Parse(dateLayout, dateKey)
 
 		stat := entity.NewUsersAndCardsStats{
 			Date:               date,
@@ -101,5 +111,19 @@ func (uc *AggregatorUseCase) GetStats(ctx context.Context, from, to time.Time) (
 		stats = append(stats, stat)
 	}
 
-	return stats, nil
+	return stats
+}
+
+func mergeKeys(dateUsersMap map[string][]entity.User, dateCardsMap map[string][]entity.Card) map[string]bool {
+	dates := map[string]bool{}
+
+	for k := range dateUsersMap {
+		dates[k] = true
+	}
+
+	for k := range dateCardsMap {
+		dates[k] = true
+	}
+
+	return dates
 }

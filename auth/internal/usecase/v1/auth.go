@@ -9,11 +9,21 @@ import (
 	"auth/internal/usecase"
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+)
+
+var (
+	ErrIncorrectPassword    error = errors.New("incorrect password")
+	ErrGetAccessToken       error = errors.New("couldn't get access token")
+	ErrGenerateRefreshToken error = errors.New("couldn't generate refresh token")
+	ErrSaveRefreshToken     error = errors.New("couldn't save refresh token")
+	ErrInvalidRefreshToken  error = errors.New("invalid refresh token")
+	ErrGenerateAccessToken  error = errors.New("couldn't generate access token")
+	ErrFindRefreshToken     error = errors.New("couldn't find refresh token")
+	ErrDeleteRefreshToken   error = errors.New("couldn't delete refresh token")
 )
 
 type authUseCase struct {
@@ -37,19 +47,19 @@ func (uc *authUseCase) Login(ctx context.Context, email, password string) (*dto.
 	}
 
 	if !validatePassword(password, user.PasswordHash) {
-		return nil, errors.New("incorrect password")
+		return nil, ErrIncorrectPassword
 	}
 
 	userID := user.ID.String()
 
 	accessToken, err := uc.tokenService.GenerateAccessToken(ctx, userID)
 	if err != nil {
-		return nil, fmt.Errorf("couldn't generate access token: %w", err)
+		return nil, ErrGetAccessToken
 	}
 
 	refreshToken, err := uc.tokenService.GenerateRefreshToken(ctx, userID)
 	if err != nil {
-		return nil, fmt.Errorf("couldn't generate refresh token: %w", err)
+		return nil, ErrGenerateRefreshToken
 	}
 
 	token := &entity.Token{
@@ -60,7 +70,7 @@ func (uc *authUseCase) Login(ctx context.Context, email, password string) (*dto.
 	}
 	err = uc.tokenRepo.Save(ctx, token)
 	if err != nil {
-		return nil, fmt.Errorf("couldn't save refresh token: %w", err)
+		return nil, ErrSaveRefreshToken
 	}
 
 	return &dto.LoginResponse{
@@ -76,12 +86,12 @@ func validatePassword(password, passwordHash string) bool {
 func (uc *authUseCase) Refresh(ctx context.Context, refreshToken string) (*dto.RefreshTokenResponse, error) {
 	userID, err := uc.tokenService.ValidateToken(ctx, refreshToken)
 	if err != nil {
-		return nil, errors.New("invalid refresh token")
+		return nil, ErrInvalidRefreshToken
 	}
 
 	newAccessToken, err := uc.tokenService.GenerateAccessToken(ctx, userID)
 	if err != nil {
-		return nil, fmt.Errorf("couldn't generate access token: %w", err)
+		return nil, ErrGenerateAccessToken
 	}
 
 	return &dto.RefreshTokenResponse{
@@ -92,14 +102,14 @@ func (uc *authUseCase) Refresh(ctx context.Context, refreshToken string) (*dto.R
 func (uc *authUseCase) Logout(ctx context.Context, refreshToken string) error {
 	token, err := uc.tokenRepo.FindByToken(ctx, refreshToken)
 	if err != nil {
-		return errors.New("couldn't find refresh token")
+		return ErrFindRefreshToken
 	}
 
 	tokenID := token.ID.String()
 
 	err = uc.tokenRepo.Delete(ctx, tokenID)
 	if err != nil {
-		return errors.New("couldn't delete refresh token")
+		return ErrDeleteRefreshToken
 	}
 
 	return nil

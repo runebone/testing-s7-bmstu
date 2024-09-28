@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: nigger
+      POSTGRES_DB: auth_db
+    ports:
+      - "5002:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - local-network
+
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./migrations/sql:/migrations
+    depends_on:
+      - postgres
+    networks:
+      - local-network
+    entrypoint: ["migrate", "-path=/migrations", "-database", "postgres://postgres:nigger@postgres:5432/auth_db?sslmode=disable", "up"]
+
+  auth-service:
+    container_name: authservice
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8080"
+    depends_on:
+      - postgres
+    networks:
+      - local-network
+      - shared-network
+    environment:
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: nigger
+      DATABASE_NAME: auth_db
+      DATABASE_SSLMODE: disable
+    command: ["./auth-service"]
+
+volumes:
+  postgres_data:
+
+networks:
+  local-network:
+  shared-network:
+    external: true

@@ -1,0 +1,11 @@
+[database]
+host = "localhost"
+port = 5003
+user = "postgres"
+password = "nigger"
+dbname = "todo_db"
+sslmode = "disable"
+
+[pagination]
+default_limit = 10
+default_offset = 0

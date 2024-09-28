@@ -1,0 +1,10 @@
+[database]
+host = "localhost"
+port = 5001
+user = "postgres"
+password = "nigger"
+dbname = "user_db"
+sslmode = "disable"
+
+[logger]
+level = "info"

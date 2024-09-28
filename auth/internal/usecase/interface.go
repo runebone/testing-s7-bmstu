@@ -6,7 +6,9 @@ import (
 )
 
 type AuthUsecase interface {
-	Login(ctx context.Context, username, password string) (*dto.LoginResponse, error)
+	Login(ctx context.Context, email, password string) (*dto.LoginResponse, error)
 	Refresh(ctx context.Context, refreshToken string) (*dto.RefreshTokenResponse, error)
+	// TODO: ValidateToken(ctx context.Context, token string) (string, error) // userID
+	// TODO: GetAccessToken(ctx context.Context, userID string) ()
 	Logout(ctx context.Context, refreshToken string) error
 }

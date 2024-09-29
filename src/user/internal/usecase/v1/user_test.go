@@ -163,7 +163,7 @@ func TestCreateUser(t *testing.T) {
 			t.Parallel()
 			tt.mockRepoFn()
 
-			err := ts.userUseCase.CreateUser(ts.ctx, tt.user)
+			err := ts.userUseCase.CreateUser(ts.ctx, *tt.user)
 
 			if tt.wantErr {
 				assert.NotNil(t, err)

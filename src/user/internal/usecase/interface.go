@@ -10,7 +10,7 @@ import (
 )
 
 type UserUseCase interface {
-	CreateUser(ctx context.Context, user *entity.User) error
+	CreateUser(ctx context.Context, user entity.User) error
 	GetUserByID(ctx context.Context, id uuid.UUID) (*entity.User, error)
 	GetUsers(ctx context.Context, filter repository.UserFilter) ([]entity.User, error)
 	GetUsersBatch(ctx context.Context, limit, offset int) ([]entity.User, error)

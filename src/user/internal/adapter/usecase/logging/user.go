@@ -25,7 +25,7 @@ func NewLoggingUserUseCase(u usecase.UserUseCase, l logger.Logger) usecase.UserU
 	}
 }
 
-func (l *LoggingUserUseCase) CreateUser(ctx context.Context, user *entity.User) error {
+func (l *LoggingUserUseCase) CreateUser(ctx context.Context, user entity.User) error {
 	start := time.Now()
 	l.logger.Info(ctx, "CreateUser called", "user_id", user.ID)
 

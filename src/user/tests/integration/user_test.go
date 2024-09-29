@@ -77,6 +77,7 @@ func TestMain(m *testing.M) {
 			"POSTGRES_USER":     "testuser",
 			"POSTGRES_PASSWORD": "testpass",
 			"POSTGRES_DB":       "testdb",
+			"TZ":                "Europe/Moscow",
 		},
 		WaitingFor: wait.ForListeningPort("5432/tcp"),
 	}

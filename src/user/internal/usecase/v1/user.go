@@ -130,9 +130,9 @@ func (u *userUseCase) GetNewUsers(ctx context.Context, from time.Time, to time.T
 }
 
 func (u *userUseCase) UpdateUser(ctx context.Context, user *entity.User) error {
-	existing_user, _ := u.repo.GetUserByID(ctx, user.ID)
+	existingUser, _ := u.repo.GetUserByID(ctx, user.ID)
 
-	if existing_user == nil {
+	if existingUser == nil {
 		return errors.New("user does not exist")
 	}
 
@@ -140,9 +140,9 @@ func (u *userUseCase) UpdateUser(ctx context.Context, user *entity.User) error {
 }
 
 func (u *userUseCase) DeleteUser(ctx context.Context, id uuid.UUID) error {
-	existing_user, _ := u.repo.GetUserByID(ctx, id)
+	existingUser, _ := u.repo.GetUserByID(ctx, id)
 
-	if existing_user == nil {
+	if existingUser == nil {
 		return errors.New("user does not exist")
 	}
 

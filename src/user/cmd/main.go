@@ -5,9 +5,7 @@ import (
 	"net/http"
 	"user/internal/adapter/database"
 	"user/internal/adapter/logger"
-	loggingRepo "user/internal/adapter/repository/logging"
 	sqlxRepo "user/internal/adapter/repository/sqlx"
-	loggingUseCase "user/internal/adapter/usecase/logging"
 	api "user/internal/api/v1"
 	"user/internal/config"
 	handler "user/internal/handler/v1"
@@ -31,11 +29,8 @@ func main() {
 		return
 	}
 
-	baseRepo := sqlxRepo.NewSQLXUserRepository(db)
-	repo := loggingRepo.NewLoggingUserRepository(baseRepo, logger)
-
-	userUC := usecase.NewUserUseCase(repo)
-	uc := loggingUseCase.NewLoggingUserUseCase(userUC, logger)
+	repo := sqlxRepo.NewSQLXUserRepository(db)
+	uc := usecase.NewUserUseCase(repo)
 
 	userHandler := handler.NewUserHandler(uc)
 	router := mux.NewRouter()

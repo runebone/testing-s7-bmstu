@@ -5,7 +5,6 @@ import (
 	"time"
 	"user/internal/common/logger"
 	"user/internal/entity"
-	"user/internal/repository"
 	r "user/internal/repository"
 
 	"github.com/google/uuid"
@@ -75,7 +74,7 @@ func (l *LoggingUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (
 	return user, nil
 }
 
-func (l *LoggingUserRepository) GetUsers(ctx context.Context, filter repository.UserFilter) ([]entity.User, error) {
+func (l *LoggingUserRepository) GetUsers(ctx context.Context, filter r.UserFilter) ([]entity.User, error) {
 	start := time.Now()
 
 	l.logger.WithFields(map[string]interface{}{

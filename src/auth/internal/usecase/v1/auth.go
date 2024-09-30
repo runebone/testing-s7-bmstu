@@ -25,6 +25,7 @@ var (
 	ErrFindRefreshToken     error = errors.New("couldn't find refresh token")
 	ErrDeleteRefreshToken   error = errors.New("couldn't delete refresh token")
 	ErrCreateUser           error = errors.New("couldn't create user")
+	ErrValidateToken        error = errors.New("couldn't validate token")
 )
 
 type authUseCase struct {
@@ -112,8 +113,14 @@ func (uc *authUseCase) Refresh(ctx context.Context, refreshToken string) (*dto.R
 	}, nil
 }
 
-func (uc *authUseCase) ValidateToken(ctx context.Context, token string) error {
-	return nil
+func (uc *authUseCase) ValidateToken(ctx context.Context, token string) (string, string, error) {
+	userID, role, err := uc.tokenService.ValidateToken(ctx, token)
+
+	if err != nil {
+		return "", "", ErrValidateToken
+	}
+
+	return userID, role, nil
 }
 
 func (uc *authUseCase) Logout(ctx context.Context, refreshToken string) error {

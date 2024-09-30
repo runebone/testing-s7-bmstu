@@ -9,6 +9,15 @@ type LogoutRequest struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
+type ValidateTokenRequest struct {
+	Token string `json:"token"`
+}
+
+type ValidateTokenResponse struct {
+	UserID string `json:"user_id"`
+	Role   string `json:"role"`
+}
+
 type RefreshTokenRequest struct {
 	RefreshToken string `json:"refresh_token"`
 }

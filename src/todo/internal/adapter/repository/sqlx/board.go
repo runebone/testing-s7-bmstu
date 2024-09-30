@@ -32,14 +32,14 @@ func (r *SQLXBoardRepository) GetBoardByID(ctx context.Context, id uuid.UUID) (*
 	SELECT * FROM boards WHERE id = $1
 	`
 
-	var board *entity.Board
-	err := r.db.GetContext(ctx, board, query, id)
+	var board entity.Board
+	err := r.db.GetContext(ctx, &board, query, id)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return board, err
+	return &board, err
 }
 
 func (r *SQLXBoardRepository) GetBoardsByUser(ctx context.Context, userID uuid.UUID, limit, offset int) ([]entity.Board, error) {
@@ -63,7 +63,7 @@ func (r *SQLXBoardRepository) GetBoardsByUser(ctx context.Context, userID uuid.U
 func (r *SQLXBoardRepository) UpdateBoard(ctx context.Context, board *entity.Board) error {
 	query := `
     UPDATE boards SET
-	title = :title
+	title = :title,
 	updated_at = :updated_at
     WHERE id = :id
     `

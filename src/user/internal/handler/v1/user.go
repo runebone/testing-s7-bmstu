@@ -29,7 +29,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := &entity.User{
+	user := entity.User{
 		Username:     input.Username,
 		Email:        input.Email,
 		PasswordHash: input.Password, // NOTE: Hashing will be done in UseCase

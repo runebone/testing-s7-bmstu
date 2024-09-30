@@ -32,14 +32,14 @@ func (r *SQLXColumnRepository) GetColumnByID(ctx context.Context, id uuid.UUID) 
 	SELECT FROM columns WHERE id = $1
 	`
 
-	var column *entity.Column
-	err := r.db.GetContext(ctx, column, query, id)
+	var column entity.Column
+	err := r.db.GetContext(ctx, &column, query, id)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return column, nil
+	return &column, nil
 }
 
 func (r *SQLXColumnRepository) GetColumnsByBoard(ctx context.Context, boardID uuid.UUID, limit, offset int) ([]entity.Column, error) {
@@ -63,8 +63,8 @@ func (r *SQLXColumnRepository) GetColumnsByBoard(ctx context.Context, boardID uu
 func (r *SQLXColumnRepository) UpdateColumn(ctx context.Context, column *entity.Column) error {
 	query := `
     UPDATE columns SET
-	title = :title
-	position = :position
+	title = :title,
+	position = :position,
 	updated_at = :updated_at
     WHERE id = :id
     `

@@ -5,6 +5,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: nigger
       POSTGRES_DB: todo_db
+      TZ: "Europe/Moscow"
     ports:
       - "5003:5432"
     volumes:

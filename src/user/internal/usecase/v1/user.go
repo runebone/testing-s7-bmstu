@@ -27,7 +27,7 @@ func NewUserUseCase(repo repository.UserRepository) usecase.UserUseCase {
 	}
 }
 
-func (u *userUseCase) CreateUser(ctx context.Context, user *entity.User) error {
+func (u *userUseCase) CreateUser(ctx context.Context, user entity.User) error {
 	if !isValidEmail(user.Email) {
 		return errors.New("invalid email format")
 	}
@@ -51,7 +51,7 @@ func (u *userUseCase) CreateUser(ctx context.Context, user *entity.User) error {
 
 	user.ID = uuid.New()
 
-	return u.repo.CreateUser(ctx, user)
+	return u.repo.CreateUser(ctx, &user)
 }
 
 func isValidEmail(email string) bool {

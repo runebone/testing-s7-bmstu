@@ -42,10 +42,9 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(dto.UserDTO{
-		ID:           user.ID,
-		Username:     user.Username,
-		Email:        user.Email,
-		PasswordHash: user.PasswordHash,
+		ID:       user.ID,
+		Username: user.Username,
+		Email:    user.Email,
 	})
 }
 
@@ -66,10 +65,9 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(dto.UserDTO{
-		ID:           user.ID,
-		Username:     user.Username,
-		Email:        user.Email,
-		PasswordHash: user.PasswordHash,
+		ID:       user.ID,
+		Username: user.Username,
+		Email:    user.Email,
 	})
 }
 
@@ -202,10 +200,9 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(dto.UserDTO{
-		ID:           user.ID,
-		Username:     user.Username,
-		Email:        user.Email,
-		PasswordHash: user.PasswordHash,
+		ID:       user.ID,
+		Username: user.Username,
+		Email:    user.Email,
 	})
 }
 

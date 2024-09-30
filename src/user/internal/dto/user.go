@@ -8,12 +8,11 @@ import (
 )
 
 type UserDTO struct {
-	ID           uuid.UUID `json:"id"`
-	Username     string    `json:"username"`
-	Email        string    `json:"email"`
-	Role         string    `json:"role"`
-	PasswordHash string    `json:"password_hash"`
-	CreatedAt    time.Time `json:"created_at"`
+	ID        uuid.UUID `json:"id"`
+	Username  string    `json:"username"`
+	Email     string    `json:"email"`
+	Role      string    `json:"role"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type CreateUserDTO struct {
@@ -29,12 +28,11 @@ type UpdateUserDTO struct {
 
 func ToUserDTO(user entity.User) UserDTO {
 	return UserDTO{
-		ID:           user.ID,
-		Username:     user.Username,
-		Email:        user.Email,
-		Role:         user.Role,
-		PasswordHash: user.PasswordHash,
-		CreatedAt:    user.CreatedAt,
+		ID:        user.ID,
+		Username:  user.Username,
+		Email:     user.Email,
+		Role:      user.Role,
+		CreatedAt: user.CreatedAt,
 	}
 }
 

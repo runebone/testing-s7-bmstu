@@ -41,11 +41,15 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(dto.UserDTO{
+	w.WriteHeader(http.StatusCreated)
+
+	if err = json.NewEncoder(w).Encode(dto.UserDTO{
 		ID:       user.ID,
 		Username: user.Username,
 		Email:    user.Email,
-	})
+	}); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	}
 }
 
 func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {

@@ -11,6 +11,7 @@ type UserDTO struct {
 	ID           uuid.UUID `json:"id"`
 	Username     string    `json:"username"`
 	Email        string    `json:"email"`
+	Role         string    `json:"role"`
 	PasswordHash string    `json:"password_hash"`
 	CreatedAt    time.Time `json:"created_at"`
 }
@@ -31,6 +32,7 @@ func ToUserDTO(user entity.User) UserDTO {
 		ID:           user.ID,
 		Username:     user.Username,
 		Email:        user.Email,
+		Role:         user.Role,
 		PasswordHash: user.PasswordHash,
 		CreatedAt:    user.CreatedAt,
 	}

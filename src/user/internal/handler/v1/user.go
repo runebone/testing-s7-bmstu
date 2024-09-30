@@ -76,9 +76,9 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 
-	var id *string = new(string)
-	var email *string = new(string)
-	var username *string = new(string)
+	id := new(string)
+	email := new(string)
+	username := new(string)
 
 	if _, ok := query["id"]; ok {
 		*id = query.Get("id")

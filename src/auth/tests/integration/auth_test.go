@@ -15,6 +15,7 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -45,7 +46,7 @@ func sqlxSetup() *testSetup {
 
 	userSvc := new(mocks.UserService)
 
-	tokenSvc := jwt.NewJWTService("secret", 15*60, 7*24*60*60)
+	tokenSvc := jwt.NewJWTService("secret", 15*time.Minute, 7*24*time.Hour)
 
 	uc := v1.NewAuthUseCase(repo, userSvc, tokenSvc)
 

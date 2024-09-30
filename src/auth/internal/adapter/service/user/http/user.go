@@ -15,11 +15,11 @@ type HTTPUserService struct {
 	httpClient *http.Client
 }
 
-func NewHTTPUserService(baseURL string, timeoutSec time.Duration) *HTTPUserService {
+func NewHTTPUserService(baseURL string, timeout time.Duration) *HTTPUserService {
 	return &HTTPUserService{
 		baseURL: baseURL,
 		httpClient: &http.Client{
-			Timeout: timeoutSec * 10e9,
+			Timeout: timeout,
 		},
 	}
 }

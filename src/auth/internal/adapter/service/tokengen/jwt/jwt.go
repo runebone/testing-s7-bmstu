@@ -15,11 +15,11 @@ type JWTService struct {
 	refreshTokenTTL time.Duration
 }
 
-func NewJWTService(secretKey string, accessTokenTTLSec, refreshTokenTTLSec time.Duration) *JWTService {
+func NewJWTService(secretKey string, accessTokenTTL, refreshTokenTTL time.Duration) *JWTService {
 	return &JWTService{
 		secretKey:       secretKey,
-		accessTokenTTL:  accessTokenTTLSec * 10e9,
-		refreshTokenTTL: refreshTokenTTLSec * 10e9,
+		accessTokenTTL:  accessTokenTTL,
+		refreshTokenTTL: refreshTokenTTL,
 	}
 }
 

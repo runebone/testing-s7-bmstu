@@ -33,14 +33,14 @@ func (r *SQLXCardRepository) GetCardByID(ctx context.Context, id uuid.UUID) (*en
 	SELECT FROM cards WHERE id = $1
 	`
 
-	var card *entity.Card
-	err := r.db.GetContext(ctx, card, query, id)
+	var card entity.Card
+	err := r.db.GetContext(ctx, &card, query, id)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return card, nil
+	return &card, nil
 }
 
 func (r *SQLXCardRepository) GetCardsByColumn(ctx context.Context, columnID uuid.UUID, limit, offset int) ([]entity.Card, error) {
@@ -64,10 +64,10 @@ func (r *SQLXCardRepository) GetCardsByColumn(ctx context.Context, columnID uuid
 func (r *SQLXCardRepository) UpdateCard(ctx context.Context, card *entity.Card) error {
 	query := `
     UPDATE cards SET
-	column_id = :column_id
-	title = :title
-	description = :description
-	position = :position
+	column_id = :column_id,
+	title = :title,
+	description = :description,
+	position = :position,
 	updated_at = :updated_at
     WHERE id = :id
     `

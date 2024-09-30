@@ -158,6 +158,7 @@ func TestLogin(t *testing.T) {
 		ID:           id,
 		Username:     username,
 		Email:        email,
+		Role:         "user",
 		PasswordHash: string(passwordHash),
 	}
 
@@ -180,14 +181,14 @@ func TestLogin(t *testing.T) {
 	accessToken := loginResponse.AccessToken
 	refreshToken := loginResponse.RefreshToken
 
-	userID, err := ts.tokenSvc.ValidateToken(ts.ctx, accessToken)
+	userID, _, err := ts.tokenSvc.ValidateToken(ts.ctx, accessToken)
 	if err != nil {
 		log.Fatalf("Failed to validate access token: %v", err)
 	}
 
 	assert.Equal(t, id.String(), userID)
 
-	userID, err = ts.tokenSvc.ValidateToken(ts.ctx, refreshToken)
+	userID, _, err = ts.tokenSvc.ValidateToken(ts.ctx, refreshToken)
 	if err != nil {
 		log.Fatalf("Failed to validate refresh token: %v", err)
 	}
@@ -200,8 +201,8 @@ func TestRefresh(t *testing.T) {
 	ts := sqlxSetup()
 	resetDatabase()
 
-	id, _ := uuid.Parse("4457092b-2b06-4443-81af-323c2e67d000")
-	refreshToken := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzM2NzgzMDksImlhdCI6MTcyNzYzMDMwOSwic3ViIjoiNDQ1NzA5MmItMmIwNi00NDQzLTgxYWYtMzIzYzJlNjdkMDAwIiwidHlwZSI6InJlZnJlc2gifQ._tO3m754wHTIqJqp3WyYFeHFFuOSYLCjMCuU167xn7U"
+	id, _ := uuid.Parse("1ddb8ee6-963c-41d2-9834-484e4ea306f1")
+	refreshToken := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjgzMzM3MTAsImlhdCI6MTcyNzcyODkxMCwicm9sZSI6InVzZXIiLCJzdWIiOiIxZGRiOGVlNi05NjNjLTQxZDItOTgzNC00ODRlNGVhMzA2ZjEiLCJ0eXBlIjoicmVmcmVzaCJ9.ibn-SGh6TzpYSWgAV_iHZulw07SSqpfB2HRcGYZ2jSg"
 
 	refreshTokenResponse, err := ts.uc.Refresh(ts.ctx, refreshToken)
 	if err != nil {
@@ -210,7 +211,7 @@ func TestRefresh(t *testing.T) {
 
 	accessToken := refreshTokenResponse.AccessToken
 
-	userID, err := ts.tokenSvc.ValidateToken(ts.ctx, accessToken)
+	userID, _, err := ts.tokenSvc.ValidateToken(ts.ctx, accessToken)
 	if err != nil {
 		log.Fatalf("Failed to validate access token: %v", err)
 	}
@@ -224,8 +225,8 @@ func TestLogout(t *testing.T) {
 	resetDatabase()
 
 	id := uuid.New()
-	userID := "4457092b-2b06-4443-81af-323c2e67d000"
-	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzM2NzgzMDksImlhdCI6MTcyNzYzMDMwOSwic3ViIjoiNDQ1NzA5MmItMmIwNi00NDQzLTgxYWYtMzIzYzJlNjdkMDAwIiwidHlwZSI6InJlZnJlc2gifQ._tO3m754wHTIqJqp3WyYFeHFFuOSYLCjMCuU167xn7U"
+	userID := "1ddb8ee6-963c-41d2-9834-484e4ea306f1"
+	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjgzMzM3MTAsImlhdCI6MTcyNzcyODkxMCwicm9sZSI6InVzZXIiLCJzdWIiOiIxZGRiOGVlNi05NjNjLTQxZDItOTgzNC00ODRlNGVhMzA2ZjEiLCJ0eXBlIjoicmVmcmVzaCJ9.ibn-SGh6TzpYSWgAV_iHZulw07SSqpfB2HRcGYZ2jSg"
 
 	query := `
     INSERT INTO tokens (id, user_id, token)

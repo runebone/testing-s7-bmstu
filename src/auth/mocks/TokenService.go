@@ -13,9 +13,9 @@ type TokenService struct {
 	mock.Mock
 }
 
-// GenerateAccessToken provides a mock function with given fields: ctx, userID
-func (_m *TokenService) GenerateAccessToken(ctx context.Context, userID string) (string, error) {
-	ret := _m.Called(ctx, userID)
+// GenerateAccessToken provides a mock function with given fields: ctx, userID, role
+func (_m *TokenService) GenerateAccessToken(ctx context.Context, userID string, role string) (string, error) {
+	ret := _m.Called(ctx, userID, role)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GenerateAccessToken")
@@ -23,17 +23,17 @@ func (_m *TokenService) GenerateAccessToken(ctx context.Context, userID string) 
 
 	var r0 string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
-		return rf(ctx, userID)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (string, error)); ok {
+		return rf(ctx, userID, role)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) string); ok {
-		r0 = rf(ctx, userID)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) string); ok {
+		r0 = rf(ctx, userID, role)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, userID)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, userID, role)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -41,9 +41,9 @@ func (_m *TokenService) GenerateAccessToken(ctx context.Context, userID string) 
 	return r0, r1
 }
 
-// GenerateRefreshToken provides a mock function with given fields: ctx, userID
-func (_m *TokenService) GenerateRefreshToken(ctx context.Context, userID string) (string, error) {
-	ret := _m.Called(ctx, userID)
+// GenerateRefreshToken provides a mock function with given fields: ctx, userID, role
+func (_m *TokenService) GenerateRefreshToken(ctx context.Context, userID string, role string) (string, error) {
+	ret := _m.Called(ctx, userID, role)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GenerateRefreshToken")
@@ -51,17 +51,17 @@ func (_m *TokenService) GenerateRefreshToken(ctx context.Context, userID string)
 
 	var r0 string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
-		return rf(ctx, userID)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) (string, error)); ok {
+		return rf(ctx, userID, role)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) string); ok {
-		r0 = rf(ctx, userID)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) string); ok {
+		r0 = rf(ctx, userID, role)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, userID)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, userID, role)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -70,7 +70,7 @@ func (_m *TokenService) GenerateRefreshToken(ctx context.Context, userID string)
 }
 
 // ValidateToken provides a mock function with given fields: ctx, token
-func (_m *TokenService) ValidateToken(ctx context.Context, token string) (string, error) {
+func (_m *TokenService) ValidateToken(ctx context.Context, token string) (string, string, error) {
 	ret := _m.Called(ctx, token)
 
 	if len(ret) == 0 {
@@ -78,8 +78,9 @@ func (_m *TokenService) ValidateToken(ctx context.Context, token string) (string
 	}
 
 	var r0 string
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
+	var r1 string
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (string, string, error)); ok {
 		return rf(ctx, token)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, string) string); ok {
@@ -88,13 +89,19 @@ func (_m *TokenService) ValidateToken(ctx context.Context, token string) (string
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, string) string); ok {
 		r1 = rf(ctx, token)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(string)
 	}
 
-	return r0, r1
+	if rf, ok := ret.Get(2).(func(context.Context, string) error); ok {
+		r2 = rf(ctx, token)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // NewTokenService creates a new instance of TokenService. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

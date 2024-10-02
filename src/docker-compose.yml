@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  # PostgreSQL for User Service
+  user-postgres:
+    image: postgres:14
+    container_name: ${USER_POSTGRES_HOST}
+    environment:
+      POSTGRES_USER: ${USER_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${USER_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${USER_POSTGRES_DBNAME}
+    volumes:
+      - user-pgdata:/var/lib/postgresql/data
+    networks:
+      - backend
+    profiles:
+      - user-postgres
+
+  # MongoDB for User Service (optional)
+  user-mongodb:
+    image: mongo:latest
+    container_name: ${USER_MONGODB_HOST}
+    volumes:
+      - user-mongodata:/data/db
+    networks:
+      - backend
+    profiles:
+      - user-mongodb
+
+  # User Service
+  user:
+    build: ./${USER_PATH}
+    container_name: ${USER_CONTAINER_NAME}
+    environment:
+      POSTGRES_URL: postgres://${USER_POSTGRES_USER}:${USER_POSTGRES_PASSWORD}@${USER_POSTGRES_HOST}:5432/${USER_POSTGRES_DBNAME}
+    depends_on:
+      - user-postgres
+      - user-mongodb
+    networks:
+      - backend
+    profiles:
+      - user-postgres
+      - user-mongodb
+
+  user-migrate-postgres:
+    image: migrate/migrate
+    volumes:
+      - ${USER_PATH}/migrations/sql:/migrations
+    depends_on:
+      - user-postgres
+    networks:
+      - backend
+    profiles:
+      - user-postgres
+    entrypoint: ["migrate", "-path=/migrations", "-database", "postgres://${USER_POSTGRES_USER}:${USER_POSTGRES_PASSWORD}@${USER_POSTGRES_HOST}:5432/${USER_POSTGRES_DBNAME}?sslmode=${USER_POSTGRES_SSLMODE}", "up"]
+
+  # PostgreSQL for Todo Service
+  todo-postgres:
+    image: postgres:14
+    container_name: ${TODO_POSTGRES_HOST}
+    environment:
+      POSTGRES_USER: ${TODO_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${TODO_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${TODO_POSTGRES_DBNAME}
+    volumes:
+      - todo-pgdata:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  # Todo Service
+  todo:
+    build: ./${TODO_PATH}
+    container_name: ${TODO_CONTAINER_NAME}
+    depends_on:
+      - todo-postgres
+    environment:
+      POSTGRES_URL: postgres://${TODO_POSTGRES_USER}:${TODO_POSTGRES_PASSWORD}@${TODO_POSTGRES_HOST}:5432/${TODO_POSTGRES_DBNAME}
+    networks:
+      - backend
+
+  # PostgreSQL for Auth Service
+  auth-postgres:
+    image: postgres:14
+    container_name: ${AUTH_POSTGRES_HOST}
+    environment:
+      POSTGRES_USER: ${AUTH_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${AUTH_POSTGRES_DBNAME}
+    volumes:
+      - auth-pgdata:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  # Auth Service
+  auth:
+    build: ./${AUTH_PATH}
+    container_name: ${AUTH_CONTAINER_NAME}
+    depends_on:
+      - auth-postgres
+      - user
+    environment:
+      POSTGRES_URL: postgres://${AUTH_POSTGRES_USER}:${AUTH_POSTGRES_PASSWORD}@${AUTH_POSTGRES_HOST}:5432/${AUTH_POSTGRES_DBNAME}
+    networks:
+      - backend
+
+  # Aggregator Service
+  aggregator:
+    build: ./${AGGREGATOR_PATH}
+    container_name: ${AGGREGATOR_CONTAINER_NAME}
+    depends_on:
+      - auth
+      - user
+      - todo
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  user-pgdata:
+  user-mongodata:
+  todo-pgdata:
+  auth-pgdata:

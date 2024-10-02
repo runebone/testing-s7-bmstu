@@ -1,0 +1,99 @@
+# ==================================
+# === Common Config ================
+# ==================================
+
+[log]
+path = "logs"
+level = "info"
+
+[pagination.default]
+limit = 100
+offset = 0
+
+# ==================================
+# === Aggregator Service ===========
+# ==================================
+
+[aggregator]
+path = "aggregator"
+container_name = "aggregator"
+local_port = 8080
+exposed_port = 8000
+
+[aggregator.log]
+file = "aggregator.log"
+
+# ==================================
+# === User Service =================
+# ==================================
+
+[user]
+path = "user"
+container_name = "user"
+database = "postgres"
+local_port = 8080
+exposed_port = 8001
+
+[user.log]
+file = "user.log"
+
+[user.postgres]
+host = "user-postgres" # DB service name in docker-compose
+user = "postgres"
+password = "password"
+dbname = "userdb"
+sslmode = "disable"
+
+[user.mongodb]
+host = "user-mongodb" # DB service name in docker-compose
+user = "mongo_user"
+password = "password"
+dbname = "user_db"
+auth_source = "admin"
+
+# ==================================
+# === Auth Service =================
+# ==================================
+
+[auth]
+path = "auth"
+container_name = "auth"
+database = "postgres"
+local_port = 8080
+exposed_port = 8002
+
+[auth.log]
+file = "auth.log"
+
+[auth.postgres]
+host = "auth-postgres" # DB service name in docker-compose
+user = "postgres"
+password = "password"
+dbname = "auth_db"
+sslmode = "disable"
+
+[auth.token]
+secret = "secret"
+access_ttl_sec = 15*60
+refresh_ttl_sec = 7*24*60*60
+
+# ==================================
+# === ToDo Service =================
+# ==================================
+
+[todo]
+path = "todo"
+container_name = "todo"
+database = "postgres"
+local_port = 8080
+exposed_port = 8003
+
+[todo.log]
+file = "todo.log"
+
+[todo.postgres]
+host = "todo-postgres" # DB service name in docker-compose
+user = "postgres"
+password = "password"
+dbname = "todo_db"
+sslmode = "disable"

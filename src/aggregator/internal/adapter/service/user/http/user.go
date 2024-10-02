@@ -72,19 +72,25 @@ func (s *UserService) GetNewUsers(ctx context.Context, from, to time.Time) ([]dt
 func (s *UserService) makeRequest(ctx context.Context, method, url string, data any) (*http.Response, error) {
 	jsonBody, err := json.Marshal(data)
 	if err != nil {
-		return nil, fmt.Errorf("error marshaling user data: %w", err)
+		err = fmt.Errorf("error marshaling user data: %w", err)
+		s.log.Error(ctx, err.Error())
+		return nil, err
 	}
 
 	req, err := http.NewRequestWithContext(ctx, method, url, bytes.NewBuffer(jsonBody))
 	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
+		err = fmt.Errorf("error creating request: %w", err)
+		s.log.Error(ctx, err.Error())
+		return nil, err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("error sending request: %w", err)
+		err = fmt.Errorf("error sending request: %w", err)
+		s.log.Error(ctx, err.Error())
+		return nil, err
 	}
 
 	return resp, nil

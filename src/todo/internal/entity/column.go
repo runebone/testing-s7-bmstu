@@ -7,11 +7,11 @@ import (
 )
 
 type Column struct {
-	ID        uuid.UUID `db:"id"`
-	UserID    uuid.UUID `db:"user_id"`
-	BoardID   uuid.UUID `db:"board_id"`
-	Title     string    `db:"title"`
-	Position  float64   `db:"position"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	BoardID   uuid.UUID
+	Title     string
+	Position  float64
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

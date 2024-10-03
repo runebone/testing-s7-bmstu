@@ -162,7 +162,7 @@ func TestCreate(t *testing.T) {
 		log.Fatalf("Failed to execute CreateBoard usecase: %v", err)
 	}
 
-	var createdBoard entity.Board
+	var createdBoard repository.Board
 	err = db.GetContext(ts.ctx, &createdBoard, `
 		SELECT * FROM boards WHERE user_id = $1
 	`, userID)
@@ -189,7 +189,7 @@ func TestCreate(t *testing.T) {
 		log.Fatalf("Failed to execute CreateColumn usecase: %v", err)
 	}
 
-	var createdColumn entity.Column
+	var createdColumn repository.Column
 	err = db.GetContext(ts.ctx, &createdColumn, `
 		SELECT * FROM columns WHERE user_id = $1
 	`, userID)
@@ -217,7 +217,7 @@ func TestCreate(t *testing.T) {
 		log.Fatalf("Failed to execute CreateCard usecase: %v", err)
 	}
 
-	var createdCard entity.Card
+	var createdCard repository.Card
 	err = db.GetContext(ts.ctx, &createdCard, `
 		SELECT * FROM cards WHERE user_id = $1
 	`, userID)
@@ -237,7 +237,7 @@ func TestGetByID(t *testing.T) {
 	resetDatabase()
 
 	boardID := uuid.New()
-	board := entity.Board{
+	board := repository.Board{
 		ID:     boardID,
 		UserID: uuid.New(),
 		Title:  "Board Title",
@@ -271,7 +271,7 @@ func TestUpdate(t *testing.T) {
 	resetDatabase()
 
 	boardID := uuid.New()
-	board := entity.Board{
+	board := repository.Board{
 		ID:     boardID,
 		UserID: uuid.New(),
 		Title:  "Board Title",
@@ -286,7 +286,7 @@ func TestUpdate(t *testing.T) {
 		log.Fatalf("Failed to insert into boards: %v", err)
 	}
 
-	newBoard := board
+	newBoard := repository.BoardToEntity(board)
 	newBoard.Title = "New Board Title"
 
 	err = ts.uc.UpdateBoard(ts.ctx, &newBoard)
@@ -295,7 +295,7 @@ func TestUpdate(t *testing.T) {
 		log.Fatalf("Failed to execute UpdateBoard usecase: %v", err)
 	}
 
-	var updatedBoard entity.Board
+	var updatedBoard repository.Board
 
 	err = db.GetContext(ts.ctx, &updatedBoard, `
 		SELECT * FROM boards WHERE id = $1
@@ -316,7 +316,7 @@ func TestDelete(t *testing.T) {
 	resetDatabase()
 
 	boardID := uuid.New()
-	board := entity.Board{
+	board := repository.Board{
 		ID:     boardID,
 		UserID: uuid.New(),
 		Title:  "Board Title",
@@ -337,7 +337,7 @@ func TestDelete(t *testing.T) {
 		log.Fatalf("Failed to execute DeleteBoard usecase: %v", err)
 	}
 
-	var tmp entity.Board
+	var tmp repository.Board
 	err = db.GetContext(ts.ctx, &tmp, `
 		SELECT * FROM boards WHERE id = $1
 	`, boardID)

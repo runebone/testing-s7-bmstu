@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"todo/internal/entity"
+	"todo/internal/repository"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -17,12 +18,14 @@ func NewSQLXBoardRepository(db *sqlx.DB) *SQLXBoardRepository {
 }
 
 func (r *SQLXBoardRepository) CreateBoard(ctx context.Context, board *entity.Board) error {
+	repoBoard := repository.RepoBoard(*board)
+
 	query := `
     INSERT INTO boards (id, user_id, title, created_at, updated_at)
 	VALUES (:id, :user_id, :title, :created_at, :updated_at)
     `
 
-	_, err := r.db.NamedExecContext(ctx, query, board)
+	_, err := r.db.NamedExecContext(ctx, query, repoBoard)
 
 	return err
 }
@@ -32,12 +35,14 @@ func (r *SQLXBoardRepository) GetBoardByID(ctx context.Context, id uuid.UUID) (*
 	SELECT * FROM boards WHERE id = $1
 	`
 
-	var board entity.Board
-	err := r.db.GetContext(ctx, &board, query, id)
+	var repoBoard repository.Board
+	err := r.db.GetContext(ctx, &repoBoard, query, id)
 
 	if err != nil {
 		return nil, err
 	}
+
+	board := repository.BoardToEntity(repoBoard)
 
 	return &board, err
 }
@@ -50,17 +55,24 @@ func (r *SQLXBoardRepository) GetBoardsByUser(ctx context.Context, userID uuid.U
 	OFFSET $3
 	`
 
-	var boards []entity.Board
-	err := r.db.SelectContext(ctx, &boards, query, userID, limit, offset)
+	var repoBoards []repository.Board
+	err := r.db.SelectContext(ctx, &repoBoards, query, userID, limit, offset)
 
 	if err != nil {
 		return nil, err
+	}
+
+	boards := make([]entity.Board, len(repoBoards))
+	for i, b := range repoBoards {
+		boards[i] = repository.BoardToEntity(b)
 	}
 
 	return boards, nil
 }
 
 func (r *SQLXBoardRepository) UpdateBoard(ctx context.Context, board *entity.Board) error {
+	repoBoard := repository.RepoBoard(*board)
+
 	query := `
     UPDATE boards SET
 	title = :title,
@@ -68,7 +80,7 @@ func (r *SQLXBoardRepository) UpdateBoard(ctx context.Context, board *entity.Boa
     WHERE id = :id
     `
 
-	_, err := r.db.NamedExecContext(ctx, query, board)
+	_, err := r.db.NamedExecContext(ctx, query, repoBoard)
 
 	return err
 }

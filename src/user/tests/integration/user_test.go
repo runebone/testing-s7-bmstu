@@ -145,7 +145,7 @@ func TestCreateUser(t *testing.T) {
 		log.Fatalf("Failed to execute CreateUser usecase: %v", err)
 	}
 
-	var createdUser entity.User
+	var createdUser repository.User
 
 	err = db.GetContext(ts.ctx, &createdUser, `
 		SELECT * FROM users WHERE username = $1
@@ -171,7 +171,7 @@ func TestGetUserByID(t *testing.T) {
     INSERT INTO users (id, username, email, password_hash)
     VALUES (:id, :username, :email, :password_hash)
     `
-	_, err := db.NamedExecContext(ts.ctx, query, &entity.User{
+	_, err := db.NamedExecContext(ts.ctx, query, &repository.User{
 		ID:           id,
 		Username:     "username",
 		Email:        "email@test.com",
@@ -201,7 +201,7 @@ func TestUpdateUser(t *testing.T) {
     INSERT INTO users (id, username, email, password_hash)
     VALUES (:id, :username, :email, :password_hash)
     `
-	_, err := db.NamedExecContext(ts.ctx, query, &entity.User{
+	_, err := db.NamedExecContext(ts.ctx, query, &repository.User{
 		ID:           id,
 		Username:     "username",
 		Email:        "email@test.com",
@@ -223,7 +223,7 @@ func TestUpdateUser(t *testing.T) {
 		log.Fatalf("Failed to execute UpdateUser usecase: %v", err)
 	}
 
-	var updatedUser entity.User
+	var updatedUser repository.User
 
 	err = db.GetContext(ts.ctx, &updatedUser, `
 		SELECT * FROM users WHERE id = $1
@@ -247,7 +247,7 @@ func TestDeleteUser(t *testing.T) {
     INSERT INTO users (id, username, email, password_hash)
     VALUES (:id, :username, :email, :password_hash)
     `
-	_, err := db.NamedExecContext(ts.ctx, query, &entity.User{
+	_, err := db.NamedExecContext(ts.ctx, query, &repository.User{
 		ID:           id,
 		Username:     "username",
 		Email:        "email@test.com",
@@ -262,7 +262,7 @@ func TestDeleteUser(t *testing.T) {
 	if err != nil {
 		log.Fatalf("Failed to execute DeleteUser usecase: %v", err)
 	} else {
-		var tmp entity.User
+		var tmp repository.User
 		err = db.GetContext(ts.ctx, &tmp, `
 			SELECT * FROM users WHERE id = $1
 		`, id)

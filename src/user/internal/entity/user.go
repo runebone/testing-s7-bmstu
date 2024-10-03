@@ -7,11 +7,11 @@ import (
 )
 
 type User struct {
-	ID           uuid.UUID `db:"id"`
-	Username     string    `db:"username"`
-	Email        string    `db:"email"`
-	Role         string    `db:"role"`
-	PasswordHash string    `db:"password_hash"`
-	CreatedAt    time.Time `db:"created_at"`
-	UpdatedAt    time.Time `db:"updated_at"`
+	ID           uuid.UUID
+	Username     string
+	Email        string
+	Role         string
+	PasswordHash string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }

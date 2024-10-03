@@ -4,7 +4,6 @@ import (
 	sqlxRepository "auth/internal/adapter/repository/sqlx"
 	"auth/internal/adapter/service/tokengen/jwt"
 	"auth/internal/dto"
-	"auth/internal/entity"
 	"auth/internal/repository"
 	"auth/internal/service/tokengen"
 	"auth/internal/usecase"
@@ -170,7 +169,7 @@ func TestLogin(t *testing.T) {
 		log.Fatalf("Failed to execute Login usecase: %v", err)
 	}
 
-	var token entity.Token
+	var token repository.Token
 	err = db.GetContext(ts.ctx, &token, `
 		SELECT * FROM tokens WHERE user_id = $1
 	`, id)
@@ -242,7 +241,7 @@ func TestLogout(t *testing.T) {
 	if err != nil {
 		log.Fatalf("Failed to execute Logout usecase: %v", err)
 	} else {
-		var tmp entity.Token
+		var tmp repository.Token
 		err = db.GetContext(ts.ctx, &tmp, `
 			SELECT * FROM tokens WHERE user_id = $1
 		`, userID)

@@ -14,6 +14,11 @@ services:
       - backend
     profiles:
       - user-postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 1s
+      timeout: 5s
+      retries: 5
 
   # MongoDB for User Service (optional)
   user-mongodb:
@@ -31,14 +36,16 @@ services:
     build: ./${USER_PATH}
     container_name: ${USER_CONTAINER_NAME}
     environment:
-      POSTGRES_URL: postgres://${USER_POSTGRES_USER}:${USER_POSTGRES_PASSWORD}@${USER_POSTGRES_HOST}:5432/${USER_POSTGRES_DBNAME}
+      POSTGRES_URL: postgres://${USER_POSTGRES_USER}:${USER_POSTGRES_PASSWORD}@${USER_POSTGRES_HOST}:${USER_POSTGRES_PORT}/${USER_POSTGRES_DBNAME}
     depends_on:
-      - user-postgres
+      user-postgres:
+        condition: service_healthy
       - user-mongodb
     networks:
       - backend
     volumes:
       - ./config.toml:/app/config.toml
+      - ./logs:/app/logs
     profiles:
       - user-postgres
       - user-mongodb
@@ -53,7 +60,7 @@ services:
       - backend
     profiles:
       - user-postgres
-    entrypoint: ["migrate", "-path=/migrations", "-database", "postgres://${USER_POSTGRES_USER}:${USER_POSTGRES_PASSWORD}@${USER_POSTGRES_HOST}:5432/${USER_POSTGRES_DBNAME}?sslmode=${USER_POSTGRES_SSLMODE}", "up"]
+    entrypoint: ["migrate", "-path=/migrations", "-database", "postgres://$${USER_POSTGRES_USER}:$${USER_POSTGRES_PASSWORD}@$${USER_POSTGRES_HOST}:$${USER_POSTGRES_PORT}/$${USER_POSTGRES_DBNAME}?sslmode=$${USER_POSTGRES_SSLMODE}", "up"]
 
   # PostgreSQL for Todo Service
   todo-postgres:
@@ -68,19 +75,36 @@ services:
       - todo-pgdata:/var/lib/postgresql/data
     networks:
       - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 1s
+      timeout: 5s
+      retries: 5
 
   # Todo Service
   todo:
     build: ./${TODO_PATH}
     container_name: ${TODO_CONTAINER_NAME}
     depends_on:
-      - todo-postgres
+      todo-postgres:
+        condition: service_healthy
     environment:
-      POSTGRES_URL: postgres://${TODO_POSTGRES_USER}:${TODO_POSTGRES_PASSWORD}@${TODO_POSTGRES_HOST}:5432/${TODO_POSTGRES_DBNAME}
+      POSTGRES_URL: postgres://${TODO_POSTGRES_USER}:${TODO_POSTGRES_PASSWORD}@${TODO_POSTGRES_HOST}:${TODO_POSTGRES_PORT}/${TODO_POSTGRES_DBNAME}
     volumes:
       - ./config.toml:/app/config.toml
+      - ./logs:/app/logs
     networks:
       - backend
+
+  todo-migrate-postgres:
+    image: migrate/migrate
+    volumes:
+      - ${TODO_PATH}/migrations/sql:/migrations
+    depends_on:
+      - todo-postgres
+    networks:
+      - backend
+    entrypoint: ["migrate", "-path=/migrations", "-database", "postgres://$${TODO_POSTGRES_TODO}:$${TODO_POSTGRES_PASSWORD}@$${TODO_POSTGRES_HOST}:$${TODO_POSTGRES_PORT}/$${TODO_POSTGRES_DBNAME}?sslmode=$${TODO_POSTGRES_SSLMODE}", "up"]
 
   # PostgreSQL for Auth Service
   auth-postgres:
@@ -95,20 +119,37 @@ services:
       - auth-pgdata:/var/lib/postgresql/data
     networks:
       - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 1s
+      timeout: 5s
+      retries: 5
 
   # Auth Service
   auth:
     build: ./${AUTH_PATH}
     container_name: ${AUTH_CONTAINER_NAME}
     depends_on:
-      - auth-postgres
+      auth-postgres:
+        condition: service_healthy
       - user
     environment:
-      POSTGRES_URL: postgres://${AUTH_POSTGRES_USER}:${AUTH_POSTGRES_PASSWORD}@${AUTH_POSTGRES_HOST}:5432/${AUTH_POSTGRES_DBNAME}
+      POSTGRES_URL: postgres://${AUTH_POSTGRES_USER}:${AUTH_POSTGRES_PASSWORD}@${AUTH_POSTGRES_HOST}:${AUTH_POSTGRES_PORT}/${AUTH_POSTGRES_DBNAME}
     volumes:
       - ./config.toml:/app/config.toml
+      - ./logs:/app/logs
     networks:
       - backend
+
+  auth-migrate-postgres:
+    image: migrate/migrate
+    volumes:
+      - ${AUTH_PATH}/migrations/sql:/migrations
+    depends_on:
+      - auth-postgres
+    networks:
+      - backend
+    entrypoint: ["migrate", "-path=/migrations", "-database", "postgres://$${AUTH_POSTGRES_AUTH}:$${AUTH_POSTGRES_PASSWORD}@$${AUTH_POSTGRES_HOST}:$${AUTH_POSTGRES_PORT}/$${AUTH_POSTGRES_DBNAME}?sslmode=$${AUTH_POSTGRES_SSLMODE}", "up"]
 
   # Aggregator Service
   aggregator:
@@ -120,6 +161,7 @@ services:
       - todo
     volumes:
       - ./config.toml:/app/config.toml
+      - ./logs:/app/logs
     networks:
       - backend
 

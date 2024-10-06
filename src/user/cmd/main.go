@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"user/internal/adapter/database"
@@ -37,6 +38,9 @@ func main() {
 	router.Use(loggingMiddleware.Middleware)
 	api.InitializeV1Routes(router, userHandler)
 
-	log.Println("Starting server on :8080")
-	http.ListenAndServe(":8080", router)
+	localPort := fmt.Sprintf("%d", config.User.LocalPort)
+	exposedPort := fmt.Sprintf("%d", config.User.ExposedPort)
+
+	log.Printf("Starting server on :%s\n", exposedPort)
+	http.ListenAndServe(":"+localPort, router)
 }

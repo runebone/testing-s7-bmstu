@@ -4,6 +4,7 @@ import (
 	"aggregator/internal/adapter/logger"
 	"aggregator/internal/middleware"
 	"fmt"
+	"time"
 
 	httpAuth "aggregator/internal/adapter/service/auth/http"
 	httpTodo "aggregator/internal/adapter/service/todo/http"
@@ -31,21 +32,21 @@ func main() {
 	{
 		baseURL := fmt.Sprintf("http://%s:%d/%s", config.User.ContainerName, config.User.LocalPort, config.User.BaseURL)
 		logger := logger.NewZapLogger(config.User.Log)
-		userSvc = httpUser.NewUserService(baseURL, 2, logger)
+		userSvc = httpUser.NewUserService(baseURL, 2*time.Second, logger)
 	}
 
 	var authSvc auth.AuthService
 	{
 		baseURL := fmt.Sprintf("http://%s:%d/%s", config.Auth.ContainerName, config.Auth.LocalPort, config.Auth.BaseURL)
 		logger := logger.NewZapLogger(config.Auth.Log)
-		authSvc = httpAuth.NewAuthService(baseURL, 2, logger)
+		authSvc = httpAuth.NewAuthService(baseURL, 2*time.Second, logger)
 	}
 
 	var todoSvc todo.TodoService
 	{
 		baseURL := fmt.Sprintf("http://%s:%d/%s", config.Todo.ContainerName, config.Todo.LocalPort, config.Todo.BaseURL)
 		logger := logger.NewZapLogger(config.Todo.Log)
-		todoSvc = httpTodo.NewTodoService(baseURL, 2, logger)
+		todoSvc = httpTodo.NewTodoService(baseURL, 2*time.Second, logger)
 	}
 
 	logger := logger.NewZapLogger(config.Aggregator.Log)
@@ -59,8 +60,9 @@ func main() {
 	// router.Use(authMiddleware.Middleware)
 	api.InitializeV1Routes(router, handler)
 
-	port := fmt.Sprintf("%d", config.Aggregator.LocalPort)
+	localPort := fmt.Sprintf("%d", config.Aggregator.LocalPort)
+	exposedPort := fmt.Sprintf("%d", config.Aggregator.ExposedPort)
 
-	log.Printf("Starting server on :%s\n", port)
-	http.ListenAndServe(":"+port, router)
+	log.Printf("Starting server on :%s\n", exposedPort)
+	http.ListenAndServe(":"+localPort, router)
 }

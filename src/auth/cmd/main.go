@@ -38,7 +38,7 @@ func main() {
 
 	baseURL := fmt.Sprintf("http://%s:%d/%s", config.User.ContainerName, config.User.LocalPort, config.User.BaseURL)
 
-	userService := user.NewHTTPUserService(baseURL, 2)
+	userService := user.NewHTTPUserService(baseURL, 2*time.Second)
 	tokenService := jwt.NewJWTService(
 		config.Auth.Token.Secret,
 		time.Duration(config.Auth.Token.AccessTTL)*time.Second,
@@ -53,7 +53,9 @@ func main() {
 	router.Use(loggingMiddleware.Middleware)
 	api.InitializeV1Routes(router, userHandler)
 
-	port := fmt.Sprintf("%d", config.Auth.LocalPort)
-	log.Println("Starting server on :" + port)
-	http.ListenAndServe(":"+port, router)
+	localPort := fmt.Sprintf("%d", config.Auth.LocalPort)
+	exposedPort := fmt.Sprintf("%d", config.Auth.ExposedPort)
+
+	log.Printf("Starting server on :%s\n", exposedPort)
+	http.ListenAndServe(":"+localPort, router)
 }

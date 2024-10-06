@@ -7,6 +7,7 @@ services:
       POSTGRES_USER: ${USER_POSTGRES_USER}
       POSTGRES_PASSWORD: ${USER_POSTGRES_PASSWORD}
       POSTGRES_DB: ${USER_POSTGRES_DBNAME}
+      TZ: "Europe/Moscow"
     volumes:
       - user-pgdata:/var/lib/postgresql/data
     networks:
@@ -62,6 +63,7 @@ services:
       POSTGRES_USER: ${TODO_POSTGRES_USER}
       POSTGRES_PASSWORD: ${TODO_POSTGRES_PASSWORD}
       POSTGRES_DB: ${TODO_POSTGRES_DBNAME}
+      TZ: "Europe/Moscow"
     volumes:
       - todo-pgdata:/var/lib/postgresql/data
     networks:
@@ -88,6 +90,7 @@ services:
       POSTGRES_USER: ${AUTH_POSTGRES_USER}
       POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
       POSTGRES_DB: ${AUTH_POSTGRES_DBNAME}
+      TZ: "Europe/Moscow"
     volumes:
       - auth-pgdata:/var/lib/postgresql/data
     networks:

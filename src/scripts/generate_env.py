@@ -10,11 +10,17 @@ def parse_config_to_env(config_file, env_file):
             section_name = section.replace('.', '_').upper()
 
             # Write section header comment
-            env.write(f"# === {section_name} ===\n")
+            # env.write(f"# === {section_name} ===\n")
 
             for key, value in config.items(section):
                 # Convert key to uppercase and join it with section name
                 env_var_name = f"{section_name}_{key}".upper()
+
+                try:
+                    tmp = value.split("#")
+                    value = tmp[0].strip()
+                except Exception:
+                    pass
 
                 # Write variable in the form VAR=VALUE
                 env.write(f"{env_var_name}={value}\n")

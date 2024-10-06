@@ -42,7 +42,7 @@ services:
       DATABASE_PASSWORD: nigger
       DATABASE_NAME: user_db
       DATABASE_SSLMODE: disable
-    command: ["./user-service"]
+    command: ["./main"]
 
 volumes:
   postgres_data:

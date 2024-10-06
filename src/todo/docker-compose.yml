@@ -42,7 +42,7 @@ services:
       DATABASE_PASSWORD: nigger
       DATABASE_NAME: todo_db
       DATABASE_SSLMODE: disable
-    command: ["./todo-service"]
+    command: ["./main"]
 
 volumes:
   postgres_data:

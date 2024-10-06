@@ -41,6 +41,7 @@ path = "user.log"
 
 [user.postgres]
 host = "user-postgres" # DB service name in docker-compose
+port = 5432
 user = "postgres"
 password = "password"
 dbname = "user_db"
@@ -48,6 +49,7 @@ sslmode = "disable"
 
 [user.mongodb]
 host = "user-mongodb" # DB service name in docker-compose
+port = 27017
 user = "mongo_user"
 password = "password"
 dbname = "user_db"
@@ -70,6 +72,7 @@ path = "auth.log"
 
 [auth.postgres]
 host = "auth-postgres" # DB service name in docker-compose
+port = 5432
 user = "postgres"
 password = "password"
 dbname = "auth_db"
@@ -97,6 +100,7 @@ path = "todo.log"
 
 [todo.postgres]
 host = "todo-postgres" # DB service name in docker-compose
+port = 5432
 user = "postgres"
 password = "password"
 dbname = "todo_db"

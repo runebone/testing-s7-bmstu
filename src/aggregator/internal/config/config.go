@@ -71,6 +71,7 @@ type TodoConfig struct {
 
 type PostgresConfig struct {
 	Host     string `toml:"host"`
+	Port     int    `toml:"port"`
 	User     string `toml:"user"`
 	Password string `toml:"password"`
 	DBName   string `toml:"dbname"`
@@ -79,6 +80,7 @@ type PostgresConfig struct {
 
 type MongoDBConfig struct {
 	Host       string `toml:"host"`
+	Port       int    `toml:"port"`
 	User       string `toml:"user"`
 	Password   string `toml:"password"`
 	DBName     string `toml:"dbname"`

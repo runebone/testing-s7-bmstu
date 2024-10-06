@@ -1,0 +1,28 @@
+services:
+  # MongoDB for User Service (optional)
+  user-mongodb:
+    image: mongo:latest
+    container_name: ${USER_MONGODB_HOST}
+    volumes:
+      - user-mongodata:/data/db
+    networks:
+      - backend
+
+  # User Service Postgres
+  user:
+    build: ./${USER_PATH}
+    container_name: ${USER_CONTAINER_NAME}
+    ports:
+      - ${USER_EXPOSED_PORT}:${USER_LOCAL_PORT}
+    depends_on:
+      user-mongodb:
+        condition: service_healthy
+    networks:
+      - backend
+    volumes:
+      - ./config.toml:/app/config.toml
+      - ./logs:/app/logs
+    restart: on-failure
+
+volumes:
+  user-mongodata:

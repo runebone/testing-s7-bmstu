@@ -17,11 +17,12 @@ offset = 0
 [aggregator]
 path = "aggregator"
 container_name = "aggregator"
+base_url = "api/v1"
 local_port = 8080
 exposed_port = 8000
 
 [aggregator.log]
-file = "aggregator.log"
+path = "aggregator.log"
 
 # ==================================
 # === User Service =================
@@ -30,18 +31,19 @@ file = "aggregator.log"
 [user]
 path = "user"
 container_name = "user"
+base_url = "api/v1"
 database = "postgres"
 local_port = 8080
 exposed_port = 8001
 
 [user.log]
-file = "user.log"
+path = "user.log"
 
 [user.postgres]
 host = "user-postgres" # DB service name in docker-compose
 user = "postgres"
 password = "password"
-dbname = "userdb"
+dbname = "user_db"
 sslmode = "disable"
 
 [user.mongodb]
@@ -58,12 +60,13 @@ auth_source = "admin"
 [auth]
 path = "auth"
 container_name = "auth"
+base_url = "api/v1"
 database = "postgres"
 local_port = 8080
 exposed_port = 8002
 
 [auth.log]
-file = "auth.log"
+path = "auth.log"
 
 [auth.postgres]
 host = "auth-postgres" # DB service name in docker-compose
@@ -74,8 +77,8 @@ sslmode = "disable"
 
 [auth.token]
 secret = "secret"
-access_ttl_sec = 15*60
-refresh_ttl_sec = 7*24*60*60
+access_ttl_sec = 900 # 15*60
+refresh_ttl_sec = 604800 # 7*24*60*60
 
 # ==================================
 # === ToDo Service =================
@@ -84,12 +87,13 @@ refresh_ttl_sec = 7*24*60*60
 [todo]
 path = "todo"
 container_name = "todo"
+base_url = "api/v1"
 database = "postgres"
 local_port = 8080
 exposed_port = 8003
 
 [todo.log]
-file = "todo.log"
+path = "todo.log"
 
 [todo.postgres]
 host = "todo-postgres" # DB service name in docker-compose

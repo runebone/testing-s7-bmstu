@@ -95,13 +95,13 @@ func (uc *todoUseCase) GetBoardsByUser(ctx context.Context, userID uuid.UUID, li
 		return nil, err
 	}
 
-	columns, err := uc.boardRepo.GetBoardsByUser(ctx, userID, limit, offset)
+	boards, err := uc.boardRepo.GetBoardsByUser(ctx, userID, limit, offset)
 
 	if err != nil {
 		return nil, ErrGetBoardsByUser
 	}
 
-	return columns, nil
+	return boards, nil
 }
 
 func (uc *todoUseCase) UpdateBoard(ctx context.Context, board *entity.Board) error {

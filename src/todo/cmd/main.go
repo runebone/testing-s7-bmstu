@@ -17,18 +17,18 @@ import (
 )
 
 func main() {
-	logger := logger.NewZapLogger()
-
 	config, err := config.LoadConfig("config.toml")
 	if err != nil {
 		log.Println("Error reading config (config.toml)")
 	}
 
-	db, err := database.NewPostgresDB(config.Database)
+	db, err := database.NewPostgresDB(config.Todo.Postgres)
 	if err != nil {
 		log.Println("Couldn't connect to database, exiting")
 		return
 	}
+
+	logger := logger.NewZapLogger(config.Todo.Log)
 
 	boardRepo := sqlxRepo.NewSQLXBoardRepository(db)
 	columnRepo := sqlxRepo.NewSQLXColumnRepository(db)

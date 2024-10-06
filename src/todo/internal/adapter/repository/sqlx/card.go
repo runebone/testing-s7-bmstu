@@ -33,7 +33,7 @@ func (r *SQLXCardRepository) CreateCard(ctx context.Context, card *entity.Card) 
 
 func (r *SQLXCardRepository) GetCardByID(ctx context.Context, id uuid.UUID) (*entity.Card, error) {
 	query := `
-	SELECT FROM cards WHERE id = $1
+	SELECT * FROM cards WHERE id = $1
 	`
 
 	var repoCard repository.Card
@@ -50,7 +50,7 @@ func (r *SQLXCardRepository) GetCardByID(ctx context.Context, id uuid.UUID) (*en
 
 func (r *SQLXCardRepository) GetCardsByColumn(ctx context.Context, columnID uuid.UUID, limit, offset int) ([]entity.Card, error) {
 	query := `
-	SELECT FROM cards WHERE column_id = $1
+	SELECT * FROM cards WHERE column_id = $1
 	ORDER BY created_at ASC
 	LIMIT $2
 	OFFSET $3
@@ -101,7 +101,7 @@ func (r *SQLXCardRepository) DeleteCard(ctx context.Context, id uuid.UUID) error
 
 func (r *SQLXCardRepository) GetNewCards(ctx context.Context, from, to time.Time) ([]entity.Card, error) {
 	query := `
-	SELECT FROM cards
+	SELECT * FROM cards
 	WHERE $1 <= created_at AND created_at <= $2
 	`
 

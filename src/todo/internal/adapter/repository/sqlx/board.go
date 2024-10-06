@@ -49,7 +49,7 @@ func (r *SQLXBoardRepository) GetBoardByID(ctx context.Context, id uuid.UUID) (*
 
 func (r *SQLXBoardRepository) GetBoardsByUser(ctx context.Context, userID uuid.UUID, limit, offset int) ([]entity.Board, error) {
 	query := `
-	SELECT FROM boards WHERE user_id = $1
+	SELECT * FROM boards WHERE user_id = $1
 	ORDER BY created_at ASC
 	LIMIT $2
 	OFFSET $3

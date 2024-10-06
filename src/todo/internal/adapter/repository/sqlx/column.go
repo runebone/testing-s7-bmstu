@@ -32,7 +32,7 @@ func (r *SQLXColumnRepository) CreateColumn(ctx context.Context, column *entity.
 
 func (r *SQLXColumnRepository) GetColumnByID(ctx context.Context, id uuid.UUID) (*entity.Column, error) {
 	query := `
-	SELECT FROM columns WHERE id = $1
+	SELECT * FROM columns WHERE id = $1
 	`
 
 	var repoColumn repository.Column
@@ -49,7 +49,7 @@ func (r *SQLXColumnRepository) GetColumnByID(ctx context.Context, id uuid.UUID) 
 
 func (r *SQLXColumnRepository) GetColumnsByBoard(ctx context.Context, boardID uuid.UUID, limit, offset int) ([]entity.Column, error) {
 	query := `
-	SELECT FROM columns WHERE board_id = $1
+	SELECT * FROM columns WHERE board_id = $1
 	ORDER BY created_at ASC
 	LIMIT $2
 	OFFSET $3

@@ -16,18 +16,17 @@ import (
 )
 
 func main() {
-	logger := logger.NewZapLogger()
-
 	config, err := config.LoadConfig("config.toml")
 	if err != nil {
 		log.Println("Error reading config (config.toml)")
 	}
 
-	db, err := database.NewPostgresDB(config.Database)
+	db, err := database.NewPostgresDB(config.User.Postgres)
 	if err != nil {
-		log.Println("Couldn't connect to database, exiting")
-		return
+		log.Fatalf("Couldn't connect to database, exiting: %w", err)
 	}
+
+	logger := logger.NewZapLogger(config.User.Log)
 
 	repo := sqlxRepo.NewSQLXUserRepository(db)
 	uc := usecase.NewUserUseCase(repo)

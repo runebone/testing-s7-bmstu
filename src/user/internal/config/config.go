@@ -2,57 +2,72 @@ package config
 
 import (
 	"os"
-	"strconv"
 
 	"github.com/BurntSushi/toml"
 )
 
 type Config struct {
-	Database DatabaseConfig
-	Logger   LoggerConfig
+	Log        LogConfig        `toml:"log"`
+	Pagination PaginationConfig `toml:"pagination.default"`
+	User       UserConfig       `toml:"user"`
 }
 
-type DatabaseConfig struct {
-	Host     string
-	Port     int
-	User     string
-	Password string
-	DBName   string
-	SSLMode  string
+type LogConfig struct {
+	Path  string `toml:"path"`
+	Level string `toml:"level"`
 }
 
-type LoggerConfig struct {
-	Level string
+type PaginationConfig struct {
+	Limit  int `toml:"limit"`
+	Offset int `toml:"offset"`
 }
 
-func LoadConfig(path string) (Config, error) {
+type UserConfig struct {
+	Path          string         `toml:"path"`
+	ContainerName string         `toml:"container_name"`
+	BaseURL       string         `toml:"base_url"`
+	Database      string         `toml:"database"`
+	LocalPort     int            `toml:"local_port"`
+	ExposedPort   int            `toml:"exposed_port"`
+	Log           LogConfig      `toml:"log"`
+	Postgres      PostgresConfig `toml:"postgres"`
+	MongoDB       MongoDBConfig  `toml:"mongodb"`
+}
+
+type PostgresConfig struct {
+	Host     string `toml:"host"`
+	Port     int    `toml:"port"`
+	User     string `toml:"user"`
+	Password string `toml:"password"`
+	DBName   string `toml:"dbname"`
+	SSLMode  string `toml:"sslmode"`
+}
+
+type MongoDBConfig struct {
+	Host       string `toml:"host"`
+	Port       int    `toml:"port"`
+	User       string `toml:"user"`
+	Password   string `toml:"password"`
+	DBName     string `toml:"dbname"`
+	AuthSource string `toml:"auth_source"`
+}
+
+func LoadConfig(configPath string) (*Config, error) {
 	var config Config
-	if _, err := toml.DecodeFile(path, &config); err != nil {
-		return config, err
+
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		return nil, err
 	}
 
-	config.Database.Host = getEnv("DATABASE_HOST", config.Database.Host)
-	config.Database.Port = getEnvInt("DATABASE_PORT", config.Database.Port)
-	config.Database.User = getEnv("DATABASE_USER", config.Database.User)
-	config.Database.Password = getEnv("DATABASE_PASSWORD", config.Database.Password)
-	config.Database.DBName = getEnv("DATABASE_NAME", config.Database.DBName)
-	config.Database.SSLMode = getEnv("DATABASE_SSLMODE", config.Database.SSLMode)
-
-	return config, nil
-}
-
-func getEnv(key, defaultValue string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
+	if _, err := toml.DecodeFile(configPath, &config); err != nil {
+		return nil, err
 	}
-	return defaultValue
-}
 
-func getEnvInt(key string, defaultValue int) int {
-	if value, exists := os.LookupEnv(key); exists {
-		if intValue, err := strconv.Atoi(value); err == nil {
-			return intValue
-		}
+	s := &config.User.Log
+	s.Path = config.Log.Path + "/" + s.Path
+	if s.Level == "" {
+		s.Level = config.Log.Level
 	}
-	return defaultValue
+
+	return &config, nil
 }

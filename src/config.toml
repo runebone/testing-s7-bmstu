@@ -11,6 +11,18 @@ limit = 100
 offset = 0
 
 # ==================================
+# === CLI Client ===================
+# ==================================
+
+[cli]
+path = "cli"
+container_name = "cli"
+tokens_path = "cli/tokens.json"
+
+[cli.log]
+path = "cli.log"
+
+# ==================================
 # === Aggregator Service ===========
 # ==================================
 

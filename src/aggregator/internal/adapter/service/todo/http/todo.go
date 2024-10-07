@@ -229,7 +229,7 @@ func (s *TodoService) CreateColumn(ctx context.Context, column dto.Column) error
 }
 
 func (s *TodoService) CreateCard(ctx context.Context, card dto.Card) error {
-	url := fmt.Sprintf("%s/columns", s.baseURL)
+	url := fmt.Sprintf("%s/cards", s.baseURL)
 
 	data := card
 

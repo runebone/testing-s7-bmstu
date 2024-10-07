@@ -175,11 +175,24 @@ func (h *AggregatorHandler) CreateBoard(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	board := dto.Board{
-		Title: req.Title,
+	userIDstr, ok := middleware.GetUserIDFromContext(r.Context())
+	if !ok {
+		http.Error(w, ErrNoUserID.Error(), http.StatusUnauthorized)
+		return
 	}
 
-	err := h.uc.CreateBoard(r.Context(), board)
+	userID, err := uuid.Parse(userIDstr)
+	if err != nil {
+		http.Error(w, ErrBadUserID.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	board := dto.Board{
+		UserID: userID,
+		Title:  req.Title,
+	}
+
+	err = h.uc.CreateBoard(r.Context(), board)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusConflict)
 		return

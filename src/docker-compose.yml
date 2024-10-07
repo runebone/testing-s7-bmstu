@@ -93,7 +93,8 @@ services:
     volumes:
       - ./${AUTH_PATH}/migrations/sql:/migrations
     depends_on:
-      - auth-postgres
+      auth-postgres:
+        condition: service_healthy
     networks:
       - backend
     entrypoint: ["migrate", "-path=/migrations", "-database", "postgres://${AUTH_POSTGRES_USER}:${AUTH_POSTGRES_PASSWORD}@${AUTH_POSTGRES_HOST}:${AUTH_POSTGRES_PORT}/${AUTH_POSTGRES_DBNAME}?sslmode=${AUTH_POSTGRES_SSLMODE}", "up"]

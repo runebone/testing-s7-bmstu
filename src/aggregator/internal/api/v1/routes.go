@@ -10,6 +10,8 @@ import (
 func InitializeV1Routes(router *mux.Router, aggHandler *v1.AggregatorHandler, authMiddleware *middleware.AuthMiddleware) {
 	router.HandleFunc("/api/v1/register", aggHandler.Register).Methods("POST")
 	router.HandleFunc("/api/v1/login", aggHandler.Login).Methods("POST")
+	router.HandleFunc("/api/v1/refresh", aggHandler.Refresh).Methods("POST")
+	router.HandleFunc("/api/v1/validate", aggHandler.Validate).Methods("POST")
 	router.HandleFunc("/api/v1/logout", aggHandler.Logout).Methods("POST")
 
 	authRoutes := router.PathPrefix("/api/v1").Subrouter()

@@ -22,6 +22,7 @@ var (
 	ErrRegister         error  = errors.New("failed to register")
 	ErrLogin            error  = errors.New("failed to login")
 	ErrRefresh          error  = errors.New("failed to refresh")
+	ErrValidate         error  = errors.New("failed to validate token")
 	ErrLogout           error  = errors.New("failed to logout")
 	ErrGetBoards        error  = errors.New("failed to get boards")
 	ErrGetColumns       error  = errors.New("failed to get columns")
@@ -165,6 +166,14 @@ func (uc *AggregatorUseCase) Refresh(ctx context.Context, refreshToken string) (
 	resp, err := uc.authSvc.Refresh(ctx, refreshToken)
 	if err != nil {
 		return nil, ErrRefresh
+	}
+	return resp, nil
+}
+
+func (uc *AggregatorUseCase) Validate(ctx context.Context, token string) (*dto.ValidateTokenResponse, error) {
+	resp, err := uc.authSvc.ValidateToken(ctx, token)
+	if err != nil {
+		return nil, ErrValidate
 	}
 	return resp, nil
 }

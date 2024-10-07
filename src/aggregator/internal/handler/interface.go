@@ -5,6 +5,8 @@ import "net/http"
 type AggregatorHandler interface {
 	Register(w http.ResponseWriter, r *http.Request)
 	Login(w http.ResponseWriter, r *http.Request)
+	Refresh(w http.ResponseWriter, r *http.Request)
+	Validate(w http.ResponseWriter, r *http.Request)
 	Logout(w http.ResponseWriter, r *http.Request)
 
 	GetBoards(w http.ResponseWriter, r *http.Request)

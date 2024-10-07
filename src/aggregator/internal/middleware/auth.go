@@ -37,14 +37,14 @@ func (m *AuthMiddleware) Middleware(next http.Handler) http.Handler {
 		}
 		token := parts[1]
 
-		userID, role, err := m.svc.ValidateToken(r.Context(), token)
+		resp, err := m.svc.ValidateToken(r.Context(), token)
 		if err != nil {
 			http.Error(w, "Invalid token", http.StatusUnauthorized)
 			return
 		}
 
-		parent := context.WithValue(r.Context(), userIDKey, userID)
-		ctx := context.WithValue(parent, roleKey, role)
+		parent := context.WithValue(r.Context(), userIDKey, resp.UserID)
+		ctx := context.WithValue(parent, roleKey, resp.Role)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

@@ -13,6 +13,7 @@ type AggregatorUseCase interface {
 	Register(ctx context.Context, username, email, password string) (*dto.Tokens, error)
 	Login(ctx context.Context, email, password string) (*dto.Tokens, error)
 	Refresh(ctx context.Context, refreshToken string) (*dto.RefreshResponse, error)
+	Validate(ctx context.Context, token string) (*dto.ValidateTokenResponse, error)
 	Logout(ctx context.Context, refreshToken string) error
 
 	GetBoards(ctx context.Context, userID string) ([]dto.Board, error)

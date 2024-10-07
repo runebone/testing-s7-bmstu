@@ -142,7 +142,7 @@ func (s *AuthService) Refresh(ctx context.Context, refreshToken string) (*dto.Re
 	return &token, nil
 }
 
-func (s *AuthService) ValidateToken(ctx context.Context, token string) (string, string, error) {
+func (s *AuthService) ValidateToken(ctx context.Context, token string) (*dto.ValidateTokenResponse, error) {
 	url := fmt.Sprintf("%s/validate", s.baseURL)
 
 	data := dto.ValidateTokenRequest{
@@ -155,27 +155,24 @@ func (s *AuthService) ValidateToken(ctx context.Context, token string) (string, 
 	resp, err := s.makeRequest(ctx, method, url, data)
 	if err != nil {
 		s.log.Error(ctx, "Error making the request", "method", method, "url", url, "data", data)
-		return "", "", err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		err = ErrValidate
 		s.log.Error(ctx, err.Error())
-		return "", "", err
+		return nil, err
 	}
 
 	var userData dto.ValidateTokenResponse
 	if err := json.NewDecoder(resp.Body).Decode(&userData); err != nil {
 		err = ErrDecodeResponse(err)
 		s.log.Error(ctx, err.Error())
-		return "", "", err
+		return nil, err
 	}
 
-	userID := userData.UserID
-	role := userData.Role
-
-	return userID, role, nil
+	return &userData, nil
 }
 
 func (s *AuthService) Logout(ctx context.Context, refreshToken string) error {

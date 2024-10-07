@@ -67,6 +67,38 @@ func (h *AggregatorHandler) Login(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(tokens)
 }
 
+func (h *AggregatorHandler) Refresh(w http.ResponseWriter, r *http.Request) {
+	var req dto.RefreshRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, ErrInvalidRequestBody.Error(), http.StatusBadRequest)
+		return
+	}
+
+	resp, err := h.uc.Refresh(r.Context(), req.RefreshToken)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	json.NewEncoder(w).Encode(resp)
+}
+
+func (h *AggregatorHandler) Validate(w http.ResponseWriter, r *http.Request) {
+	var req dto.ValidateTokenRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, ErrInvalidRequestBody.Error(), http.StatusBadRequest)
+		return
+	}
+
+	resp, err := h.uc.Validate(r.Context(), req.Token)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	json.NewEncoder(w).Encode(resp)
+}
+
 func (h *AggregatorHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	var req dto.LogoutRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

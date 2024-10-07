@@ -19,6 +19,7 @@ var (
 	ErrDecodeResponse func(error) error = func(err error) error {
 		return fmt.Errorf("Failed to decode response: %w", err)
 	}
+	ErrUnauthorized error = errors.New("Unauthorized")
 	ErrRegister     error = errors.New("User wasn't created")
 	ErrLogin        error = errors.New("Failed to log in")
 	ErrRefresh      error = errors.New("Failed to refresh")
@@ -76,6 +77,12 @@ func (s *AggregatorService) Register(ctx context.Context, username, email, passw
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusUnauthorized {
+		err = ErrUnauthorized
+		s.log.Error(ctx, err.Error())
+		return nil, err
+	}
+
 	if resp.StatusCode != http.StatusCreated {
 		err = ErrRegister
 		s.log.Error(ctx, err.Error())
@@ -111,6 +118,12 @@ func (s *AggregatorService) Login(ctx context.Context, email, password string) (
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusUnauthorized {
+		err = ErrUnauthorized
+		s.log.Error(ctx, err.Error())
+		return nil, err
+	}
+
 	if resp.StatusCode != http.StatusOK {
 		err = ErrLogin
 		s.log.Error(ctx, err.Error())
@@ -145,6 +158,12 @@ func (s *AggregatorService) Refresh(ctx context.Context, refreshToken string) (*
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusUnauthorized {
+		err = ErrUnauthorized
+		s.log.Error(ctx, err.Error())
+		return nil, err
+	}
+
 	if resp.StatusCode != http.StatusOK {
 		err = ErrRefresh
 		s.log.Error(ctx, err.Error())
@@ -178,6 +197,12 @@ func (s *AggregatorService) Validate(ctx context.Context, token string) (*dto.Va
 		return nil, err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusUnauthorized {
+		err = ErrUnauthorized
+		s.log.Error(ctx, err.Error())
+		return nil, err
+	}
 
 	if resp.StatusCode != http.StatusOK {
 		err = ErrValidate
@@ -234,6 +259,12 @@ func (s *AggregatorService) ShowBoards(ctx context.Context) ([]dto.Board, error)
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == http.StatusUnauthorized {
+		err = ErrUnauthorized
+		s.log.Error(ctx, err.Error())
+		return nil, err
+	}
+
 	if resp.StatusCode != http.StatusOK {
 		err = ErrGetBoards
 		s.log.Error(ctx, err.Error())
@@ -260,8 +291,14 @@ func (s *AggregatorService) ShowBoard(ctx context.Context, boardID string) ([]dt
 		s.log.Error(ctx, "Error making the request", "method", method, "url", url)
 		return nil, err
 	}
-
 	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusUnauthorized {
+		err = ErrUnauthorized
+		s.log.Error(ctx, err.Error())
+		return nil, err
+	}
+
 	if resp.StatusCode != http.StatusOK {
 		err = ErrGetColumns
 		s.log.Error(ctx, err.Error())
@@ -286,6 +323,13 @@ func (s *AggregatorService) ShowColumn(ctx context.Context, columnID string) ([]
 	resp, err := s.makeRequest(ctx, method, url, nil)
 	if err != nil {
 		s.log.Error(ctx, "Error making the request", "method", method, "url", url)
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusUnauthorized {
+		err = ErrUnauthorized
+		s.log.Error(ctx, err.Error())
 		return nil, err
 	}
 
@@ -313,6 +357,13 @@ func (s *AggregatorService) ShowCard(ctx context.Context, cardID string) (*dto.C
 	resp, err := s.makeRequest(ctx, method, url, nil)
 	if err != nil {
 		s.log.Error(ctx, "Error making the request", "method", method, "url", url)
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusUnauthorized {
+		err = ErrUnauthorized
+		s.log.Error(ctx, err.Error())
 		return nil, err
 	}
 
@@ -344,6 +395,13 @@ func (s *AggregatorService) CreateBoard(ctx context.Context, board dto.Board) er
 		s.log.Error(ctx, "Error making the request", "method", method, "url", url, "data", data)
 		return err
 	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusUnauthorized {
+		err = ErrUnauthorized
+		s.log.Error(ctx, err.Error())
+		return err
+	}
 
 	if resp.StatusCode != http.StatusCreated {
 		err = ErrCreateBoard
@@ -364,6 +422,13 @@ func (s *AggregatorService) CreateColumn(ctx context.Context, column dto.Column)
 	resp, err := s.makeRequest(ctx, method, url, data)
 	if err != nil {
 		s.log.Error(ctx, "Error making the request", "method", method, "url", url, "data", data)
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusUnauthorized {
+		err = ErrUnauthorized
+		s.log.Error(ctx, err.Error())
 		return err
 	}
 
@@ -388,6 +453,13 @@ func (s *AggregatorService) CreateCard(ctx context.Context, card dto.Card) error
 		s.log.Error(ctx, "Error making the request", "method", method, "url", url, "data", data)
 		return err
 	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusUnauthorized {
+		err = ErrUnauthorized
+		s.log.Error(ctx, err.Error())
+		return err
+	}
 
 	if resp.StatusCode != http.StatusCreated {
 		err = ErrCreateBoard
@@ -408,6 +480,13 @@ func (s *AggregatorService) UpdateBoard(ctx context.Context, board *dto.Board) e
 	resp, err := s.makeRequest(ctx, method, url, data)
 	if err != nil {
 		s.log.Error(ctx, "Error making the request", "method", method, "url", url, "data", data)
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusUnauthorized {
+		err = ErrUnauthorized
+		s.log.Error(ctx, err.Error())
 		return err
 	}
 
@@ -432,6 +511,13 @@ func (s *AggregatorService) UpdateColumn(ctx context.Context, column *dto.Column
 		s.log.Error(ctx, "Error making the request", "method", method, "url", url, "data", data)
 		return err
 	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusUnauthorized {
+		err = ErrUnauthorized
+		s.log.Error(ctx, err.Error())
+		return err
+	}
 
 	if resp.StatusCode != http.StatusOK {
 		err = ErrUpdateColumn
@@ -454,6 +540,13 @@ func (s *AggregatorService) UpdateCard(ctx context.Context, card *dto.Card) erro
 		s.log.Error(ctx, "Error making the request", "method", method, "url", url, "data", data)
 		return err
 	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusUnauthorized {
+		err = ErrUnauthorized
+		s.log.Error(ctx, err.Error())
+		return err
+	}
 
 	if resp.StatusCode != http.StatusOK {
 		err = ErrUpdateCard
@@ -472,6 +565,13 @@ func (s *AggregatorService) DeleteBoard(ctx context.Context, id string) error {
 	resp, err := s.makeRequest(ctx, method, url, nil)
 	if err != nil {
 		s.log.Error(ctx, "Error making the request", "method", method, "url", url)
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusUnauthorized {
+		err = ErrUnauthorized
+		s.log.Error(ctx, err.Error())
 		return err
 	}
 
@@ -494,6 +594,13 @@ func (s *AggregatorService) DeleteColumn(ctx context.Context, id string) error {
 		s.log.Error(ctx, "Error making the request", "method", method, "url", url)
 		return err
 	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusUnauthorized {
+		err = ErrUnauthorized
+		s.log.Error(ctx, err.Error())
+		return err
+	}
 
 	if resp.StatusCode != http.StatusOK {
 		err = ErrDeleteColumn
@@ -512,6 +619,13 @@ func (s *AggregatorService) DeleteCard(ctx context.Context, id string) error {
 	resp, err := s.makeRequest(ctx, method, url, nil)
 	if err != nil {
 		s.log.Error(ctx, "Error making the request", "method", method, "url", url)
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusUnauthorized {
+		err = ErrUnauthorized
+		s.log.Error(ctx, err.Error())
 		return err
 	}
 
@@ -535,6 +649,12 @@ func (s *AggregatorService) Stats(ctx context.Context, from, to string) ([]dto.N
 		return nil, err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusUnauthorized {
+		err = ErrUnauthorized
+		s.log.Error(ctx, err.Error())
+		return nil, err
+	}
 
 	if resp.StatusCode != http.StatusOK {
 		err = ErrGetNewCards

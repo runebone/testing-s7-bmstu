@@ -55,10 +55,9 @@ func main() {
 
 	router := mux.NewRouter()
 	loggingMiddleware := middleware.NewLoggingMiddleware(logger)
-	// authMiddleware := middleware.NewAuthMiddleware(authSvc)
 	router.Use(loggingMiddleware.Middleware)
-	// router.Use(authMiddleware.Middleware)
-	api.InitializeV1Routes(router, handler)
+	authMiddleware := middleware.NewAuthMiddleware(authSvc)
+	api.InitializeV1Routes(router, handler, authMiddleware)
 
 	localPort := fmt.Sprintf("%d", config.Aggregator.LocalPort)
 	exposedPort := fmt.Sprintf("%d", config.Aggregator.ExposedPort)

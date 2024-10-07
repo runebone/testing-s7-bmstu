@@ -18,3 +18,18 @@ mongo:
 
 down:
 	docker compose --env-file .env -f docker-compose.yml -f docker-compose.user.postgres.yml down
+
+boards:
+	docker exec -it todo-postgres psql -U postgres -d todo_db -c "select * from boards;"
+
+columns:
+	docker exec -it todo-postgres psql -U postgres -d todo_db -c "select * from columns;"
+
+cards:
+	docker exec -it todo-postgres psql -U postgres -d todo_db -c "select * from cards;"
+
+users:
+	docker exec -it user-postgres psql -U postgres -d user_db -c "select * from users;"
+
+tokens:
+	docker exec -it auth-postgres psql -U postgres -d auth_db -c "select * from tokens;"

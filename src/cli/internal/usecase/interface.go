@@ -18,14 +18,14 @@ type Client interface {
 	ShowColumn(ctx context.Context, columnID string)
 	ShowCard(ctx context.Context, cardID string)
 
-	CreateBoard(ctx context.Context, title string)                       // board dto.Board)
-	CreateColumn(ctx context.Context, boardID, title string)             // column dto.Column)
-	CreateCard(ctx context.Context, columnID, title, description string) // card dto.Card)
+	CreateBoard(ctx context.Context, title string)
+	CreateColumn(ctx context.Context, boardID, title string)
+	CreateCard(ctx context.Context, columnID, title, description string)
 
-	UpdateBoard(ctx context.Context, boardID, title string)                                   // board *dto.Board)
-	UpdateColumn(ctx context.Context, boardID, columnID, title string)                        // column *dto.Column)
-	UpdateCardTitle(ctx context.Context, boardID, columnID, cardID, title string)             // card *dto.Card)
-	UpdateCardDescription(ctx context.Context, boardID, columnID, cardID, description string) // card *dto.Card)
+	UpdateBoard(ctx context.Context, boardID, title string)
+	UpdateColumn(ctx context.Context, columnID, title string)
+	UpdateCardTitle(ctx context.Context, cardID, title string)
+	UpdateCardDescription(ctx context.Context, cardID, description string)
 
 	DeleteBoard(ctx context.Context, id string)
 	DeleteColumn(ctx context.Context, id string)

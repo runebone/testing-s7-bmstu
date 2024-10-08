@@ -6,6 +6,8 @@ import (
 	"cli/internal/usecase"
 	"context"
 	"fmt"
+
+	"github.com/google/uuid"
 )
 
 type ClientUseCase struct {
@@ -47,71 +49,376 @@ func (uc *ClientUseCase) ShowBoards(ctx context.Context) {
 	tokens, ok := ctx.Value("tokens").(dto.Tokens)
 	if !ok {
 		fmt.Println("failed to get tokens from context")
+		return
 	}
 
-	resp, err := uc.svc.Validate(tokens.AccessToken)
+	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
+	if err != nil {
+		fmt.Println("access token expired")
+		return
+	}
+
+	boards, err := uc.svc.ShowBoards(ctx)
+
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+
+	for i, board := range boards {
+		fmt.Printf("%d. %s\nTitle: %s\n", i+1, board.ID, board.Title)
+	}
+}
+
+func (uc *ClientUseCase) ShowBoard(ctx context.Context, boardID string) {
+	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	if !ok {
+		fmt.Println("failed to get tokens from context")
+	}
+
+	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
 	if err != nil {
 		fmt.Println("access token expired")
 	}
 
-	userID := resp.UserID
-	role := resp.Role
-
-	boards, err := uc.svc.ShowBoards(ctx)
-}
-
-func (uc *ClientUseCase) ShowBoard(ctx context.Context, boardID string) {
 	columns, err := uc.svc.ShowBoard(ctx, boardID)
+
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+
+	for i, column := range columns {
+		fmt.Printf("%d. %s\nTitle: %s\n", i+1, column.ID, column.Title)
+	}
 }
 
 func (uc *ClientUseCase) ShowColumn(ctx context.Context, columnID string) {
+	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	if !ok {
+		fmt.Println("failed to get tokens from context")
+	}
+
+	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
+	if err != nil {
+		fmt.Println("access token expired")
+	}
+
 	cards, err := uc.svc.ShowColumn(ctx, columnID)
+
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+
+	for i, card := range cards {
+		fmt.Printf("%d. %s\nTitle: %s\n", i+1, card.ID, card.Title)
+	}
 }
 
 func (uc *ClientUseCase) ShowCard(ctx context.Context, cardID string) {
+	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	if !ok {
+		fmt.Println("failed to get tokens from context")
+	}
+
+	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
+	if err != nil {
+		fmt.Println("access token expired")
+	}
+
 	card, err := uc.svc.ShowCard(ctx, cardID)
+
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+
+	fmt.Printf("Title: %s\nDescription: %s\n", card.Title, card.Description)
 }
 
 func (uc *ClientUseCase) CreateBoard(ctx context.Context, title string) {
-	err := uc.svc.CreateBoard(ctx, board)
+	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	if !ok {
+		fmt.Println("failed to get tokens from context")
+	}
+
+	resp, err := uc.svc.Validate(ctx, tokens.AccessToken)
+	if err != nil {
+		fmt.Println("access token expired")
+	}
+
+	userID, err := uuid.Parse(resp.UserID)
+	if err != nil {
+		fmt.Println("failed parsing user uuid")
+	}
+
+	board := dto.Board{
+		UserID: userID,
+		Title:  title,
+	}
+
+	err = uc.svc.CreateBoard(ctx, board)
+
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+
+	fmt.Println("success")
 }
 
-func (uc *ClientUseCase) CreateColumn(ctx context.Context, boardID, title string) {
-	err := uc.svc.CreateColumn(ctx, column)
+func (uc *ClientUseCase) CreateColumn(ctx context.Context, boardIDstr, title string) {
+	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	if !ok {
+		fmt.Println("failed to get tokens from context")
+	}
+
+	resp, err := uc.svc.Validate(ctx, tokens.AccessToken)
+	if err != nil {
+		fmt.Println("access token expired")
+	}
+
+	userID, err := uuid.Parse(resp.UserID)
+	if err != nil {
+		fmt.Println("failed parsing user uuid")
+	}
+
+	boardID, err := uuid.Parse(boardIDstr)
+	if err != nil {
+		fmt.Println("failed parsing board uuid")
+	}
+
+	column := dto.Column{
+		UserID:  userID,
+		BoardID: boardID,
+		Title:   title,
+	}
+
+	err = uc.svc.CreateColumn(ctx, column)
+
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+
+	fmt.Println("success")
 }
 
-func (uc *ClientUseCase) CreateCard(ctx context.Context, columnID, title, description string) {
-	err := uc.svc.CreateCard(ctx, card)
+func (uc *ClientUseCase) CreateCard(ctx context.Context, columnIDstr, title, description string) {
+	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	if !ok {
+		fmt.Println("failed to get tokens from context")
+	}
+
+	resp, err := uc.svc.Validate(ctx, tokens.AccessToken)
+	if err != nil {
+		fmt.Println("access token expired")
+	}
+
+	userID, err := uuid.Parse(resp.UserID)
+	if err != nil {
+		fmt.Println("failed parsing user uuid")
+	}
+
+	columnID, err := uuid.Parse(columnIDstr)
+	if err != nil {
+		fmt.Println("failed parsing column uuid")
+	}
+
+	card := dto.Card{
+		UserID:      userID,
+		ColumnID:    columnID,
+		Title:       title,
+		Description: description,
+	}
+
+	err = uc.svc.CreateCard(ctx, card)
+
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+
+	fmt.Println("success")
 }
 
-func (uc *ClientUseCase) UpdateBoard(ctx context.Context, boardID, title string) {
-	err := uc.svc.UpdateBoard(ctx, board)
+func (uc *ClientUseCase) UpdateBoard(ctx context.Context, boardIDstr, title string) {
+	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	if !ok {
+		fmt.Println("failed to get tokens from context")
+	}
+
+	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
+	if err != nil {
+		fmt.Println("access token expired")
+	}
+
+	boardID, err := uuid.Parse(boardIDstr)
+	if err != nil {
+		fmt.Println("failed parsing board uuid")
+	}
+
+	board := dto.Board{
+		ID:    boardID,
+		Title: title,
+	}
+
+	err = uc.svc.UpdateBoard(ctx, &board)
+
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+
+	fmt.Println("success")
 }
 
-func (uc *ClientUseCase) UpdateColumn(ctx context.Context, boardID, columnID, title string) {
-	err := uc.svc.UpdateColumn(ctx, column)
+func (uc *ClientUseCase) UpdateColumn(ctx context.Context, columnIDstr, title string) {
+	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	if !ok {
+		fmt.Println("failed to get tokens from context")
+	}
+
+	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
+	if err != nil {
+		fmt.Println("access token expired")
+	}
+
+	columnID, err := uuid.Parse(columnIDstr)
+	if err != nil {
+		fmt.Println("failed parsing column uuid")
+	}
+
+	column := dto.Column{
+		ID:    columnID,
+		Title: title,
+	}
+
+	err = uc.svc.UpdateColumn(ctx, &column)
+
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+
+	fmt.Println("success")
 }
 
-func (uc *ClientUseCase) UpdateCardTitle(ctx context.Context, boardID, columnID, cardID, title string) {
-	err := uc.svc.UpdateCard(ctx, card)
+func (uc *ClientUseCase) UpdateCardTitle(ctx context.Context, cardIDstr, title string) {
+	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	if !ok {
+		fmt.Println("failed to get tokens from context")
+	}
+
+	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
+	if err != nil {
+		fmt.Println("access token expired")
+	}
+
+	cardID, err := uuid.Parse(cardIDstr)
+	if err != nil {
+		fmt.Println("failed parsing card uuid")
+	}
+
+	card := dto.Card{
+		ID:    cardID,
+		Title: title,
+	}
+
+	err = uc.svc.UpdateCard(ctx, &card)
+
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+
+	fmt.Println("success")
 }
 
-func (uc *ClientUseCase) UpdateCardDescription(ctx context.Context, boardID, columnID, cardID, description string) {
-	err := uc.svc.UpdateCard(ctx, card)
+func (uc *ClientUseCase) UpdateCardDescription(ctx context.Context, cardIDstr, description string) {
+	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	if !ok {
+		fmt.Println("failed to get tokens from context")
+	}
+
+	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
+	if err != nil {
+		fmt.Println("access token expired")
+	}
+
+	cardID, err := uuid.Parse(cardIDstr)
+	if err != nil {
+		fmt.Println("failed parsing card uuid")
+	}
+
+	card := dto.Card{
+		ID:          cardID,
+		Description: description,
+	}
+
+	err = uc.svc.UpdateCard(ctx, &card)
+
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+
+	fmt.Println("success")
 }
 
 func (uc *ClientUseCase) DeleteBoard(ctx context.Context, id string) {
 	err := uc.svc.DeleteBoard(ctx, id)
+
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+
+	fmt.Println("success")
 }
 
 func (uc *ClientUseCase) DeleteColumn(ctx context.Context, id string) {
 	err := uc.svc.DeleteColumn(ctx, id)
+
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+
+	fmt.Println("success")
 }
 
 func (uc *ClientUseCase) DeleteCard(ctx context.Context, id string) {
 	err := uc.svc.DeleteCard(ctx, id)
+
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+
+	fmt.Println("success")
 }
 
 func (uc *ClientUseCase) Stats(ctx context.Context, from, to string) {
 	stats, err := uc.svc.Stats(ctx, from, to)
+
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+
+	for i, stat := range stats {
+		date := stat.Date.Format("02-01-2006")
+		fmt.Printf("%d. Date: %s\n", i+1, date)
+		fmt.Printf("Users:\n")
+		for j, user := range stat.Users {
+			fmt.Printf("    %d. %s (%s)\n", j+1, user.Username, user.Email)
+		}
+		fmt.Printf("Cards:\n")
+		for j, card := range stat.Cards {
+			fmt.Printf("    %d. %s\n", j+1, card.Title)
+		}
+		fmt.Printf("Number of cards created by new users: %d\n", stat.NumCardsByNewUsers)
+	}
 }

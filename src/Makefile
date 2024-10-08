@@ -4,6 +4,7 @@ all: up
 
 build:
 	docker compose --env-file .env -f docker-compose.yml -f docker-compose.user.postgres.yml build
+	docker compose --env-file .env -f docker-compose.yml -f docker-compose.user.mongo.yml build
 
 up: postgres
 
@@ -16,8 +17,15 @@ mongo:
 	python ${SCRIPT}
 	docker compose --env-file .env -f docker-compose.yml -f docker-compose.user.mongo.yml up
 
+userpg:
+	docker compose --env-file .env -f docker-compose.yml -f docker-compose.user.postgres.yml up user-postgres
+
+rmv:
+	for volume in $$(docker volume ls -q); do docker volume rm $$volume; done
+
 down:
 	docker compose --env-file .env -f docker-compose.yml -f docker-compose.user.postgres.yml down
+	docker compose --env-file .env -f docker-compose.yml -f docker-compose.user.mongo.yml down
 
 boards:
 	docker exec -it todo-postgres psql -U postgres -d todo_db -c "select * from boards;"

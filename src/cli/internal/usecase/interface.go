@@ -1,4 +1,4 @@
-package client
+package usecase
 
 import (
 	"cli/internal/dto"
@@ -6,24 +6,26 @@ import (
 )
 
 type Client interface {
-	Register(ctx context.Context, username, email, password string)
-	Login(ctx context.Context, email, password string)
-	Refresh(ctx context.Context, refreshToken string)
-	Validate(ctx context.Context, token string)
-	Logout(ctx context.Context, refreshToken string)
+	Register(ctx context.Context, username, email, password string) (*dto.Tokens, error)
+	Login(ctx context.Context, email, password string) (*dto.Tokens, error)
+	Refresh(ctx context.Context, refreshToken string) (*dto.RefreshResponse, error)
+	Validate(ctx context.Context, token string) (*dto.ValidateTokenResponse, error)
+	Logout(ctx context.Context, refreshToken string) error
 
+	// context with value tokens
 	ShowBoards(ctx context.Context)
 	ShowBoard(ctx context.Context, boardID string)
 	ShowColumn(ctx context.Context, columnID string)
 	ShowCard(ctx context.Context, cardID string)
 
-	CreateBoard(ctx context.Context, board dto.Board)
-	CreateColumn(ctx context.Context, column dto.Column)
-	CreateCard(ctx context.Context, card dto.Card)
+	CreateBoard(ctx context.Context, title string)                       // board dto.Board)
+	CreateColumn(ctx context.Context, boardID, title string)             // column dto.Column)
+	CreateCard(ctx context.Context, columnID, title, description string) // card dto.Card)
 
-	UpdateBoard(ctx context.Context, board *dto.Board)
-	UpdateColumn(ctx context.Context, column *dto.Column)
-	UpdateCard(ctx context.Context, card *dto.Card)
+	UpdateBoard(ctx context.Context, boardID, title string)                                   // board *dto.Board)
+	UpdateColumn(ctx context.Context, boardID, columnID, title string)                        // column *dto.Column)
+	UpdateCardTitle(ctx context.Context, boardID, columnID, cardID, title string)             // card *dto.Card)
+	UpdateCardDescription(ctx context.Context, boardID, columnID, cardID, description string) // card *dto.Card)
 
 	DeleteBoard(ctx context.Context, id string)
 	DeleteColumn(ctx context.Context, id string)

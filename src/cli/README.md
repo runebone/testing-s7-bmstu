@@ -4,22 +4,22 @@ todo login "email" "password"
 todo logout
 
 todo create board "title"
-todo create column *board_idx* "title"
-todo create card *board_idx* *column_idx* "title" ["description"]
+todo create column *board_id* "title"
+todo create card *board_id* *column_id* "title" ["description"]
 
 todo show boards
-todo show board *board_idx*
-todo show cards *board_idx* *column_idx*
-todo show card *board_idx* *column_idx* *card_idx*
+todo show board *board_id*
+todo show cards *board_id* *column_id*
+todo show card *board_id* *column_id* *card_id*
 
-todo update board *board_idx* title "title"
-todo update column *board_idx* *column_idx* title "title"
-todo update card *board_idx* *column_idx* *card_idx* title "title"
-todo update card *board_idx* *column_idx* *card_idx* description "description"
+todo update board *board_id* title "title"
+todo update column *board_id* *column_id* title "title"
+todo update card *board_id* *column_id* *card_id* title "title"
+todo update card *board_id* *column_id* *card_id* description "description"
 
-todo delete board *board_idx*
-todo delete column *board_idx* *column_idx*
-todo delete card *board_idx* *column_idx* *card_idx*
+todo delete board *board_id*
+todo delete column *board_id* *column_id*
+todo delete card *board_id* *column_id* *card_id*
 
 todo stats from "DD-MM-YYYY" to "DD-MM-YYYY"
 ```

@@ -25,7 +25,7 @@ services:
     ports:
       - ${USER_EXPOSED_PORT}:${USER_LOCAL_PORT}
     environment:
-      POSTGRES_URL: postgres://${USER_POSTGRES_USER}:${USER_POSTGRES_PASSWORD}@${USER_POSTGRES_HOST}:${USER_POSTGRES_PORT}/${USER_POSTGRES_DBNAME}
+      POSTGRES_URI: postgres://${USER_POSTGRES_USER}:${USER_POSTGRES_PASSWORD}@${USER_POSTGRES_HOST}:${USER_POSTGRES_PORT}/${USER_POSTGRES_DBNAME}
     depends_on:
       user-postgres:
         condition: service_healthy

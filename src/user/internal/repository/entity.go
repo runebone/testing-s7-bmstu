@@ -8,13 +8,13 @@ import (
 )
 
 type User struct {
-	ID           uuid.UUID `db:"id"`
-	Username     string    `db:"username"`
-	Email        string    `db:"email"`
-	Role         string    `db:"role"`
-	PasswordHash string    `db:"password_hash"`
-	CreatedAt    time.Time `db:"created_at"`
-	UpdatedAt    time.Time `db:"updated_at"`
+	ID           uuid.UUID `db:"id"            bson:"_id,omitempty"`
+	Username     string    `db:"username"      bson:"username"`
+	Email        string    `db:"email"         bson:"email"`
+	Role         string    `db:"role"          bson:"role"`
+	PasswordHash string    `db:"password_hash" bson:"password_hash"`
+	CreatedAt    time.Time `db:"created_at"    bson:"created_at"`
+	UpdatedAt    time.Time `db:"updated_at"    bson:"updated_at"`
 }
 
 func RepoUser(e entity.User) User {

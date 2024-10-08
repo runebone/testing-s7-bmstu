@@ -31,7 +31,7 @@ type UserConfig struct {
 	ExposedPort   int            `toml:"exposed_port"`
 	Log           LogConfig      `toml:"log"`
 	Postgres      PostgresConfig `toml:"postgres"`
-	MongoDB       MongoDBConfig  `toml:"mongodb"`
+	Mongo         MongoConfig    `toml:"mongo"`
 }
 
 type PostgresConfig struct {
@@ -43,13 +43,12 @@ type PostgresConfig struct {
 	SSLMode  string `toml:"sslmode"`
 }
 
-type MongoDBConfig struct {
-	Host       string `toml:"host"`
-	Port       int    `toml:"port"`
-	User       string `toml:"user"`
-	Password   string `toml:"password"`
-	DBName     string `toml:"dbname"`
-	AuthSource string `toml:"auth_source"`
+type MongoConfig struct {
+	Host     string `toml:"host"`
+	Port     int    `toml:"port"`
+	User     string `toml:"user"`
+	Password string `toml:"password"`
+	DBName   string `toml:"dbname"`
 }
 
 func LoadConfig(configPath string) (*Config, error) {

@@ -44,7 +44,7 @@ path = "aggregator.log"
 path = "user"
 container_name = "user"
 base_url = "api/v1"
-database = "postgres"
+database = "mongo"
 local_port = 8080
 exposed_port = 8001
 
@@ -59,13 +59,12 @@ password = "password"
 dbname = "user_db"
 sslmode = "disable"
 
-[user.mongodb]
-host = "user-mongodb" # DB service name in docker-compose
+[user.mongo]
+host = "user-mongo" # DB service name in docker-compose
 port = 27017
 user = "mongo_user"
 password = "password"
 dbname = "user_db"
-auth_source = "admin"
 
 # ==================================
 # === Auth Service =================

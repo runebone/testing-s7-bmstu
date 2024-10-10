@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"log"
 	"time"
 	"user/internal/entity"
 	"user/internal/repository"
@@ -33,8 +32,6 @@ func (r *MongoUserRepository) CreateUser(ctx context.Context, user *entity.User)
 
 	_, err := r.collection.InsertOne(ctx, repoUser)
 
-	log.Print(err)
-
 	return err
 }
 
@@ -45,8 +42,6 @@ func (r *MongoUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*e
 	if err != nil {
 		return nil, err
 	}
-
-	log.Print(err)
 
 	user := repository.UserToEntity(repoUser)
 

@@ -69,7 +69,7 @@ func (u *userUseCase) CreateUser(ctx context.Context, user entity.User) error {
 
 	err = u.repo.CreateUser(ctx, &user)
 	if err != nil {
-		info := "Failed to make request to repo"
+		info := "Failed to create user"
 		u.log.Error(ctx, header+info, "err", err)
 		return fmt.Errorf(header+info+": %w", err)
 	}
@@ -140,7 +140,7 @@ func (u *userUseCase) GetUserByID(ctx context.Context, id uuid.UUID) (*entity.Us
 	user, err := u.repo.GetUserByID(ctx, id)
 
 	if err != nil {
-		info := "Failed to make request to repo"
+		info := "Failed to get user by id"
 		u.log.Error(ctx, header+info, "err", err)
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
@@ -158,7 +158,7 @@ func (u *userUseCase) GetUsers(ctx context.Context, filter repository.UserFilter
 	users, err := u.repo.GetUsers(ctx, filter)
 
 	if err != nil {
-		info := "Failed to make request to repo"
+		info := "Failed to get users"
 		u.log.Error(ctx, header+info, "err", err)
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
@@ -188,7 +188,7 @@ func (u *userUseCase) GetUsersBatch(ctx context.Context, limit, offset int) ([]e
 	users, err := u.repo.GetUsersBatch(ctx, limit, offset)
 
 	if err != nil {
-		info := "Failed to make request to repo"
+		info := "Failed to get users batch"
 		u.log.Error(ctx, header+info, "err", err)
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
@@ -213,7 +213,7 @@ func (u *userUseCase) GetNewUsers(ctx context.Context, from time.Time, to time.T
 
 	users, err := u.repo.GetNewUsers(ctx, from, to)
 	if err != nil {
-		info := "Failed to make request to repo"
+		info := "Failed to get new users"
 		u.log.Error(ctx, header+info, "err", err)
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
@@ -231,7 +231,7 @@ func (u *userUseCase) UpdateUser(ctx context.Context, user *entity.User) error {
 	existingUser, err := u.repo.GetUserByID(ctx, user.ID)
 
 	if err != nil {
-		info := "Failed to make request to repo"
+		info := "Failed to get user by id"
 		u.log.Error(ctx, header+info, "err", err)
 		return fmt.Errorf(header+info+": %w", err)
 	}
@@ -247,7 +247,7 @@ func (u *userUseCase) UpdateUser(ctx context.Context, user *entity.User) error {
 	err = u.repo.UpdateUser(ctx, user)
 
 	if err != nil {
-		info := "Failed to make request to repo"
+		info := "Failed to update user"
 		u.log.Error(ctx, header+info, "err", err)
 		return fmt.Errorf(header+info+": %w", err)
 	}
@@ -265,7 +265,7 @@ func (u *userUseCase) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	existingUser, err := u.repo.GetUserByID(ctx, id)
 
 	if err != nil {
-		info := "Failed to make request to repo"
+		info := "Failed to get user by id"
 		u.log.Error(ctx, header+info, "err", err)
 		return fmt.Errorf(header+info+": %w", err)
 	}
@@ -281,7 +281,7 @@ func (u *userUseCase) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	err = u.repo.DeleteUser(ctx, id)
 
 	if err != nil {
-		info := "Failed to make request to repo"
+		info := "Failed to delete user"
 		u.log.Error(ctx, header+info, "err", err)
 		return fmt.Errorf(header+info+": %w", err)
 	}

@@ -77,6 +77,8 @@ func (uc *todoUseCase) CreateBoard(ctx context.Context, board *entity.Board) err
 	}
 
 	board.ID = uuid.New()
+	board.CreatedAt = time.Now()
+	board.UpdatedAt = time.Now()
 
 	uc.log.Info(ctx, header+"Successful validation; Assigned uuid to board", "uuid", board.ID)
 
@@ -166,6 +168,8 @@ func (uc *todoUseCase) UpdateBoard(ctx context.Context, board *entity.Board) err
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
+	board.UpdatedAt = time.Now()
+
 	uc.log.Info(ctx, header+"Making request to board repo (UpdateBoard)", "board", board)
 
 	err = uc.boardRepo.UpdateBoard(ctx, board)
@@ -213,6 +217,8 @@ func (uc *todoUseCase) CreateColumn(ctx context.Context, column *entity.Column) 
 	}
 
 	column.ID = uuid.New()
+	column.CreatedAt = time.Now()
+	column.UpdatedAt = time.Now()
 
 	uc.log.Info(ctx, header+"Successful validation; assigned uuid to column", "uuid", column.ID)
 
@@ -322,6 +328,8 @@ func (uc *todoUseCase) UpdateColumn(ctx context.Context, column *entity.Column) 
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
+	column.UpdatedAt = time.Now()
+
 	uc.log.Info(ctx, header+"Validation successful; Making request to column repo (UpdateColumn)", "column", column)
 
 	err = uc.columnRepo.UpdateColumn(ctx, column)
@@ -369,6 +377,8 @@ func (uc *todoUseCase) CreateCard(ctx context.Context, card *entity.Card) error 
 	}
 
 	card.ID = uuid.New()
+	card.CreatedAt = time.Now()
+	card.UpdatedAt = time.Now()
 
 	uc.log.Info(ctx, header+"Successful validation; Assigned uuid to card", "uuid", card.ID)
 
@@ -499,6 +509,8 @@ func (uc *todoUseCase) UpdateCard(ctx context.Context, card *entity.Card) error 
 		uc.log.Info(ctx, header+info, "err", err)
 		return fmt.Errorf(header+info+": %w", err)
 	}
+
+	card.UpdatedAt = time.Now()
 
 	uc.log.Info(ctx, header+"Successful validation; Making request to card repo (UpdateCard)", "card", card)
 

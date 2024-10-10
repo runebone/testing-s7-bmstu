@@ -69,6 +69,9 @@ func (u *userUseCase) CreateUser(ctx context.Context, user entity.User) error {
 	user.PasswordHash = hashedPassword
 
 	user.ID = uuid.New()
+	user.Role = "user"
+	user.CreatedAt = time.Now()
+	user.UpdatedAt = time.Now()
 
 	u.log.Info(ctx, header+"User has been assigned uuid, making request to repo", "uuid", user.ID)
 
@@ -252,6 +255,8 @@ func (u *userUseCase) UpdateUser(ctx context.Context, user *entity.User) error {
 		u.log.Error(ctx, header+info)
 		return errors.New(info)
 	}
+
+	user.UpdatedAt = time.Now()
 
 	u.log.Info(ctx, header+"User exists. Making request to repo", "existingUser", existingUser, "user", user)
 

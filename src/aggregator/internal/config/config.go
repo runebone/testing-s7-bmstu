@@ -8,7 +8,7 @@ import (
 
 type Config struct {
 	Log        LogConfig        `toml:"log"`
-	Pagination PaginationConfig `toml:"pagination.default"`
+	Pagination PaginationConfig `toml:"pagination"`
 	Aggregator AggregatorConfig `toml:"aggregator"`
 	User       UserConfig       `toml:"user"`
 	Auth       AuthConfig       `toml:"auth"`

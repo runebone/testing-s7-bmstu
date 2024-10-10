@@ -6,7 +6,7 @@
 path = "logs"
 level = "info"
 
-[pagination.default]
+[pagination]
 limit = 100
 offset = 0
 

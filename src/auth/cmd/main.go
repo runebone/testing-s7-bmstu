@@ -45,7 +45,7 @@ func main() {
 		time.Duration(config.Auth.Token.RefreshTTL)*time.Second,
 	)
 
-	uc := usecase.NewAuthUseCase(repo, userService, tokenService)
+	uc := usecase.NewAuthUseCase(repo, userService, tokenService, logger)
 
 	userHandler := handler.NewAuthHandler(uc)
 	router := mux.NewRouter()

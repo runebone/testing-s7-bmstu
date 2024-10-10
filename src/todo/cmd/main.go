@@ -35,7 +35,7 @@ func main() {
 	columnRepo := sqlxRepo.NewSQLXColumnRepository(db)
 	cardRepo := sqlxRepo.NewSQLXCardRepository(db)
 
-	uc := usecase.NewTodoUseCase(boardRepo, columnRepo, cardRepo)
+	uc := usecase.NewTodoUseCase(boardRepo, columnRepo, cardRepo, logger)
 
 	userHandler := handler.NewTodoHandler(uc, config.Pagination)
 	router := mux.NewRouter()

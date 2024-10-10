@@ -5,6 +5,7 @@ import (
 	"aggregator/internal/middleware"
 	"fmt"
 	"time"
+	_ "time/tzdata"
 
 	httpAuth "aggregator/internal/adapter/service/auth/http"
 	httpTodo "aggregator/internal/adapter/service/todo/http"
@@ -21,6 +22,14 @@ import (
 
 	"github.com/gorilla/mux"
 )
+
+func init() {
+	loc, err := time.LoadLocation("Europe/Moscow")
+	if err != nil {
+		log.Fatalf("Couldn't set timezone: %v", err)
+	}
+	time.Local = loc
+}
 
 func main() {
 	config, err := config.LoadConfig("config.toml")

@@ -5,6 +5,7 @@ import (
 	"auth/internal/adapter/logger"
 	"fmt"
 	"time"
+	_ "time/tzdata"
 
 	sqlxRepo "auth/internal/adapter/repository/sqlx"
 	"auth/internal/adapter/service/tokengen/jwt"
@@ -19,6 +20,14 @@ import (
 
 	"github.com/gorilla/mux"
 )
+
+func init() {
+	loc, err := time.LoadLocation("Europe/Moscow")
+	if err != nil {
+		log.Fatalf("Couldn't set timezone: %v", err)
+	}
+	time.Local = loc
+}
 
 func main() {
 	config, err := config.LoadConfig("config.toml")

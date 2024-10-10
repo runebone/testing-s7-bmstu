@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"time"
+	_ "time/tzdata"
 	"todo/internal/adapter/database"
 	"todo/internal/adapter/logger"
 
@@ -16,6 +18,14 @@ import (
 
 	"github.com/gorilla/mux"
 )
+
+func init() {
+	loc, err := time.LoadLocation("Europe/Moscow")
+	if err != nil {
+		log.Fatalf("Couldn't set timezone: %v", err)
+	}
+	time.Local = loc
+}
 
 func main() {
 	config, err := config.LoadConfig("config.toml")

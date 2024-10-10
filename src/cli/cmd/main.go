@@ -11,11 +11,20 @@ import (
 	"log"
 	"os"
 	"time"
+	_ "time/tzdata"
 
 	v1 "cli/internal/usecase/v1"
 
 	"github.com/spf13/cobra"
 )
+
+func init() {
+	loc, err := time.LoadLocation("Europe/Moscow")
+	if err != nil {
+		log.Fatalf("Couldn't set timezone: %v", err)
+	}
+	time.Local = loc
+}
 
 func readTokens(tokens *dto.Tokens, filePath string) error {
 	file, err := os.Open(filePath)

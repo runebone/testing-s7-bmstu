@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
+	_ "time/tzdata"
 	"user/internal/adapter/database"
 	"user/internal/adapter/logger"
 	mongoRepo "user/internal/adapter/repository/mongo"
@@ -19,6 +21,14 @@ import (
 	"github.com/jmoiron/sqlx"
 	"go.mongodb.org/mongo-driver/mongo"
 )
+
+func init() {
+	loc, err := time.LoadLocation("Europe/Moscow")
+	if err != nil {
+		log.Fatalf("Couldn't set timezone: %v", err)
+	}
+	time.Local = loc
+}
 
 type dbrepo interface {
 	DB() (any, error)

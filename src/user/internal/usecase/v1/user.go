@@ -33,7 +33,7 @@ func NewUserUseCase(repo repository.UserRepository, log logger.Logger) usecase.U
 
 func (u *userUseCase) CreateUser(ctx context.Context, user entity.User) error {
 	header := "CreateUser: "
-	u.log.Info(ctx, header+"Creating user", "user", user)
+	u.log.Info(ctx, header+"Usecase called; Validating email", "user", user)
 
 	err := isValidEmail(user.Email)
 
@@ -42,12 +42,16 @@ func (u *userUseCase) CreateUser(ctx context.Context, user entity.User) error {
 		return err
 	}
 
+	u.log.Info(ctx, header+"Email is valid; validating username")
+
 	err = isValidUsername(user.Username)
 
 	if err != nil {
 		u.log.Info(ctx, header+"Invalid username", "username", user.Username, "err", err)
 		return err
 	}
+
+	u.log.Info(ctx, header+"Username is valid; validating password")
 
 	// TODO: Maybe move password validation to auth service,
 	// and deal only with hashes in user service.
@@ -57,6 +61,8 @@ func (u *userUseCase) CreateUser(ctx context.Context, user entity.User) error {
 		u.log.Info(ctx, header+"Invalid password", "password", user.PasswordHash)
 		return err
 	}
+
+	u.log.Info(ctx, header+"Password is valid; hashing password")
 
 	hashedPassword, err := hashPassword(user.PasswordHash)
 
@@ -146,7 +152,7 @@ func hashPassword(password string) (string, error) {
 func (u *userUseCase) GetUserByID(ctx context.Context, id uuid.UUID) (*entity.User, error) {
 	header := "GetUserByID: "
 
-	u.log.Info(ctx, header+"Making request to repo", "id", id)
+	u.log.Info(ctx, header+"Usecase called; Making request to repo", "id", id)
 
 	user, err := u.repo.GetUserByID(ctx, id)
 
@@ -164,7 +170,7 @@ func (u *userUseCase) GetUserByID(ctx context.Context, id uuid.UUID) (*entity.Us
 func (u *userUseCase) GetUsers(ctx context.Context, filter repository.UserFilter) ([]entity.User, error) {
 	header := "GetUsers: "
 
-	u.log.Info(ctx, header+"Making request to repo", "filter", filter)
+	u.log.Info(ctx, header+"Usecase called; Making request to repo", "filter", filter)
 
 	users, err := u.repo.GetUsers(ctx, filter)
 
@@ -182,7 +188,7 @@ func (u *userUseCase) GetUsers(ctx context.Context, filter repository.UserFilter
 func (u *userUseCase) GetUsersBatch(ctx context.Context, limit, offset int) ([]entity.User, error) {
 	header := "GetUsersBatch: "
 
-	u.log.Info(ctx, header+"Getting users batch", "limit", limit, "offset", offset)
+	u.log.Info(ctx, header+"Usecase called; Validating limit and offset", "limit", limit, "offset", offset)
 
 	if limit < 0 || offset < 0 {
 		info := "Limit and offset can't be negative"
@@ -194,7 +200,7 @@ func (u *userUseCase) GetUsersBatch(ctx context.Context, limit, offset int) ([]e
 		return nil, errors.New(info)
 	}
 
-	u.log.Info(ctx, header+"Making request to repo", "limit", limit, "offset", offset)
+	u.log.Info(ctx, header+"Successful validation; Making request to repo", "limit", limit, "offset", offset)
 
 	users, err := u.repo.GetUsersBatch(ctx, limit, offset)
 
@@ -212,7 +218,7 @@ func (u *userUseCase) GetUsersBatch(ctx context.Context, limit, offset int) ([]e
 func (u *userUseCase) GetNewUsers(ctx context.Context, from time.Time, to time.Time) ([]entity.User, error) {
 	header := "GetNewUsers: "
 
-	u.log.Info(ctx, header+"Getting new users", "from", from, "to", to)
+	u.log.Info(ctx, header+"Usecase called; Validating from, to", "from", from, "to", to)
 
 	if from.Unix() > to.Unix() {
 		err := ErrInvalidFromTo
@@ -220,7 +226,7 @@ func (u *userUseCase) GetNewUsers(ctx context.Context, from time.Time, to time.T
 		return nil, err
 	}
 
-	u.log.Info(ctx, header+"Making request to repo", "from", from, "to", to)
+	u.log.Info(ctx, header+"Successful validation; Making request to repo", "from", from, "to", to)
 
 	users, err := u.repo.GetNewUsers(ctx, from, to)
 
@@ -238,9 +244,9 @@ func (u *userUseCase) GetNewUsers(ctx context.Context, from time.Time, to time.T
 func (u *userUseCase) UpdateUser(ctx context.Context, user *entity.User) error {
 	header := "UpdateUser: "
 
-	u.log.Info(ctx, header+"Updating user", "user", user)
+	u.log.Info(ctx, header+"Usecase called", "user", user)
 
-	u.log.Info(ctx, header+"Making request to repo GetUserByID to check if user exits", "id", user.ID)
+	u.log.Info(ctx, header+"Making request to repo (GetUserByID) to check if user exits", "id", user.ID)
 
 	existingUser, err := u.repo.GetUserByID(ctx, user.ID)
 
@@ -276,7 +282,7 @@ func (u *userUseCase) UpdateUser(ctx context.Context, user *entity.User) error {
 func (u *userUseCase) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	header := "DeleteUser: "
 
-	u.log.Info(ctx, header+"Deleting user", "id", id)
+	u.log.Info(ctx, header+"Usecase called", "id", id)
 
 	u.log.Info(ctx, header+"Making request to repo GetUserByID to check if user exits", "id", id)
 

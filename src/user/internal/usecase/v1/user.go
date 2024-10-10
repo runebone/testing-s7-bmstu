@@ -174,7 +174,7 @@ func (u *userUseCase) GetUsers(ctx context.Context, filter repository.UserFilter
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
-	u.log.Info(ctx, header+"Got users", "filter", filter)
+	u.log.Info(ctx, header+"Got users", "users", users)
 
 	return users, nil
 }

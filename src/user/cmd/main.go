@@ -75,7 +75,7 @@ func main() {
 
 	// repo := sqlxRepo.NewSQLXUserRepository(db)
 	repo := dbRepo.Repo(db).(repository.UserRepository)
-	uc := usecase.NewUserUseCase(repo)
+	uc := usecase.NewUserUseCase(repo, logger)
 
 	userHandler := handler.NewUserHandler(uc)
 	router := mux.NewRouter()

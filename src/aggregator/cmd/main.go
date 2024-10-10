@@ -50,7 +50,7 @@ func main() {
 	}
 
 	logger := logger.NewZapLogger(config.Aggregator.Log)
-	uc := v1.NewAggregatorUseCase(userSvc, authSvc, todoSvc)
+	uc := v1.NewAggregatorUseCase(userSvc, authSvc, todoSvc, logger)
 	handler := h.NewAggregatorHandler(uc)
 
 	router := mux.NewRouter()

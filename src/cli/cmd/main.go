@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"cli/internal/adapter/logger"
@@ -78,7 +78,7 @@ func main() {
 	rootCmd := &cobra.Command{Use: "todo"}
 
 	// Register command
-	rootCmd.AddCommand(&cobra.Command{
+	registerCmd := &cobra.Command{
 		Use:   "register [username] [email] [password]",
 		Short: "Register a new user",
 		Args:  cobra.ExactArgs(3),
@@ -90,10 +90,11 @@ func main() {
 			}
 			saveTokens(tokens, config.Client.TokensPath)
 		},
-	})
+	}
+	rootCmd.AddCommand(registerCmd)
 
 	// Login command
-	rootCmd.AddCommand(&cobra.Command{
+	loginCmd := &cobra.Command{
 		Use:   "login [email] [password]",
 		Short: "Login a user",
 		Args:  cobra.ExactArgs(2),
@@ -105,10 +106,11 @@ func main() {
 			}
 			saveTokens(tokens, config.Client.TokensPath)
 		},
-	})
+	}
+	rootCmd.AddCommand(loginCmd)
 
 	// Logout command
-	rootCmd.AddCommand(&cobra.Command{
+	logoutCmd := &cobra.Command{
 		Use:   "logout",
 		Short: "Logout the user",
 		Run: func(cmd *cobra.Command, args []string) {
@@ -119,33 +121,42 @@ func main() {
 			}
 			fmt.Println("logged out")
 		},
-	})
+	}
+	rootCmd.AddCommand(logoutCmd)
 
-	// Create board
-	rootCmd.AddCommand(&cobra.Command{
-		Use:   "create board [title]",
+	// Create command
+	createCmd := &cobra.Command{
+		Use:   "create",
+		Short: "Create resources",
+	}
+
+	// Create board command
+	createBoardCmd := &cobra.Command{
+		Use:   "board [title]",
 		Short: "Create a new board",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.WithValue(context.Background(), "tokens", Tokens)
 			client.CreateBoard(ctx, args[0])
 		},
-	})
+	}
+	createCmd.AddCommand(createBoardCmd)
 
-	// Create column
-	rootCmd.AddCommand(&cobra.Command{
-		Use:   "create column [board_id] [title]",
+	// Create column command
+	createColumnCmd := &cobra.Command{
+		Use:   "column [board_id] [title]",
 		Short: "Create a new column in a board",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.WithValue(context.Background(), "tokens", Tokens)
 			client.CreateColumn(ctx, args[0], args[1])
 		},
-	})
+	}
+	createCmd.AddCommand(createColumnCmd)
 
-	// Create card
-	rootCmd.AddCommand(&cobra.Command{
-		Use:   "create card [column_id] [title] [description]",
+	// Create card command
+	createCardCmd := &cobra.Command{
+		Use:   "card [column_id] [title] [description]",
 		Short: "Create a new card in a column",
 		Args:  cobra.MinimumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
@@ -158,130 +169,185 @@ func main() {
 			}
 			client.CreateCard(ctx, args[0], args[1], description)
 		},
-	})
+	}
+	createCmd.AddCommand(createCardCmd)
+	rootCmd.AddCommand(createCmd)
 
-	// Show boards
-	rootCmd.AddCommand(&cobra.Command{
-		Use:   "show boards",
+	// Show command
+	showCmd := &cobra.Command{
+		Use:   "show",
+		Short: "Show resources",
+	}
+
+	// Show boards command
+	showBoardsCmd := &cobra.Command{
+		Use:   "boards",
 		Short: "Show all boards",
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.WithValue(context.Background(), "tokens", Tokens)
 			client.ShowBoards(ctx)
 		},
-	})
+	}
+	showCmd.AddCommand(showBoardsCmd)
 
-	// Show board
-	rootCmd.AddCommand(&cobra.Command{
-		Use:   "show board [board_id]",
+	// Show board command
+	showBoardCmd := &cobra.Command{
+		Use:   "board [board_id]",
 		Short: "Show a board",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.WithValue(context.Background(), "tokens", Tokens)
 			client.ShowBoard(ctx, args[0])
 		},
-	})
+	}
+	showCmd.AddCommand(showBoardCmd)
 
-	// Show column
-	rootCmd.AddCommand(&cobra.Command{
-		Use:   "show column [column_id]",
+	// Show column command
+	showColumnCmd := &cobra.Command{
+		Use:   "column [column_id]",
 		Short: "Show a column",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.WithValue(context.Background(), "tokens", Tokens)
 			client.ShowColumn(ctx, args[0])
 		},
-	})
+	}
+	showCmd.AddCommand(showColumnCmd)
 
-	// Show card
-	rootCmd.AddCommand(&cobra.Command{
-		Use:   "show card [card_id]",
+	// Show card command
+	showCardCmd := &cobra.Command{
+		Use:   "card [card_id]",
 		Short: "Show a card",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.WithValue(context.Background(), "tokens", Tokens)
 			client.ShowCard(ctx, args[0])
 		},
-	})
+	}
+	showCmd.AddCommand(showCardCmd)
+	rootCmd.AddCommand(showCmd)
 
-	// Update board title
-	rootCmd.AddCommand(&cobra.Command{
-		Use:   "update board [board_id] title [new_title]",
+	// Update command
+	updateCmd := &cobra.Command{
+		Use:   "update",
+		Short: "Update resources",
+	}
+
+	// Update board command
+	updateBoardCmd := &cobra.Command{
+		Use:   "board",
+		Short: "Update a board",
+	}
+
+	// Update board title command
+	updateBoardTitleCmd := &cobra.Command{
+		Use:   "title [board_id] [new_title]",
 		Short: "Update board title",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.WithValue(context.Background(), "tokens", Tokens)
 			client.UpdateBoard(ctx, args[0], args[1])
 		},
-	})
+	}
+	updateBoardCmd.AddCommand(updateBoardTitleCmd)
+	updateCmd.AddCommand(updateBoardCmd)
 
-	// Update column title
-	rootCmd.AddCommand(&cobra.Command{
-		Use:   "update column [column_id] title [new_title]",
+	// Update column command
+	updateColumnCmd := &cobra.Command{
+		Use:   "column",
+		Short: "Update a column",
+	}
+
+	// Update column title command
+	updateColumnTitleCmd := &cobra.Command{
+		Use:   "title [column_id] [new_title]",
 		Short: "Update column title",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.WithValue(context.Background(), "tokens", Tokens)
 			client.UpdateColumn(ctx, args[0], args[1])
 		},
-	})
+	}
+	updateColumnCmd.AddCommand(updateColumnTitleCmd)
+	updateCmd.AddCommand(updateColumnCmd)
 
-	// Update card title
-	rootCmd.AddCommand(&cobra.Command{
-		Use:   "update card [card_id] title [new_title]",
+	// Update card command
+	updateCardCmd := &cobra.Command{
+		Use:   "card",
+		Short: "Update a card",
+	}
+
+	// Update card title command
+	updateCardTitleCmd := &cobra.Command{
+		Use:   "title [card_id] [new_title]",
 		Short: "Update card title",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.WithValue(context.Background(), "tokens", Tokens)
 			client.UpdateCardTitle(ctx, args[0], args[1])
 		},
-	})
+	}
+	updateCardCmd.AddCommand(updateCardTitleCmd)
 
-	// Update card description
-	rootCmd.AddCommand(&cobra.Command{
-		Use:   "update card [card_id] description [new_description]",
+	// Update card description command
+	updateCardDescriptionCmd := &cobra.Command{
+		Use:   "description [card_id] [new_description]",
 		Short: "Update card description",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.WithValue(context.Background(), "tokens", Tokens)
 			client.UpdateCardDescription(ctx, args[0], args[1])
 		},
-	})
+	}
+	updateCardCmd.AddCommand(updateCardDescriptionCmd)
+	updateCmd.AddCommand(updateCardCmd)
+	rootCmd.AddCommand(updateCmd)
 
-	// Delete board
-	rootCmd.AddCommand(&cobra.Command{
-		Use:   "delete board [board_id]",
+	// Delete command
+	deleteCmd := &cobra.Command{
+		Use:   "delete",
+		Short: "Delete resources",
+	}
+
+	// Delete board command
+	deleteBoardCmd := &cobra.Command{
+		Use:   "board [board_id]",
 		Short: "Delete a board",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.WithValue(context.Background(), "tokens", Tokens)
 			client.DeleteBoard(ctx, args[0])
 		},
-	})
+	}
+	deleteCmd.AddCommand(deleteBoardCmd)
 
-	// Delete column
-	rootCmd.AddCommand(&cobra.Command{
-		Use:   "delete column [column_id]",
+	// Delete column command
+	deleteColumnCmd := &cobra.Command{
+		Use:   "column [column_id]",
 		Short: "Delete a column",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.WithValue(context.Background(), "tokens", Tokens)
 			client.DeleteColumn(ctx, args[0])
 		},
-	})
+	}
+	deleteCmd.AddCommand(deleteColumnCmd)
 
-	// Delete card
-	rootCmd.AddCommand(&cobra.Command{
-		Use:   "delete card [card_id]",
+	// Delete card command
+	deleteCardCmd := &cobra.Command{
+		Use:   "card [card_id]",
 		Short: "Delete a card",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.WithValue(context.Background(), "tokens", Tokens)
 			client.DeleteCard(ctx, args[0])
 		},
-	})
+	}
+	deleteCmd.AddCommand(deleteCardCmd)
+	rootCmd.AddCommand(deleteCmd)
 
-	// Stats
-	rootCmd.AddCommand(&cobra.Command{
+	// Stats command
+	statsCmd := &cobra.Command{
 		Use:   "stats from [DD-MM-YYYY] to [DD-MM-YYYY]",
 		Short: "Show stats for a time period",
 		Args:  cobra.ExactArgs(2),
@@ -289,7 +355,8 @@ func main() {
 			ctx := context.WithValue(context.Background(), "tokens", Tokens)
 			client.Stats(ctx, args[0], args[1])
 		},
-	})
+	}
+	rootCmd.AddCommand(statsCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatal(err)

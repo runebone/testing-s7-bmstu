@@ -76,7 +76,7 @@ func LoadConfig(configPath string) (*Config, error) {
 		return nil, err
 	}
 
-	s := config.Auth.Log
+	s := &config.Auth.Log
 	s.Path = config.Log.Path + "/" + s.Path
 	if s.Level == "" {
 		s.Level = config.Log.Level

@@ -37,28 +37,26 @@ func main() {
 		log.Println("Error reading config (config.toml)")
 	}
 
+	logger := logger.NewZapLogger(config.Aggregator.Log)
+
 	var userSvc user.UserService
 	{
 		baseURL := fmt.Sprintf("http://%s:%d/%s", config.User.ContainerName, config.User.LocalPort, config.User.BaseURL)
-		logger := logger.NewZapLogger(config.User.Log)
 		userSvc = httpUser.NewUserService(baseURL, 2*time.Second, logger)
 	}
 
 	var authSvc auth.AuthService
 	{
 		baseURL := fmt.Sprintf("http://%s:%d/%s", config.Auth.ContainerName, config.Auth.LocalPort, config.Auth.BaseURL)
-		logger := logger.NewZapLogger(config.Auth.Log)
 		authSvc = httpAuth.NewAuthService(baseURL, 2*time.Second, logger)
 	}
 
 	var todoSvc todo.TodoService
 	{
 		baseURL := fmt.Sprintf("http://%s:%d/%s", config.Todo.ContainerName, config.Todo.LocalPort, config.Todo.BaseURL)
-		logger := logger.NewZapLogger(config.Todo.Log)
 		todoSvc = httpTodo.NewTodoService(baseURL, 2*time.Second, logger)
 	}
 
-	logger := logger.NewZapLogger(config.Aggregator.Log)
 	uc := v1.NewAggregatorUseCase(userSvc, authSvc, todoSvc, logger)
 	handler := h.NewAggregatorHandler(uc)
 

@@ -36,12 +36,14 @@ func (u *userUseCase) CreateUser(ctx context.Context, user entity.User) error {
 	u.log.Info(ctx, header+"Creating user", "user", user)
 
 	err := isValidEmail(user.Email)
+
 	if err != nil {
 		u.log.Info(ctx, header+"Invalid email", "email", user.Email, "err", err)
 		return err
 	}
 
 	err = isValidUsername(user.Username)
+
 	if err != nil {
 		u.log.Info(ctx, header+"Invalid username", "username", user.Username, "err", err)
 		return err
@@ -50,17 +52,20 @@ func (u *userUseCase) CreateUser(ctx context.Context, user entity.User) error {
 	// TODO: Maybe move password validation to auth service,
 	// and deal only with hashes in user service.
 	err = validatePassword(user.PasswordHash) // NOTE: Plain password, unencrypted initially
+
 	if err != nil {
 		u.log.Info(ctx, header+"Invalid password", "password", user.PasswordHash)
 		return err
 	}
 
 	hashedPassword, err := hashPassword(user.PasswordHash)
+
 	if err != nil {
 		info := "Unable to hash password"
 		u.log.Error(ctx, header+info, "password", user.PasswordHash, "err", err)
 		return fmt.Errorf(header+info+": %w", err)
 	}
+
 	user.PasswordHash = hashedPassword
 
 	user.ID = uuid.New()
@@ -68,11 +73,14 @@ func (u *userUseCase) CreateUser(ctx context.Context, user entity.User) error {
 	u.log.Info(ctx, header+"User has been assigned uuid, making request to repo", "uuid", user.ID)
 
 	err = u.repo.CreateUser(ctx, &user)
+
 	if err != nil {
 		info := "Failed to create user"
 		u.log.Error(ctx, header+info, "err", err)
 		return fmt.Errorf(header+info+": %w", err)
 	}
+
+	u.log.Info(ctx, header+"User successfully created")
 
 	return nil
 }
@@ -212,11 +220,14 @@ func (u *userUseCase) GetNewUsers(ctx context.Context, from time.Time, to time.T
 	u.log.Info(ctx, header+"Making request to repo", "from", from, "to", to)
 
 	users, err := u.repo.GetNewUsers(ctx, from, to)
+
 	if err != nil {
 		info := "Failed to get new users"
 		u.log.Error(ctx, header+info, "err", err)
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
+
+	u.log.Info(ctx, header+"Got users", "users", users)
 
 	return users, nil
 }
@@ -252,6 +263,8 @@ func (u *userUseCase) UpdateUser(ctx context.Context, user *entity.User) error {
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
+	u.log.Info(ctx, header+"User successfully updated")
+
 	return nil
 }
 
@@ -285,6 +298,8 @@ func (u *userUseCase) DeleteUser(ctx context.Context, id uuid.UUID) error {
 		u.log.Error(ctx, header+info, "err", err)
 		return fmt.Errorf(header+info+": %w", err)
 	}
+
+	u.log.Info(ctx, header+"User successfully deleted")
 
 	return nil
 }

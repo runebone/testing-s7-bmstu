@@ -74,7 +74,6 @@ func (r *SQLXCardRepository) GetCardsByColumn(ctx context.Context, columnID uuid
 func (r *SQLXCardRepository) UpdateCard(ctx context.Context, card *entity.Card) error {
 	query := `
     UPDATE cards SET
-	column_id = :column_id,
 	title = :title,
 	description = :description,
 	position = :position,

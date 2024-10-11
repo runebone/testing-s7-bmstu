@@ -138,7 +138,7 @@ func getDateCardsAndNumCardsByNewUsersMap(cards []dto.Card, newUsersMap map[uuid
 
 		dateCardsMap[dateKey] = append(dateCardsMap[dateKey], card)
 
-		if user, ok := newUsersMap[card.UserID]; ok && user.CreatedAt == cardDTO.CreatedAt {
+		if user, ok := newUsersMap[card.UserID]; ok && user.CreatedAt.Format(dateLayout) == cardDTO.CreatedAt.Format(dateLayout) {
 			numCardsByNewUsersMap[dateKey]++
 		}
 	}

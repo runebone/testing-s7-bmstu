@@ -161,6 +161,9 @@ func (uc *todoUseCase) UpdateBoard(ctx context.Context, board *entity.Board) err
 	uc.log.Info(ctx, header+"Usecase called; Validating board", "board", board)
 
 	err := validateBoard(board)
+	if err == ErrBoardNoUserID {
+		err = nil
+	}
 
 	if err != nil {
 		info := "Validation failed"
@@ -321,6 +324,9 @@ func (uc *todoUseCase) UpdateColumn(ctx context.Context, column *entity.Column) 
 	uc.log.Info(ctx, header+"Usecase called; Validating column", "column", column)
 
 	err := validateColumn(column)
+	if err == ErrColumnNoUserID || err == ErrColumnNoBoardID {
+		err = nil
+	}
 
 	if err != nil {
 		info := "Validation failed"
@@ -503,6 +509,9 @@ func (uc *todoUseCase) UpdateCard(ctx context.Context, card *entity.Card) error 
 	uc.log.Info(ctx, header+"Usecase called; Validating card", "card", card)
 
 	err := validateCard(card)
+	if err == ErrCardNoColumnID || err == ErrCardNoUserID {
+		err = nil
+	}
 
 	if err != nil {
 		info := "Validation failed"

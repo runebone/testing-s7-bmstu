@@ -88,6 +88,21 @@ func (r *SQLXCardRepository) UpdateCard(ctx context.Context, card *entity.Card) 
 	return err
 }
 
+func (r *SQLXCardRepository) MoveCard(ctx context.Context, card *entity.Card) error {
+	query := `
+    UPDATE cards SET
+	column_id = :column_id,
+	updated_at = :updated_at
+    WHERE id = :id
+    `
+
+	repoCard := repository.RepoCard(*card)
+
+	_, err := r.db.NamedExecContext(ctx, query, repoCard)
+
+	return err
+}
+
 func (r *SQLXCardRepository) DeleteCard(ctx context.Context, id uuid.UUID) error {
 	query := `
 	DELETE FROM cards WHERE id = $1

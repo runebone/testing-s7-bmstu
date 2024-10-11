@@ -507,6 +507,60 @@ func (uc *ClientUseCase) UpdateCardDescription(ctx context.Context, cardIDstr, d
 	fmt.Println("Card description successfully updated.")
 }
 
+func (uc *ClientUseCase) MoveCard(ctx context.Context, cardIDstr, columnIDstr string) {
+	tokens, ok := ctx.Value("tokens").(*dto.Tokens)
+	if !ok {
+		fmt.Println("failed to get tokens from context")
+		return
+	}
+
+	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
+	if err != nil {
+		// fmt.Println("Access token expired. Refreshing.")
+		refreshResp, err := uc.svc.Refresh(ctx, tokens.RefreshToken)
+		if err != nil {
+			fmt.Println("Please log in again.")
+			return
+		}
+
+		tokens.AccessToken = refreshResp.AccessToken
+
+		fn, ok := ctx.Value("saveFunc").(func(*dto.Tokens))
+		if !ok {
+			fmt.Println("failed to get saveFunc from context")
+			return
+		}
+
+		fn(tokens)
+	}
+
+	cardID, err := uuid.Parse(cardIDstr)
+	if err != nil {
+		fmt.Println("failed parsing card uuid")
+		return
+	}
+
+	columnID, err := uuid.Parse(columnIDstr)
+	if err != nil {
+		fmt.Println("failed parsing column uuid")
+		return
+	}
+
+	card := dto.Card{
+		ID:       cardID,
+		ColumnID: columnID,
+	}
+
+	err = uc.svc.UpdateCard(ctx, &card)
+
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+
+	fmt.Println("Card successfully moved.")
+}
+
 func (uc *ClientUseCase) DeleteBoard(ctx context.Context, id string) {
 	tokens, ok := ctx.Value("tokens").(*dto.Tokens)
 	if !ok {

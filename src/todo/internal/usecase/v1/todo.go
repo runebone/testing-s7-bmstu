@@ -523,7 +523,11 @@ func (uc *todoUseCase) UpdateCard(ctx context.Context, card *entity.Card) error 
 
 	uc.log.Info(ctx, header+"Successful validation; Making request to card repo (UpdateCard)", "card", card)
 
-	err = uc.cardRepo.UpdateCard(ctx, card)
+	if card.ColumnID == uuid.Nil {
+		err = uc.cardRepo.UpdateCard(ctx, card)
+	} else {
+		err = uc.cardRepo.MoveCard(ctx, card)
+	}
 
 	if err != nil {
 		info := "Failed to update card"

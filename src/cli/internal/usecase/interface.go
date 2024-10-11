@@ -26,6 +26,7 @@ type Client interface {
 	UpdateColumn(ctx context.Context, columnID, title string)
 	UpdateCardTitle(ctx context.Context, cardID, title string)
 	UpdateCardDescription(ctx context.Context, cardID, description string)
+	MoveCard(ctx context.Context, cardIDstr, columnIDstr string)
 
 	DeleteBoard(ctx context.Context, id string)
 	DeleteColumn(ctx context.Context, id string)

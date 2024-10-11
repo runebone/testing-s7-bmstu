@@ -342,6 +342,27 @@ func main() {
 	updateCmd.AddCommand(updateCardCmd)
 	rootCmd.AddCommand(updateCmd)
 
+	// Move command
+	moveCmd := &cobra.Command{
+		Use:   "move",
+		Short: "Move stuff",
+	}
+
+	moveCardCmd := &cobra.Command{
+		Use:   "card [card_id] [column_id]",
+		Short: "Move card",
+		Args:  cobra.ExactArgs(2),
+		Run: func(cmd *cobra.Command, args []string) {
+			ctx0 := context.WithValue(context.Background(), "tokens", &Tokens)
+			ctx := context.WithValue(ctx0, "saveFunc", func(tokens *dto.Tokens) {
+				saveTokens(tokens, cfg.Client.TokensPath)
+			})
+			client.MoveCard(ctx, args[0], args[1])
+		},
+	}
+	moveCmd.AddCommand(moveCardCmd)
+	rootCmd.AddCommand(moveCmd)
+
 	// Delete command
 	deleteCmd := &cobra.Command{
 		Use:   "delete",

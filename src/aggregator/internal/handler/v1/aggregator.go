@@ -312,6 +312,7 @@ func (h *AggregatorHandler) UpdateBoard(w http.ResponseWriter, r *http.Request) 
 	}
 
 	board := dto.Board{
+		ID:    req.ID,
 		Title: req.Title,
 	}
 
@@ -342,6 +343,7 @@ func (h *AggregatorHandler) UpdateColumn(w http.ResponseWriter, r *http.Request)
 	}
 
 	column := dto.Column{
+		ID:      req.ID,
 		UserID:  userID,
 		BoardID: req.BoardID,
 		Title:   req.Title,
@@ -375,6 +377,7 @@ func (h *AggregatorHandler) UpdateCard(w http.ResponseWriter, r *http.Request) {
 	}
 
 	card := dto.Card{
+		ID:          req.ID,
 		UserID:      userID,
 		ColumnID:    req.ColumnID,
 		Title:       req.Title,

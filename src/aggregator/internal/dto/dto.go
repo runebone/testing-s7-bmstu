@@ -124,13 +124,16 @@ type CreateCardRequest struct {
 }
 
 type UpdateBoardRequest struct {
+	ID uuid.UUID `json:"id"`
 	CreateBoardRequest
 }
 
 type UpdateColumnRequest struct {
+	ID uuid.UUID `json:"id"`
 	CreateColumnRequest
 }
 
 type UpdateCardRequest struct {
+	ID uuid.UUID `json:"id"`
 	CreateCardRequest
 }

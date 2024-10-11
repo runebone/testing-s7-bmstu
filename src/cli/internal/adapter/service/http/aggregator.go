@@ -474,7 +474,7 @@ func (s *AggregatorService) CreateCard(ctx context.Context, card dto.Card) error
 func (s *AggregatorService) UpdateBoard(ctx context.Context, board *dto.Board) error {
 	url := fmt.Sprintf("%s/board", s.baseURL)
 
-	data := board
+	data := *board
 
 	method := http.MethodPut
 	resp, err := s.makeRequest(ctx, method, url, data)
@@ -503,7 +503,7 @@ func (s *AggregatorService) UpdateBoard(ctx context.Context, board *dto.Board) e
 func (s *AggregatorService) UpdateColumn(ctx context.Context, column *dto.Column) error {
 	url := fmt.Sprintf("%s/column", s.baseURL)
 
-	data := column
+	data := *column
 
 	method := http.MethodPut
 	resp, err := s.makeRequest(ctx, method, url, data)
@@ -532,7 +532,7 @@ func (s *AggregatorService) UpdateColumn(ctx context.Context, column *dto.Column
 func (s *AggregatorService) UpdateCard(ctx context.Context, card *dto.Card) error {
 	url := fmt.Sprintf("%s/card", s.baseURL)
 
-	data := card
+	data := *card
 
 	method := http.MethodPut
 	resp, err := s.makeRequest(ctx, method, url, data)

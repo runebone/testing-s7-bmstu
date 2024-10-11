@@ -4,24 +4,22 @@ RUN apk update && apk add --no-cache git
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
+COPY go.mod go.sum .
 
 RUN go mod download
 
 COPY . .
 
-RUN go build -o auth-service ./cmd/main.go
+RUN go build -o main ./cmd/main.go
 
 FROM alpine:latest
 
-# RUN apk --no-cache add ca-certificates
+WORKDIR /app
 
-WORKDIR /root/
+COPY --from=builder /app/main .
 
-COPY --from=builder /app/auth-service .
+ENV PORT 8080
 
-COPY config.toml .
+EXPOSE $PORT
 
-CMD ["./auth-service"]
-
-EXPOSE 8080
+CMD ["./main"]

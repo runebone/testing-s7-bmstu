@@ -7,7 +7,9 @@ import (
 )
 
 func InitializeV1Routes(router *mux.Router, authHandler *v1.AuthHandler) {
+	router.HandleFunc("/api/v1/register", authHandler.RegisterHandler).Methods("POST")
 	router.HandleFunc("/api/v1/login", authHandler.LoginHandler).Methods("POST")
-	router.HandleFunc("/api/v1/refresh_token", authHandler.RefreshTokenHandler).Methods("POST")
+	router.HandleFunc("/api/v1/refresh", authHandler.RefreshTokenHandler).Methods("POST")
+	router.HandleFunc("/api/v1/validate", authHandler.ValidateTokenHandler).Methods("POST")
 	router.HandleFunc("/api/v1/logout", authHandler.LogoutHandler).Methods("POST")
 }

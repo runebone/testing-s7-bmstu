@@ -19,9 +19,10 @@ type Card struct {
 	Description string
 }
 
+// XXX: JSON hints should be in DTO, but I have to finish this stuff ASAP
 type NewUsersAndCardsStats struct {
-	Date               time.Time
-	Users              []User
-	Cards              []Card
-	NumCardsByNewUsers int
+	Date               time.Time `json:"date"`
+	Users              []User    `json:"users"`
+	Cards              []Card    `json:"cards"`
+	NumCardsByNewUsers int       `json:"num_cards_by_new_users"`
 }

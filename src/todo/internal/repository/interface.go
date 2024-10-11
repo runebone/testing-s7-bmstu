@@ -30,5 +30,6 @@ type CardRepository interface {
 	GetCardsByColumn(ctx context.Context, columnID uuid.UUID, limit, offset int) ([]entity.Card, error)
 	GetNewCards(ctx context.Context, from, to time.Time) ([]entity.Card, error)
 	UpdateCard(ctx context.Context, card *entity.Card) error
+	MoveCard(ctx context.Context, card *entity.Card) error
 	DeleteCard(ctx context.Context, id uuid.UUID) error
 }

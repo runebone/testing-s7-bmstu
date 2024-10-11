@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"time"
+	_ "time/tzdata"
 	"todo/internal/adapter/database"
 	"todo/internal/adapter/logger"
 
@@ -16,25 +19,33 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func main() {
-	logger := logger.NewZapLogger()
+func init() {
+	loc, err := time.LoadLocation("Europe/Moscow")
+	if err != nil {
+		log.Fatalf("Couldn't set timezone: %v", err)
+	}
+	time.Local = loc
+}
 
+func main() {
 	config, err := config.LoadConfig("config.toml")
 	if err != nil {
 		log.Println("Error reading config (config.toml)")
 	}
 
-	db, err := database.NewPostgresDB(config.Database)
+	db, err := database.NewPostgresDB(config.Todo.Postgres)
 	if err != nil {
 		log.Println("Couldn't connect to database, exiting")
 		return
 	}
 
+	logger := logger.NewZapLogger(config.Todo.Log)
+
 	boardRepo := sqlxRepo.NewSQLXBoardRepository(db)
 	columnRepo := sqlxRepo.NewSQLXColumnRepository(db)
 	cardRepo := sqlxRepo.NewSQLXCardRepository(db)
 
-	uc := usecase.NewTodoUseCase(boardRepo, columnRepo, cardRepo)
+	uc := usecase.NewTodoUseCase(boardRepo, columnRepo, cardRepo, logger)
 
 	userHandler := handler.NewTodoHandler(uc, config.Pagination)
 	router := mux.NewRouter()
@@ -42,6 +53,9 @@ func main() {
 	router.Use(loggingMiddleware.Middleware)
 	api.InitializeV1Routes(router, userHandler)
 
-	log.Println("Starting server on :8080")
-	http.ListenAndServe(":8080", router)
+	localPort := fmt.Sprintf("%d", config.Todo.LocalPort)
+	exposedPort := fmt.Sprintf("%d", config.Todo.ExposedPort)
+
+	log.Printf("Starting server on :%s\n", exposedPort)
+	http.ListenAndServe(":"+localPort, router)
 }

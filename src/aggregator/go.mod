@@ -3,7 +3,9 @@ module aggregator
 go 1.23.1
 
 require (
+	github.com/BurntSushi/toml v1.4.0
 	github.com/google/uuid v1.6.0
+	github.com/gorilla/mux v1.8.1
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/zap v1.27.0
 )

@@ -77,16 +77,16 @@ func TestLogin(t *testing.T) {
 	// }
 
 	// GenerateAccessToken(ctx context.Context, userID string) (string, error)
-	mockTokenSvcGenerateAccessTokenOk := func(userID, accessToken string) {
-		ts.mockTokenSvc.On("GenerateAccessToken", ts.ctx, userID).Return(accessToken, nil)
+	mockTokenSvcGenerateAccessTokenOk := func(userID, role, accessToken string) {
+		ts.mockTokenSvc.On("GenerateAccessToken", ts.ctx, userID, role).Return(accessToken, nil)
 	}
 	// mockTokenSvcGenerateAccessTokenErr := func(userID, accessToken string) {
 	// 	ts.mockTokenSvc.On("GenerateAccessToken", ts.ctx, userID).Return(nil, errors.New(""))
 	// }
 
 	// GenerateRefreshToken(ctx context.Context, userID string) (string, error)
-	mockTokenSvcGenerateRefreshTokenOk := func(userID, refreshToken string) {
-		ts.mockTokenSvc.On("GenerateRefreshToken", ts.ctx, userID).Return(refreshToken, nil)
+	mockTokenSvcGenerateRefreshTokenOk := func(userID, role, refreshToken string) {
+		ts.mockTokenSvc.On("GenerateRefreshToken", ts.ctx, userID, role).Return(refreshToken, nil)
 	}
 	// mockTokenSvcGenerateRefreshTokenErr := func(userID, accessToken string) {
 	// 	ts.mockTokenSvc.On("GenerateRefreshToken", ts.ctx, userID).Return(nil, errors.New(""))
@@ -107,14 +107,15 @@ func TestLogin(t *testing.T) {
 		token                            string
 		username                         string
 		email                            string
+		role                             string
 		password                         string
 		createdAt                        time.Time
-		responseFn                       func(accessToken, refreshToken string) *dto.LoginResponse
+		responseFn                       func(accessToken, refreshToken string) *dto.Tokens
 		accessToken                      string
 		refreshToken                     string
 		mockUserSvcFn                    func(email string, user *dto.User)
-		mockTokenSvcGenerateAccessToken  func(userID, accessToken string)
-		mockTokenSvcGenerateRefreshToken func(userID, refreshToken string)
+		mockTokenSvcGenerateAccessToken  func(userID, role, accessToken string)
+		mockTokenSvcGenerateRefreshToken func(userID, role, refreshToken string)
 		mockTokenRepoSaveFn              func(token *entity.Token)
 		wantErr                          bool
 		errMsg                           string
@@ -126,10 +127,11 @@ func TestLogin(t *testing.T) {
 			token:     "alskdjflksadjflkjdsf",
 			username:  "username",
 			email:     "success@email.com",
+			role:      "user",
 			createdAt: time.Now(),
 			password:  "Pa$$w0rD",
-			responseFn: func(accessToken string, refreshToken string) *dto.LoginResponse {
-				return &dto.LoginResponse{
+			responseFn: func(accessToken string, refreshToken string) *dto.Tokens {
+				return &dto.Tokens{
 					AccessToken:  accessToken,
 					RefreshToken: refreshToken,
 				}
@@ -149,11 +151,12 @@ func TestLogin(t *testing.T) {
 				ID:           tt.userID,
 				Username:     tt.username,
 				Email:        tt.email,
+				Role:         tt.role,
 				PasswordHash: passwordHash,
 			}
 			tt.mockUserSvcFn(tt.email, user)
-			tt.mockTokenSvcGenerateAccessToken(tt.userID.String(), tt.accessToken)
-			tt.mockTokenSvcGenerateRefreshToken(tt.userID.String(), tt.refreshToken)
+			tt.mockTokenSvcGenerateAccessToken(tt.userID.String(), tt.role, tt.accessToken)
+			tt.mockTokenSvcGenerateRefreshToken(tt.userID.String(), tt.role, tt.refreshToken)
 			token := &entity.Token{
 				ID:        tt.tokenID,
 				UserID:    tt.userID,

@@ -20,20 +20,27 @@ func NewSQLXUserRepository(db *sqlx.DB) *SQLXUserRepository {
 }
 
 func (r *SQLXUserRepository) CreateUser(ctx context.Context, user *entity.User) error {
+	repoUser := repository.RepoUser(*user)
+
 	query := `
     INSERT INTO users (id, username, email, password_hash, created_at, updated_at)
     VALUES (:id, :username, :email, :password_hash, :created_at, :updated_at)
     `
-	_, err := r.db.NamedExecContext(ctx, query, user)
+	_, err := r.db.NamedExecContext(ctx, query, &repoUser)
+
 	return err
 }
 
 func (r *SQLXUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (*entity.User, error) {
-	var user entity.User
-	err := r.db.GetContext(ctx, &user, "SELECT * FROM users WHERE id = $1", id)
+	var repoUser repository.User
+
+	err := r.db.GetContext(ctx, &repoUser, "SELECT * FROM users WHERE id = $1", id)
 	if err != nil {
 		return nil, err
 	}
+
+	user := repository.UserToEntity(repoUser)
+
 	return &user, nil
 }
 
@@ -63,50 +70,72 @@ func (r *SQLXUserRepository) GetUsers(ctx context.Context, filter repository.Use
 		i += 1
 	}
 
-	var users []entity.User
+	var repoUsers []repository.User
 	stmt, err := r.db.PreparexContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
 
-	err = stmt.SelectContext(ctx, &users, args...)
+	err = stmt.SelectContext(ctx, &repoUsers, args...)
 	if err != nil {
 		return nil, err
+	}
+
+	users := make([]entity.User, len(repoUsers))
+	for i, u := range repoUsers {
+		users[i] = repository.UserToEntity(u)
 	}
 
 	return users, nil
 }
 
 func (r *SQLXUserRepository) GetUsersBatch(ctx context.Context, limit, offset int) ([]entity.User, error) {
-	var users []entity.User
-	err := r.db.SelectContext(ctx, &users, "SELECT * FROM users ORDER BY created_at ASC LIMIT $1 OFFSET $2", limit, offset)
+	var repoUsers []repository.User
+
+	err := r.db.SelectContext(ctx, &repoUsers, "SELECT * FROM users ORDER BY created_at ASC LIMIT $1 OFFSET $2", limit, offset)
 	if err != nil {
 		return nil, err
 	}
+
+	users := make([]entity.User, len(repoUsers))
+	for i, u := range repoUsers {
+		users[i] = repository.UserToEntity(u)
+	}
+
 	return users, nil
 }
 
 func (r *SQLXUserRepository) GetNewUsers(ctx context.Context, from time.Time, to time.Time) ([]entity.User, error) {
-	var users []entity.User
+	var repoUsers []repository.User
+
 	query := `
 	SELECT * FROM users
 	WHERE $1 <= created_at AND created_at <= $2
 	`
 
-	err := r.db.SelectContext(ctx, &users, query, from, to)
+	err := r.db.SelectContext(ctx, &repoUsers, query, from, to)
 	if err != nil {
 		return nil, err
+	}
+
+	users := make([]entity.User, len(repoUsers))
+	for i, u := range repoUsers {
+		users[i] = repository.UserToEntity(u)
 	}
 
 	return users, nil
 }
 
 func (r *SQLXUserRepository) UpdateUser(ctx context.Context, user *entity.User) error {
+	repoUser := repository.RepoUser(*user)
+
 	query := `
     UPDATE users SET username = :username, email = :email, updated_at = :updated_at
     WHERE id = :id
     `
-	_, err := r.db.NamedExecContext(ctx, query, user)
+
+	_, err := r.db.NamedExecContext(ctx, query, repoUser)
+
 	return err
 }
 

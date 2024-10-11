@@ -14,6 +14,24 @@ type UserService struct {
 	mock.Mock
 }
 
+// CreateUser provides a mock function with given fields: ctx, username, email, password
+func (_m *UserService) CreateUser(ctx context.Context, username string, email string, password string) error {
+	ret := _m.Called(ctx, username, email, password)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateUser")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) error); ok {
+		r0 = rf(ctx, username, email, password)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // GetUserByEmail provides a mock function with given fields: ctx, email
 func (_m *UserService) GetUserByEmail(ctx context.Context, email string) (*dto.User, error) {
 	ret := _m.Called(ctx, email)

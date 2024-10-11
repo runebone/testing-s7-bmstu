@@ -4,7 +4,6 @@ import (
 	sqlxRepository "auth/internal/adapter/repository/sqlx"
 	"auth/internal/adapter/service/tokengen/jwt"
 	"auth/internal/dto"
-	"auth/internal/entity"
 	"auth/internal/repository"
 	"auth/internal/service/tokengen"
 	"auth/internal/usecase"
@@ -15,6 +14,7 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -45,7 +45,7 @@ func sqlxSetup() *testSetup {
 
 	userSvc := new(mocks.UserService)
 
-	tokenSvc := jwt.NewJWTService("secret", 15*60, 7*24*60*60)
+	tokenSvc := jwt.NewJWTService("secret", 15*time.Minute, 7*24*time.Hour)
 
 	uc := v1.NewAuthUseCase(repo, userSvc, tokenSvc)
 
@@ -151,13 +151,14 @@ func TestLogin(t *testing.T) {
 	username := "username"
 	email := "test@email.com"
 	password := "Pa$$w0rD"
-	password_hash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
 	user := &dto.User{
 		ID:           id,
 		Username:     username,
 		Email:        email,
-		PasswordHash: string(password_hash),
+		Role:         "user",
+		PasswordHash: string(passwordHash),
 	}
 
 	// GetUserByEmail(ctx context.Context, email string) (*dto.User, error)
@@ -168,7 +169,7 @@ func TestLogin(t *testing.T) {
 		log.Fatalf("Failed to execute Login usecase: %v", err)
 	}
 
-	var token entity.Token
+	var token repository.Token
 	err = db.GetContext(ts.ctx, &token, `
 		SELECT * FROM tokens WHERE user_id = $1
 	`, id)
@@ -179,19 +180,19 @@ func TestLogin(t *testing.T) {
 	accessToken := loginResponse.AccessToken
 	refreshToken := loginResponse.RefreshToken
 
-	user_id, err := ts.tokenSvc.ValidateToken(ts.ctx, accessToken)
+	userID, _, err := ts.tokenSvc.ValidateToken(ts.ctx, accessToken)
 	if err != nil {
 		log.Fatalf("Failed to validate access token: %v", err)
 	}
 
-	assert.Equal(t, id.String(), user_id)
+	assert.Equal(t, id.String(), userID)
 
-	user_id, err = ts.tokenSvc.ValidateToken(ts.ctx, refreshToken)
+	userID, _, err = ts.tokenSvc.ValidateToken(ts.ctx, refreshToken)
 	if err != nil {
 		log.Fatalf("Failed to validate refresh token: %v", err)
 	}
 
-	assert.Equal(t, id.String(), user_id)
+	assert.Equal(t, id.String(), userID)
 }
 
 // Refresh(ctx context.Context, refreshToken string) (*dto.RefreshTokenResponse, error)
@@ -199,8 +200,8 @@ func TestRefresh(t *testing.T) {
 	ts := sqlxSetup()
 	resetDatabase()
 
-	id, _ := uuid.Parse("4457092b-2b06-4443-81af-323c2e67d000")
-	refreshToken := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzM2NzgzMDksImlhdCI6MTcyNzYzMDMwOSwic3ViIjoiNDQ1NzA5MmItMmIwNi00NDQzLTgxYWYtMzIzYzJlNjdkMDAwIiwidHlwZSI6InJlZnJlc2gifQ._tO3m754wHTIqJqp3WyYFeHFFuOSYLCjMCuU167xn7U"
+	id, _ := uuid.Parse("1ddb8ee6-963c-41d2-9834-484e4ea306f1")
+	refreshToken := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjgzMzM3MTAsImlhdCI6MTcyNzcyODkxMCwicm9sZSI6InVzZXIiLCJzdWIiOiIxZGRiOGVlNi05NjNjLTQxZDItOTgzNC00ODRlNGVhMzA2ZjEiLCJ0eXBlIjoicmVmcmVzaCJ9.ibn-SGh6TzpYSWgAV_iHZulw07SSqpfB2HRcGYZ2jSg"
 
 	refreshTokenResponse, err := ts.uc.Refresh(ts.ctx, refreshToken)
 	if err != nil {
@@ -209,12 +210,12 @@ func TestRefresh(t *testing.T) {
 
 	accessToken := refreshTokenResponse.AccessToken
 
-	user_id, err := ts.tokenSvc.ValidateToken(ts.ctx, accessToken)
+	userID, _, err := ts.tokenSvc.ValidateToken(ts.ctx, accessToken)
 	if err != nil {
 		log.Fatalf("Failed to validate access token: %v", err)
 	}
 
-	assert.Equal(t, id.String(), user_id)
+	assert.Equal(t, id.String(), userID)
 }
 
 // Logout(ctx context.Context, refreshToken string) error
@@ -223,14 +224,14 @@ func TestLogout(t *testing.T) {
 	resetDatabase()
 
 	id := uuid.New()
-	user_id := "4457092b-2b06-4443-81af-323c2e67d000"
-	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzM2NzgzMDksImlhdCI6MTcyNzYzMDMwOSwic3ViIjoiNDQ1NzA5MmItMmIwNi00NDQzLTgxYWYtMzIzYzJlNjdkMDAwIiwidHlwZSI6InJlZnJlc2gifQ._tO3m754wHTIqJqp3WyYFeHFFuOSYLCjMCuU167xn7U"
+	userID := "1ddb8ee6-963c-41d2-9834-484e4ea306f1"
+	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjgzMzM3MTAsImlhdCI6MTcyNzcyODkxMCwicm9sZSI6InVzZXIiLCJzdWIiOiIxZGRiOGVlNi05NjNjLTQxZDItOTgzNC00ODRlNGVhMzA2ZjEiLCJ0eXBlIjoicmVmcmVzaCJ9.ibn-SGh6TzpYSWgAV_iHZulw07SSqpfB2HRcGYZ2jSg"
 
 	query := `
     INSERT INTO tokens (id, user_id, token)
     VALUES ($1, $2, $3)
     `
-	_, err := db.ExecContext(ts.ctx, query, id, user_id, token)
+	_, err := db.ExecContext(ts.ctx, query, id, userID, token)
 	if err != nil {
 		log.Fatalf("Failed to insert into tokens: %v", err)
 	}
@@ -240,10 +241,10 @@ func TestLogout(t *testing.T) {
 	if err != nil {
 		log.Fatalf("Failed to execute Logout usecase: %v", err)
 	} else {
-		var tmp entity.Token
+		var tmp repository.Token
 		err = db.GetContext(ts.ctx, &tmp, `
 			SELECT * FROM tokens WHERE user_id = $1
-		`, user_id)
+		`, userID)
 		assert.NotNil(t, err)
 	}
 }

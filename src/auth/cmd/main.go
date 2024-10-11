@@ -3,10 +3,11 @@ package main
 import (
 	"auth/internal/adapter/database"
 	"auth/internal/adapter/logger"
+	"fmt"
+	"time"
+	_ "time/tzdata"
 
-	// loggingRepo "auth/internal/adapter/repository/logging"
 	sqlxRepo "auth/internal/adapter/repository/sqlx"
-	// loggingUseCase "auth/internal/adapter/usecase/logging"
 	"auth/internal/adapter/service/tokengen/jwt"
 	user "auth/internal/adapter/service/user/http"
 	api "auth/internal/api/v1"
@@ -20,28 +21,40 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func main() {
-	logger := logger.NewZapLogger()
+func init() {
+	loc, err := time.LoadLocation("Europe/Moscow")
+	if err != nil {
+		log.Fatalf("Couldn't set timezone: %v", err)
+	}
+	time.Local = loc
+}
 
+func main() {
 	config, err := config.LoadConfig("config.toml")
 	if err != nil {
 		log.Println("Error reading config (config.toml)")
 	}
 
-	db, err := database.NewPostgresDB(config.Database)
+	logger := logger.NewZapLogger(config.Auth.Log)
+
+	db, err := database.NewPostgresDB(config.Auth.Postgres)
 	if err != nil {
 		log.Println("Couldn't connect to database, exiting")
 		return
 	}
 
 	repo := sqlxRepo.NewSQLXTokenRepository(db)
-	// repo := loggingRepo.NewLoggingAuthRepository(baseRepo, logger)
 
-	userService := user.NewHTTPUserService("http://userservice:8080/api/v1", 2) // XXX:
-	tokenService := jwt.NewJWTService("nigger", 15*60, 7*60*60*24)              // XXX:
+	baseURL := fmt.Sprintf("http://%s:%d/%s", config.User.ContainerName, config.User.LocalPort, config.User.BaseURL)
 
-	uc := usecase.NewAuthUseCase(repo, userService, tokenService)
-	// uc := loggingUseCase.NewLoggingAuthUseCase(userUC, logger)
+	userService := user.NewHTTPUserService(baseURL, 2*time.Second)
+	tokenService := jwt.NewJWTService(
+		config.Auth.Token.Secret,
+		time.Duration(config.Auth.Token.AccessTTL)*time.Second,
+		time.Duration(config.Auth.Token.RefreshTTL)*time.Second,
+	)
+
+	uc := usecase.NewAuthUseCase(repo, userService, tokenService, logger)
 
 	userHandler := handler.NewAuthHandler(uc)
 	router := mux.NewRouter()
@@ -49,6 +62,9 @@ func main() {
 	router.Use(loggingMiddleware.Middleware)
 	api.InitializeV1Routes(router, userHandler)
 
-	log.Println("Starting server on :8080")
-	http.ListenAndServe(":8080", router)
+	localPort := fmt.Sprintf("%d", config.Auth.LocalPort)
+	exposedPort := fmt.Sprintf("%d", config.Auth.ExposedPort)
+
+	log.Printf("Starting server on :%s\n", exposedPort)
+	http.ListenAndServe(":"+localPort, router)
 }

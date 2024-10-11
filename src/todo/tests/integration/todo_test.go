@@ -149,10 +149,10 @@ func TestCreate(t *testing.T) {
 	ts := sqlxSetup()
 	resetDatabase()
 
-	user_id := uuid.New()
+	userID := uuid.New()
 
 	board := entity.Board{
-		UserID: user_id,
+		UserID: userID,
 		Title:  "Board Title",
 	}
 
@@ -162,10 +162,10 @@ func TestCreate(t *testing.T) {
 		log.Fatalf("Failed to execute CreateBoard usecase: %v", err)
 	}
 
-	var createdBoard entity.Board
+	var createdBoard repository.Board
 	err = db.GetContext(ts.ctx, &createdBoard, `
 		SELECT * FROM boards WHERE user_id = $1
-	`, user_id)
+	`, userID)
 
 	if err != nil {
 		log.Fatalf("Failed to select created board: %v", err)
@@ -174,11 +174,11 @@ func TestCreate(t *testing.T) {
 	assert.Equal(t, board.UserID, createdBoard.UserID)
 	assert.Equal(t, board.Title, createdBoard.Title)
 
-	board_id := createdBoard.ID
+	boardID := createdBoard.ID
 
 	column := entity.Column{
-		UserID:   user_id,
-		BoardID:  board_id,
+		UserID:   userID,
+		BoardID:  boardID,
 		Title:    "Column Title",
 		Position: 0,
 	}
@@ -189,10 +189,10 @@ func TestCreate(t *testing.T) {
 		log.Fatalf("Failed to execute CreateColumn usecase: %v", err)
 	}
 
-	var createdColumn entity.Column
+	var createdColumn repository.Column
 	err = db.GetContext(ts.ctx, &createdColumn, `
 		SELECT * FROM columns WHERE user_id = $1
-	`, user_id)
+	`, userID)
 
 	if err != nil {
 		log.Fatalf("Failed to select created column: %v", err)
@@ -202,11 +202,11 @@ func TestCreate(t *testing.T) {
 	assert.Equal(t, column.BoardID, createdColumn.BoardID)
 	assert.Equal(t, column.Title, createdColumn.Title)
 
-	column_id := createdColumn.ID
+	columnID := createdColumn.ID
 
 	card := entity.Card{
-		UserID:   user_id,
-		ColumnID: column_id,
+		UserID:   userID,
+		ColumnID: columnID,
 		Title:    "Card Title",
 		Position: 0,
 	}
@@ -217,10 +217,10 @@ func TestCreate(t *testing.T) {
 		log.Fatalf("Failed to execute CreateCard usecase: %v", err)
 	}
 
-	var createdCard entity.Card
+	var createdCard repository.Card
 	err = db.GetContext(ts.ctx, &createdCard, `
 		SELECT * FROM cards WHERE user_id = $1
-	`, user_id)
+	`, userID)
 
 	if err != nil {
 		log.Fatalf("Failed to select created card: %v", err)
@@ -236,9 +236,9 @@ func TestGetByID(t *testing.T) {
 	ts := sqlxSetup()
 	resetDatabase()
 
-	board_id := uuid.New()
-	board := entity.Board{
-		ID:     board_id,
+	boardID := uuid.New()
+	board := repository.Board{
+		ID:     boardID,
 		UserID: uuid.New(),
 		Title:  "Board Title",
 	}
@@ -252,7 +252,7 @@ func TestGetByID(t *testing.T) {
 		log.Fatalf("Failed to insert into boards: %v", err)
 	}
 
-	gotBoard, err := ts.uc.GetBoardByID(ts.ctx, board_id)
+	gotBoard, err := ts.uc.GetBoardByID(ts.ctx, boardID)
 
 	if err != nil {
 		log.Fatalf("Failed to execute GetBoardByID usecase: %v", err)
@@ -270,9 +270,9 @@ func TestUpdate(t *testing.T) {
 	ts := sqlxSetup()
 	resetDatabase()
 
-	board_id := uuid.New()
-	board := entity.Board{
-		ID:     board_id,
+	boardID := uuid.New()
+	board := repository.Board{
+		ID:     boardID,
 		UserID: uuid.New(),
 		Title:  "Board Title",
 	}
@@ -286,7 +286,7 @@ func TestUpdate(t *testing.T) {
 		log.Fatalf("Failed to insert into boards: %v", err)
 	}
 
-	newBoard := board
+	newBoard := repository.BoardToEntity(board)
 	newBoard.Title = "New Board Title"
 
 	err = ts.uc.UpdateBoard(ts.ctx, &newBoard)
@@ -295,11 +295,11 @@ func TestUpdate(t *testing.T) {
 		log.Fatalf("Failed to execute UpdateBoard usecase: %v", err)
 	}
 
-	var updatedBoard entity.Board
+	var updatedBoard repository.Board
 
 	err = db.GetContext(ts.ctx, &updatedBoard, `
 		SELECT * FROM boards WHERE id = $1
-	`, board_id)
+	`, boardID)
 
 	if err != nil {
 		log.Fatalf("Failed to select updated board: %v", err)
@@ -315,9 +315,9 @@ func TestDelete(t *testing.T) {
 	ts := sqlxSetup()
 	resetDatabase()
 
-	board_id := uuid.New()
-	board := entity.Board{
-		ID:     board_id,
+	boardID := uuid.New()
+	board := repository.Board{
+		ID:     boardID,
 		UserID: uuid.New(),
 		Title:  "Board Title",
 	}
@@ -331,16 +331,16 @@ func TestDelete(t *testing.T) {
 		log.Fatalf("Failed to insert into boards: %v", err)
 	}
 
-	err = ts.uc.DeleteBoard(ts.ctx, board_id)
+	err = ts.uc.DeleteBoard(ts.ctx, boardID)
 
 	if err != nil {
 		log.Fatalf("Failed to execute DeleteBoard usecase: %v", err)
 	}
 
-	var tmp entity.Board
+	var tmp repository.Board
 	err = db.GetContext(ts.ctx, &tmp, `
 		SELECT * FROM boards WHERE id = $1
-	`, board_id)
+	`, boardID)
 
 	assert.NotNil(t, err)
 

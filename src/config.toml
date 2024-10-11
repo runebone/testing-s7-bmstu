@@ -29,7 +29,7 @@ path = "cli.log"
 [aggregator]
 path = "aggregator"
 container_name = "aggregator"
-base_url = "api/v1"
+base_url = "http://localhost:8000/api/v1"
 local_port = 8080
 exposed_port = 8000
 
@@ -44,7 +44,7 @@ path = "aggregator.log"
 path = "user"
 container_name = "user"
 base_url = "api/v1"
-database = "mongo"
+database = "postgres"
 local_port = 8080
 exposed_port = 8001
 

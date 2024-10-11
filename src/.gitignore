@@ -1,3 +1,5 @@
 .env
 logs
+cli/main
+cli/cli.log
 tokens.json

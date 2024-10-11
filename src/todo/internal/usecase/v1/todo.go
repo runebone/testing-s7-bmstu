@@ -72,7 +72,7 @@ func (uc *todoUseCase) CreateBoard(ctx context.Context, board *entity.Board) err
 
 	if err != nil {
 		info := "Validation failed"
-		uc.log.Info(ctx, header+info, "err", err)
+		uc.log.Info(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -88,7 +88,7 @@ func (uc *todoUseCase) CreateBoard(ctx context.Context, board *entity.Board) err
 
 	if err != nil {
 		info := "Failed to create board"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -118,7 +118,7 @@ func (uc *todoUseCase) GetBoardByID(ctx context.Context, id uuid.UUID) (*entity.
 
 	if err != nil {
 		info := "Failed to get board by id"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -136,7 +136,7 @@ func (uc *todoUseCase) GetBoardsByUser(ctx context.Context, userID uuid.UUID, li
 
 	if err != nil {
 		info := "Validation failed"
-		uc.log.Info(ctx, header+info, "err", err)
+		uc.log.Info(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -146,7 +146,7 @@ func (uc *todoUseCase) GetBoardsByUser(ctx context.Context, userID uuid.UUID, li
 
 	if err != nil {
 		info := "Failed to get boards by user"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -164,7 +164,7 @@ func (uc *todoUseCase) UpdateBoard(ctx context.Context, board *entity.Board) err
 
 	if err != nil {
 		info := "Validation failed"
-		uc.log.Info(ctx, header+info, "err", err)
+		uc.log.Info(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -176,7 +176,7 @@ func (uc *todoUseCase) UpdateBoard(ctx context.Context, board *entity.Board) err
 
 	if err != nil {
 		info := "Failed to update board"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -194,7 +194,7 @@ func (uc *todoUseCase) DeleteBoard(ctx context.Context, id uuid.UUID) error {
 
 	if err != nil {
 		info := "Failed to delete board"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -212,7 +212,7 @@ func (uc *todoUseCase) CreateColumn(ctx context.Context, column *entity.Column) 
 
 	if err != nil {
 		info := "Validation failed"
-		uc.log.Info(ctx, header+info, "err", err)
+		uc.log.Info(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -228,7 +228,7 @@ func (uc *todoUseCase) CreateColumn(ctx context.Context, column *entity.Column) 
 
 	if err != nil {
 		info := "Failed to make request to repo"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -266,7 +266,7 @@ func (uc *todoUseCase) GetColumnByID(ctx context.Context, id uuid.UUID) (*entity
 
 	if err != nil {
 		info := "Failed to get column by id"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -284,7 +284,7 @@ func (uc *todoUseCase) GetColumnsByBoard(ctx context.Context, boardID uuid.UUID,
 
 	if err != nil {
 		info := "Validation failed"
-		uc.log.Info(ctx, header+info, "err", err)
+		uc.log.Info(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -294,7 +294,7 @@ func (uc *todoUseCase) GetColumnsByBoard(ctx context.Context, boardID uuid.UUID,
 
 	if err != nil {
 		info := "Failed to get columns by board"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -324,7 +324,7 @@ func (uc *todoUseCase) UpdateColumn(ctx context.Context, column *entity.Column) 
 
 	if err != nil {
 		info := "Validation failed"
-		uc.log.Info(ctx, header+info, "err", err)
+		uc.log.Info(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -336,7 +336,7 @@ func (uc *todoUseCase) UpdateColumn(ctx context.Context, column *entity.Column) 
 
 	if err != nil {
 		info := "Failed to update column"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -354,7 +354,7 @@ func (uc *todoUseCase) DeleteColumn(ctx context.Context, id uuid.UUID) error {
 
 	if err != nil {
 		info := "Failed to delete column"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -372,7 +372,7 @@ func (uc *todoUseCase) CreateCard(ctx context.Context, card *entity.Card) error 
 
 	if err != nil {
 		info := "Validation failed"
-		uc.log.Info(ctx, header+info, "err", err)
+		uc.log.Info(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -388,7 +388,7 @@ func (uc *todoUseCase) CreateCard(ctx context.Context, card *entity.Card) error 
 
 	if err != nil {
 		info := "Failed to create card"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -424,7 +424,7 @@ func (uc *todoUseCase) GetCardByID(ctx context.Context, id uuid.UUID) (*entity.C
 
 	if err != nil {
 		info := "Failed to get card by id"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -442,7 +442,7 @@ func (uc *todoUseCase) GetCardsByColumn(ctx context.Context, columnID uuid.UUID,
 
 	if err != nil {
 		info := "Validation failed"
-		uc.log.Info(ctx, header+info, "err", err)
+		uc.log.Info(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -452,7 +452,7 @@ func (uc *todoUseCase) GetCardsByColumn(ctx context.Context, columnID uuid.UUID,
 
 	if err != nil {
 		info := "Failed to get cards by column"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -470,7 +470,7 @@ func (uc *todoUseCase) GetNewCards(ctx context.Context, from, to time.Time) ([]e
 
 	if err != nil {
 		info := "Validation failed"
-		uc.log.Info(ctx, header+info, "err", err)
+		uc.log.Info(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -480,7 +480,7 @@ func (uc *todoUseCase) GetNewCards(ctx context.Context, from, to time.Time) ([]e
 
 	if err != nil {
 		info := "Failed get new cards"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -506,7 +506,7 @@ func (uc *todoUseCase) UpdateCard(ctx context.Context, card *entity.Card) error 
 
 	if err != nil {
 		info := "Validation failed"
-		uc.log.Info(ctx, header+info, "err", err)
+		uc.log.Info(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -518,7 +518,7 @@ func (uc *todoUseCase) UpdateCard(ctx context.Context, card *entity.Card) error 
 
 	if err != nil {
 		info := "Failed to update card"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -536,7 +536,7 @@ func (uc *todoUseCase) DeleteCard(ctx context.Context, id uuid.UUID) error {
 
 	if err != nil {
 		info := "Failed to delete card"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 

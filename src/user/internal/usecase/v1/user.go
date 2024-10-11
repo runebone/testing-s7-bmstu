@@ -38,7 +38,7 @@ func (u *userUseCase) CreateUser(ctx context.Context, user entity.User) error {
 	err := isValidEmail(user.Email)
 
 	if err != nil {
-		u.log.Info(ctx, header+"Invalid email", "email", user.Email, "err", err)
+		u.log.Info(ctx, header+"Invalid email", "email", user.Email, "err", err.Error())
 		return err
 	}
 
@@ -47,7 +47,7 @@ func (u *userUseCase) CreateUser(ctx context.Context, user entity.User) error {
 	err = isValidUsername(user.Username)
 
 	if err != nil {
-		u.log.Info(ctx, header+"Invalid username", "username", user.Username, "err", err)
+		u.log.Info(ctx, header+"Invalid username", "username", user.Username, "err", err.Error())
 		return err
 	}
 
@@ -68,7 +68,7 @@ func (u *userUseCase) CreateUser(ctx context.Context, user entity.User) error {
 
 	if err != nil {
 		info := "Unable to hash password"
-		u.log.Error(ctx, header+info, "password", user.PasswordHash, "err", err)
+		u.log.Error(ctx, header+info, "password", user.PasswordHash, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -85,7 +85,7 @@ func (u *userUseCase) CreateUser(ctx context.Context, user entity.User) error {
 
 	if err != nil {
 		info := "Failed to create user"
-		u.log.Error(ctx, header+info, "err", err)
+		u.log.Error(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -158,7 +158,7 @@ func (u *userUseCase) GetUserByID(ctx context.Context, id uuid.UUID) (*entity.Us
 
 	if err != nil {
 		info := "Failed to get user by id"
-		u.log.Error(ctx, header+info, "err", err)
+		u.log.Error(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -176,7 +176,7 @@ func (u *userUseCase) GetUsers(ctx context.Context, filter repository.UserFilter
 
 	if err != nil {
 		info := "Failed to get users"
-		u.log.Error(ctx, header+info, "err", err)
+		u.log.Error(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -206,7 +206,7 @@ func (u *userUseCase) GetUsersBatch(ctx context.Context, limit, offset int) ([]e
 
 	if err != nil {
 		info := "Failed to get users batch"
-		u.log.Error(ctx, header+info, "err", err)
+		u.log.Error(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -222,7 +222,7 @@ func (u *userUseCase) GetNewUsers(ctx context.Context, from time.Time, to time.T
 
 	if from.Unix() > to.Unix() {
 		err := ErrInvalidFromTo
-		u.log.Info(ctx, header+"Bad from, to", "err", err)
+		u.log.Info(ctx, header+"Bad from, to", "err", err.Error())
 		return nil, err
 	}
 
@@ -232,7 +232,7 @@ func (u *userUseCase) GetNewUsers(ctx context.Context, from time.Time, to time.T
 
 	if err != nil {
 		info := "Failed to get new users"
-		u.log.Error(ctx, header+info, "err", err)
+		u.log.Error(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -252,7 +252,7 @@ func (u *userUseCase) UpdateUser(ctx context.Context, user *entity.User) error {
 
 	if err != nil {
 		info := "Failed to get user by id"
-		u.log.Error(ctx, header+info, "err", err)
+		u.log.Error(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -270,7 +270,7 @@ func (u *userUseCase) UpdateUser(ctx context.Context, user *entity.User) error {
 
 	if err != nil {
 		info := "Failed to update user"
-		u.log.Error(ctx, header+info, "err", err)
+		u.log.Error(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -290,7 +290,7 @@ func (u *userUseCase) DeleteUser(ctx context.Context, id uuid.UUID) error {
 
 	if err != nil {
 		info := "Failed to get user by id"
-		u.log.Error(ctx, header+info, "err", err)
+		u.log.Error(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -306,7 +306,7 @@ func (u *userUseCase) DeleteUser(ctx context.Context, id uuid.UUID) error {
 
 	if err != nil {
 		info := "Failed to delete user"
-		u.log.Error(ctx, header+info, "err", err)
+		u.log.Error(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 

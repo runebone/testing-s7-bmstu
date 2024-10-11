@@ -60,7 +60,7 @@ func (uc *authUseCase) Register(ctx context.Context, username, email, password s
 
 	if err != nil {
 		info := ErrCreateUser.Error()
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -70,7 +70,7 @@ func (uc *authUseCase) Register(ctx context.Context, username, email, password s
 
 	if err != nil {
 		info := "Failed to login"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -87,7 +87,7 @@ func (uc *authUseCase) Login(ctx context.Context, email, password string) (*dto.
 	user, err := uc.userService.GetUserByEmail(ctx, email)
 	if err != nil {
 		info := "Failed to get user by email"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -110,7 +110,7 @@ func (uc *authUseCase) Login(ctx context.Context, email, password string) (*dto.
 
 	if err != nil {
 		info := "Failed to generate access token"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -122,7 +122,7 @@ func (uc *authUseCase) Login(ctx context.Context, email, password string) (*dto.
 
 	if err != nil {
 		info := "Failed to generate refresh token"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -141,7 +141,7 @@ func (uc *authUseCase) Login(ctx context.Context, email, password string) (*dto.
 
 	if err != nil {
 		info := "Failed to save token"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -163,7 +163,7 @@ func (uc *authUseCase) Refresh(ctx context.Context, refreshToken string) (*dto.R
 	userID, role, err := uc.tokenService.ValidateToken(ctx, refreshToken)
 	if err != nil {
 		info := "Validation failed"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -174,7 +174,7 @@ func (uc *authUseCase) Refresh(ctx context.Context, refreshToken string) (*dto.R
 	newAccessToken, err := uc.tokenService.GenerateAccessToken(ctx, userID, role)
 	if err != nil {
 		info := "Failed to generate access token"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return nil, fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -194,7 +194,7 @@ func (uc *authUseCase) ValidateToken(ctx context.Context, token string) (string,
 
 	if err != nil {
 		info := "Validation failed"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return "", "", fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -212,7 +212,7 @@ func (uc *authUseCase) Logout(ctx context.Context, refreshToken string) error {
 
 	if err != nil {
 		info := "Failed to find token id by token"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 
@@ -226,7 +226,7 @@ func (uc *authUseCase) Logout(ctx context.Context, refreshToken string) error {
 
 	if err != nil {
 		info := "Failed to delete token"
-		uc.log.Error(ctx, header+info, "err", err)
+		uc.log.Error(ctx, header+info, "err", err.Error())
 		return fmt.Errorf(header+info+": %w", err)
 	}
 

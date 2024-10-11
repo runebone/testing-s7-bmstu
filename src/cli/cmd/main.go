@@ -108,6 +108,7 @@ func main() {
 				fmt.Printf("%s\n", err)
 				return
 			}
+			fmt.Println("Logged in.")
 			saveTokens(tokens, cfg.Client.TokensPath)
 		},
 	}

@@ -18,6 +18,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var abspath string = "/home/rukost/University/software-design-s6-bmstu.git/lab5/src/"
+
 func init() {
 	loc, err := time.LoadLocation("Europe/Moscow")
 	if err != nil {
@@ -27,15 +29,16 @@ func init() {
 }
 
 func readTokens(tokens *dto.Tokens, filePath string) error {
-	file, err := os.Open(filePath)
+	path := abspath + filePath
+	file, err := os.Open(path)
 	if err != nil {
-		fmt.Printf("Error opening file: %s\n", filePath)
+		// fmt.Printf("Error opening file: %s\n", filePath)
 		return err
 	}
 
 	jsonParser := json.NewDecoder(file)
 	if err = jsonParser.Decode(tokens); err != nil {
-		fmt.Printf("Error parsing file: %s\n", filePath)
+		// fmt.Printf("Error parsing file: %s\n", filePath)
 		return err
 	}
 
@@ -43,13 +46,14 @@ func readTokens(tokens *dto.Tokens, filePath string) error {
 }
 
 func saveTokens(tokens *dto.Tokens, filePath string) error {
+	path := abspath + filePath
 	tokensJson, err := json.Marshal(tokens)
 	if err != nil {
 		fmt.Println("Error marshalling tokens")
 		return err
 	}
 
-	err = os.WriteFile(filePath, tokensJson, 0644)
+	err = os.WriteFile(path, tokensJson, 0644)
 	if err != nil {
 		fmt.Printf("Error saving tokens to file: %s\n", filePath)
 	}
@@ -58,19 +62,19 @@ func saveTokens(tokens *dto.Tokens, filePath string) error {
 }
 
 func main() {
-	config, err := config.LoadConfig("config.toml")
+	cfg, err := config.LoadConfig(abspath + "config.toml")
 	if err != nil {
 		log.Println("Error reading config (config.toml)")
 	}
 
 	var Tokens dto.Tokens
-	err = readTokens(&Tokens, config.Client.TokensPath)
+	err = readTokens(&Tokens, cfg.Client.TokensPath)
 	if err != nil {
-		return
+		saveTokens(&dto.Tokens{}, cfg.Client.TokensPath)
 	}
 
-	logger := logger.NewZapLogger(config.Aggregator.Log)
-	ac := config.Aggregator
+	logger := logger.NewZapLogger(config.LogConfig{Path: abspath + "cli/cli.log", Level: cfg.Client.Log.Level}) // config.Client.Log)
+	ac := cfg.Aggregator
 	svc := http.NewAggregatorService(ac.BaseURL, 5*time.Second, logger)
 
 	client := v1.NewClientUseCase(svc)
@@ -88,7 +92,7 @@ func main() {
 				fmt.Printf("%s\n", err)
 				return
 			}
-			saveTokens(tokens, config.Client.TokensPath)
+			saveTokens(tokens, cfg.Client.TokensPath)
 		},
 	}
 	rootCmd.AddCommand(registerCmd)
@@ -104,7 +108,7 @@ func main() {
 				fmt.Printf("%s\n", err)
 				return
 			}
-			saveTokens(tokens, config.Client.TokensPath)
+			saveTokens(tokens, cfg.Client.TokensPath)
 		},
 	}
 	rootCmd.AddCommand(loginCmd)
@@ -119,7 +123,8 @@ func main() {
 				fmt.Printf("%s\n", err)
 				return
 			}
-			fmt.Println("logged out")
+			fmt.Println("Logged out.")
+			saveTokens(&dto.Tokens{}, cfg.Client.TokensPath)
 		},
 	}
 	rootCmd.AddCommand(logoutCmd)
@@ -136,7 +141,10 @@ func main() {
 		Short: "Create a new board",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx := context.WithValue(context.Background(), "tokens", Tokens)
+			ctx0 := context.WithValue(context.Background(), "tokens", &Tokens)
+			ctx := context.WithValue(ctx0, "saveFunc", func(tokens *dto.Tokens) {
+				saveTokens(tokens, cfg.Client.TokensPath)
+			})
 			client.CreateBoard(ctx, args[0])
 		},
 	}
@@ -148,7 +156,10 @@ func main() {
 		Short: "Create a new column in a board",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx := context.WithValue(context.Background(), "tokens", Tokens)
+			ctx0 := context.WithValue(context.Background(), "tokens", &Tokens)
+			ctx := context.WithValue(ctx0, "saveFunc", func(tokens *dto.Tokens) {
+				saveTokens(tokens, cfg.Client.TokensPath)
+			})
 			client.CreateColumn(ctx, args[0], args[1])
 		},
 	}
@@ -160,7 +171,10 @@ func main() {
 		Short: "Create a new card in a column",
 		Args:  cobra.MinimumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx := context.WithValue(context.Background(), "tokens", Tokens)
+			ctx0 := context.WithValue(context.Background(), "tokens", &Tokens)
+			ctx := context.WithValue(ctx0, "saveFunc", func(tokens *dto.Tokens) {
+				saveTokens(tokens, cfg.Client.TokensPath)
+			})
 			var description string
 			if len(args) == 3 {
 				description = args[2]
@@ -184,7 +198,10 @@ func main() {
 		Use:   "boards",
 		Short: "Show all boards",
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx := context.WithValue(context.Background(), "tokens", Tokens)
+			ctx0 := context.WithValue(context.Background(), "tokens", &Tokens)
+			ctx := context.WithValue(ctx0, "saveFunc", func(tokens *dto.Tokens) {
+				saveTokens(tokens, cfg.Client.TokensPath)
+			})
 			client.ShowBoards(ctx)
 		},
 	}
@@ -196,7 +213,10 @@ func main() {
 		Short: "Show a board",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx := context.WithValue(context.Background(), "tokens", Tokens)
+			ctx0 := context.WithValue(context.Background(), "tokens", &Tokens)
+			ctx := context.WithValue(ctx0, "saveFunc", func(tokens *dto.Tokens) {
+				saveTokens(tokens, cfg.Client.TokensPath)
+			})
 			client.ShowBoard(ctx, args[0])
 		},
 	}
@@ -208,7 +228,10 @@ func main() {
 		Short: "Show a column",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx := context.WithValue(context.Background(), "tokens", Tokens)
+			ctx0 := context.WithValue(context.Background(), "tokens", &Tokens)
+			ctx := context.WithValue(ctx0, "saveFunc", func(tokens *dto.Tokens) {
+				saveTokens(tokens, cfg.Client.TokensPath)
+			})
 			client.ShowColumn(ctx, args[0])
 		},
 	}
@@ -220,7 +243,10 @@ func main() {
 		Short: "Show a card",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx := context.WithValue(context.Background(), "tokens", Tokens)
+			ctx0 := context.WithValue(context.Background(), "tokens", &Tokens)
+			ctx := context.WithValue(ctx0, "saveFunc", func(tokens *dto.Tokens) {
+				saveTokens(tokens, cfg.Client.TokensPath)
+			})
 			client.ShowCard(ctx, args[0])
 		},
 	}
@@ -245,7 +271,10 @@ func main() {
 		Short: "Update board title",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx := context.WithValue(context.Background(), "tokens", Tokens)
+			ctx0 := context.WithValue(context.Background(), "tokens", &Tokens)
+			ctx := context.WithValue(ctx0, "saveFunc", func(tokens *dto.Tokens) {
+				saveTokens(tokens, cfg.Client.TokensPath)
+			})
 			client.UpdateBoard(ctx, args[0], args[1])
 		},
 	}
@@ -264,7 +293,10 @@ func main() {
 		Short: "Update column title",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx := context.WithValue(context.Background(), "tokens", Tokens)
+			ctx0 := context.WithValue(context.Background(), "tokens", &Tokens)
+			ctx := context.WithValue(ctx0, "saveFunc", func(tokens *dto.Tokens) {
+				saveTokens(tokens, cfg.Client.TokensPath)
+			})
 			client.UpdateColumn(ctx, args[0], args[1])
 		},
 	}
@@ -283,7 +315,10 @@ func main() {
 		Short: "Update card title",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx := context.WithValue(context.Background(), "tokens", Tokens)
+			ctx0 := context.WithValue(context.Background(), "tokens", &Tokens)
+			ctx := context.WithValue(ctx0, "saveFunc", func(tokens *dto.Tokens) {
+				saveTokens(tokens, cfg.Client.TokensPath)
+			})
 			client.UpdateCardTitle(ctx, args[0], args[1])
 		},
 	}
@@ -295,7 +330,10 @@ func main() {
 		Short: "Update card description",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx := context.WithValue(context.Background(), "tokens", Tokens)
+			ctx0 := context.WithValue(context.Background(), "tokens", &Tokens)
+			ctx := context.WithValue(ctx0, "saveFunc", func(tokens *dto.Tokens) {
+				saveTokens(tokens, cfg.Client.TokensPath)
+			})
 			client.UpdateCardDescription(ctx, args[0], args[1])
 		},
 	}
@@ -315,7 +353,10 @@ func main() {
 		Short: "Delete a board",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx := context.WithValue(context.Background(), "tokens", Tokens)
+			ctx0 := context.WithValue(context.Background(), "tokens", &Tokens)
+			ctx := context.WithValue(ctx0, "saveFunc", func(tokens *dto.Tokens) {
+				saveTokens(tokens, cfg.Client.TokensPath)
+			})
 			client.DeleteBoard(ctx, args[0])
 		},
 	}
@@ -327,7 +368,10 @@ func main() {
 		Short: "Delete a column",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx := context.WithValue(context.Background(), "tokens", Tokens)
+			ctx0 := context.WithValue(context.Background(), "tokens", &Tokens)
+			ctx := context.WithValue(ctx0, "saveFunc", func(tokens *dto.Tokens) {
+				saveTokens(tokens, cfg.Client.TokensPath)
+			})
 			client.DeleteColumn(ctx, args[0])
 		},
 	}
@@ -339,7 +383,10 @@ func main() {
 		Short: "Delete a card",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx := context.WithValue(context.Background(), "tokens", Tokens)
+			ctx0 := context.WithValue(context.Background(), "tokens", &Tokens)
+			ctx := context.WithValue(ctx0, "saveFunc", func(tokens *dto.Tokens) {
+				saveTokens(tokens, cfg.Client.TokensPath)
+			})
 			client.DeleteCard(ctx, args[0])
 		},
 	}
@@ -352,7 +399,10 @@ func main() {
 		Short: "Show stats for a time period",
 		Args:  cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			ctx := context.WithValue(context.Background(), "tokens", Tokens)
+			ctx0 := context.WithValue(context.Background(), "tokens", &Tokens)
+			ctx := context.WithValue(ctx0, "saveFunc", func(tokens *dto.Tokens) {
+				saveTokens(tokens, cfg.Client.TokensPath)
+			})
 			client.Stats(ctx, args[0], args[1])
 		},
 	}

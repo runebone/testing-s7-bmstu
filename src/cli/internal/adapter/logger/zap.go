@@ -24,10 +24,10 @@ func NewZapLogger(config config.LogConfig) *ZapLogger {
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 
-	consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
+	// consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)
 	fileEncoder := zapcore.NewJSONEncoder(encoderConfig)
 
-	consoleWriteSyncer := zapcore.AddSync(os.Stdout)
+	// consoleWriteSyncer := zapcore.AddSync(os.Stdout)
 
 	dir := filepath.Dir(config.Path)
 	err := os.MkdirAll(dir, 0755)
@@ -45,7 +45,7 @@ func NewZapLogger(config config.LogConfig) *ZapLogger {
 	}
 
 	core := zapcore.NewTee(
-		zapcore.NewCore(consoleEncoder, consoleWriteSyncer, zapLogLevel),
+		// zapcore.NewCore(consoleEncoder, consoleWriteSyncer, zapLogLevel),
 		zapcore.NewCore(fileEncoder, fileWriteSyncer, zapLogLevel),
 	)
 

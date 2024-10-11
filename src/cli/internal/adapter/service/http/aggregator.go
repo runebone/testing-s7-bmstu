@@ -687,7 +687,7 @@ func (s *AggregatorService) makeRequest(ctx context.Context, method, url string,
 		return nil, err
 	}
 
-	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	tokens, ok := ctx.Value("tokens").(*dto.Tokens)
 	if ok {
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", tokens.AccessToken))
 	}

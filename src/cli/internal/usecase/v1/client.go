@@ -46,7 +46,7 @@ func (uc *ClientUseCase) Logout(ctx context.Context, refreshToken string) error 
 }
 
 func (uc *ClientUseCase) ShowBoards(ctx context.Context) {
-	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	tokens, ok := ctx.Value("tokens").(*dto.Tokens)
 	if !ok {
 		fmt.Println("failed to get tokens from context")
 		return
@@ -54,8 +54,22 @@ func (uc *ClientUseCase) ShowBoards(ctx context.Context) {
 
 	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
 	if err != nil {
-		fmt.Println("access token expired")
-		return
+		// fmt.Println("Access token expired. Refreshing.")
+		resp, err := uc.svc.Refresh(ctx, tokens.RefreshToken)
+		if err != nil {
+			fmt.Println("Please log in again.")
+			return
+		}
+
+		tokens.AccessToken = resp.AccessToken
+
+		fn, ok := ctx.Value("saveFunc").(func(*dto.Tokens))
+		if !ok {
+			fmt.Println("failed to get saveFunc from context")
+			return
+		}
+
+		fn(tokens)
 	}
 
 	boards, err := uc.svc.ShowBoards(ctx)
@@ -71,14 +85,29 @@ func (uc *ClientUseCase) ShowBoards(ctx context.Context) {
 }
 
 func (uc *ClientUseCase) ShowBoard(ctx context.Context, boardID string) {
-	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	tokens, ok := ctx.Value("tokens").(*dto.Tokens)
 	if !ok {
 		fmt.Println("failed to get tokens from context")
 	}
 
 	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
 	if err != nil {
-		fmt.Println("access token expired")
+		// fmt.Println("Access token expired. Refreshing.")
+		resp, err := uc.svc.Refresh(ctx, tokens.RefreshToken)
+		if err != nil {
+			fmt.Println("Please log in again.")
+			return
+		}
+
+		tokens.AccessToken = resp.AccessToken
+
+		fn, ok := ctx.Value("saveFunc").(func(*dto.Tokens))
+		if !ok {
+			fmt.Println("failed to get saveFunc from context")
+			return
+		}
+
+		fn(tokens)
 	}
 
 	columns, err := uc.svc.ShowBoard(ctx, boardID)
@@ -94,14 +123,29 @@ func (uc *ClientUseCase) ShowBoard(ctx context.Context, boardID string) {
 }
 
 func (uc *ClientUseCase) ShowColumn(ctx context.Context, columnID string) {
-	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	tokens, ok := ctx.Value("tokens").(*dto.Tokens)
 	if !ok {
 		fmt.Println("failed to get tokens from context")
 	}
 
 	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
 	if err != nil {
-		fmt.Println("access token expired")
+		// fmt.Println("Access token expired. Refreshing.")
+		refreshResp, err := uc.svc.Refresh(ctx, tokens.RefreshToken)
+		if err != nil {
+			fmt.Println("Please log in again.")
+			return
+		}
+
+		tokens.AccessToken = refreshResp.AccessToken
+
+		fn, ok := ctx.Value("saveFunc").(func(*dto.Tokens))
+		if !ok {
+			fmt.Println("failed to get saveFunc from context")
+			return
+		}
+
+		fn(tokens)
 	}
 
 	cards, err := uc.svc.ShowColumn(ctx, columnID)
@@ -117,14 +161,29 @@ func (uc *ClientUseCase) ShowColumn(ctx context.Context, columnID string) {
 }
 
 func (uc *ClientUseCase) ShowCard(ctx context.Context, cardID string) {
-	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	tokens, ok := ctx.Value("tokens").(*dto.Tokens)
 	if !ok {
 		fmt.Println("failed to get tokens from context")
 	}
 
 	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
 	if err != nil {
-		fmt.Println("access token expired")
+		// fmt.Println("Access token expired. Refreshing.")
+		refreshResp, err := uc.svc.Refresh(ctx, tokens.RefreshToken)
+		if err != nil {
+			fmt.Println("Please log in again.")
+			return
+		}
+
+		tokens.AccessToken = refreshResp.AccessToken
+
+		fn, ok := ctx.Value("saveFunc").(func(*dto.Tokens))
+		if !ok {
+			fmt.Println("failed to get saveFunc from context")
+			return
+		}
+
+		fn(tokens)
 	}
 
 	card, err := uc.svc.ShowCard(ctx, cardID)
@@ -138,7 +197,7 @@ func (uc *ClientUseCase) ShowCard(ctx context.Context, cardID string) {
 }
 
 func (uc *ClientUseCase) CreateBoard(ctx context.Context, title string) {
-	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	tokens, ok := ctx.Value("tokens").(*dto.Tokens)
 	if !ok {
 		fmt.Println("failed to get tokens from context")
 	}
@@ -165,11 +224,11 @@ func (uc *ClientUseCase) CreateBoard(ctx context.Context, title string) {
 		return
 	}
 
-	fmt.Println("success")
+	fmt.Println("Board successfully created.")
 }
 
 func (uc *ClientUseCase) CreateColumn(ctx context.Context, boardIDstr, title string) {
-	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	tokens, ok := ctx.Value("tokens").(*dto.Tokens)
 	if !ok {
 		fmt.Println("failed to get tokens from context")
 	}
@@ -202,11 +261,11 @@ func (uc *ClientUseCase) CreateColumn(ctx context.Context, boardIDstr, title str
 		return
 	}
 
-	fmt.Println("success")
+	fmt.Println("Column successfully created.")
 }
 
 func (uc *ClientUseCase) CreateCard(ctx context.Context, columnIDstr, title, description string) {
-	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	tokens, ok := ctx.Value("tokens").(*dto.Tokens)
 	if !ok {
 		fmt.Println("failed to get tokens from context")
 	}
@@ -240,18 +299,33 @@ func (uc *ClientUseCase) CreateCard(ctx context.Context, columnIDstr, title, des
 		return
 	}
 
-	fmt.Println("success")
+	fmt.Println("Card successfully created.")
 }
 
 func (uc *ClientUseCase) UpdateBoard(ctx context.Context, boardIDstr, title string) {
-	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	tokens, ok := ctx.Value("tokens").(*dto.Tokens)
 	if !ok {
 		fmt.Println("failed to get tokens from context")
 	}
 
 	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
 	if err != nil {
-		fmt.Println("access token expired")
+		// fmt.Println("Access token expired. Refreshing.")
+		refreshResp, err := uc.svc.Refresh(ctx, tokens.RefreshToken)
+		if err != nil {
+			fmt.Println("Please log in again.")
+			return
+		}
+
+		tokens.AccessToken = refreshResp.AccessToken
+
+		fn, ok := ctx.Value("saveFunc").(func(*dto.Tokens))
+		if !ok {
+			fmt.Println("failed to get saveFunc from context")
+			return
+		}
+
+		fn(tokens)
 	}
 
 	boardID, err := uuid.Parse(boardIDstr)
@@ -271,18 +345,33 @@ func (uc *ClientUseCase) UpdateBoard(ctx context.Context, boardIDstr, title stri
 		return
 	}
 
-	fmt.Println("success")
+	fmt.Println("Board successfully updated.")
 }
 
 func (uc *ClientUseCase) UpdateColumn(ctx context.Context, columnIDstr, title string) {
-	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	tokens, ok := ctx.Value("tokens").(*dto.Tokens)
 	if !ok {
 		fmt.Println("failed to get tokens from context")
 	}
 
 	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
 	if err != nil {
-		fmt.Println("access token expired")
+		// fmt.Println("Access token expired. Refreshing.")
+		refreshResp, err := uc.svc.Refresh(ctx, tokens.RefreshToken)
+		if err != nil {
+			fmt.Println("Please log in again.")
+			return
+		}
+
+		tokens.AccessToken = refreshResp.AccessToken
+
+		fn, ok := ctx.Value("saveFunc").(func(*dto.Tokens))
+		if !ok {
+			fmt.Println("failed to get saveFunc from context")
+			return
+		}
+
+		fn(tokens)
 	}
 
 	columnID, err := uuid.Parse(columnIDstr)
@@ -302,18 +391,33 @@ func (uc *ClientUseCase) UpdateColumn(ctx context.Context, columnIDstr, title st
 		return
 	}
 
-	fmt.Println("success")
+	fmt.Println("Column successfully updated.")
 }
 
 func (uc *ClientUseCase) UpdateCardTitle(ctx context.Context, cardIDstr, title string) {
-	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	tokens, ok := ctx.Value("tokens").(*dto.Tokens)
 	if !ok {
 		fmt.Println("failed to get tokens from context")
 	}
 
 	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
 	if err != nil {
-		fmt.Println("access token expired")
+		// fmt.Println("Access token expired. Refreshing.")
+		refreshResp, err := uc.svc.Refresh(ctx, tokens.RefreshToken)
+		if err != nil {
+			fmt.Println("Please log in again.")
+			return
+		}
+
+		tokens.AccessToken = refreshResp.AccessToken
+
+		fn, ok := ctx.Value("saveFunc").(func(*dto.Tokens))
+		if !ok {
+			fmt.Println("failed to get saveFunc from context")
+			return
+		}
+
+		fn(tokens)
 	}
 
 	cardID, err := uuid.Parse(cardIDstr)
@@ -333,18 +437,33 @@ func (uc *ClientUseCase) UpdateCardTitle(ctx context.Context, cardIDstr, title s
 		return
 	}
 
-	fmt.Println("success")
+	fmt.Println("Card title successfully updated.")
 }
 
 func (uc *ClientUseCase) UpdateCardDescription(ctx context.Context, cardIDstr, description string) {
-	tokens, ok := ctx.Value("tokens").(dto.Tokens)
+	tokens, ok := ctx.Value("tokens").(*dto.Tokens)
 	if !ok {
 		fmt.Println("failed to get tokens from context")
 	}
 
 	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
 	if err != nil {
-		fmt.Println("access token expired")
+		// fmt.Println("Access token expired. Refreshing.")
+		refreshResp, err := uc.svc.Refresh(ctx, tokens.RefreshToken)
+		if err != nil {
+			fmt.Println("Please log in again.")
+			return
+		}
+
+		tokens.AccessToken = refreshResp.AccessToken
+
+		fn, ok := ctx.Value("saveFunc").(func(*dto.Tokens))
+		if !ok {
+			fmt.Println("failed to get saveFunc from context")
+			return
+		}
+
+		fn(tokens)
 	}
 
 	cardID, err := uuid.Parse(cardIDstr)
@@ -364,43 +483,143 @@ func (uc *ClientUseCase) UpdateCardDescription(ctx context.Context, cardIDstr, d
 		return
 	}
 
-	fmt.Println("success")
+	fmt.Println("Card description successfully updated.")
 }
 
 func (uc *ClientUseCase) DeleteBoard(ctx context.Context, id string) {
-	err := uc.svc.DeleteBoard(ctx, id)
+	tokens, ok := ctx.Value("tokens").(*dto.Tokens)
+	if !ok {
+		fmt.Println("failed to get tokens from context")
+	}
+
+	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
+	if err != nil {
+		// fmt.Println("Access token expired. Refreshing.")
+		refreshResp, err := uc.svc.Refresh(ctx, tokens.RefreshToken)
+		if err != nil {
+			fmt.Println("Please log in again.")
+			return
+		}
+
+		tokens.AccessToken = refreshResp.AccessToken
+
+		fn, ok := ctx.Value("saveFunc").(func(*dto.Tokens))
+		if !ok {
+			fmt.Println("failed to get saveFunc from context")
+			return
+		}
+
+		fn(tokens)
+	}
+
+	err = uc.svc.DeleteBoard(ctx, id)
 
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 		return
 	}
 
-	fmt.Println("success")
+	fmt.Println("Board successfully deleted.")
 }
 
 func (uc *ClientUseCase) DeleteColumn(ctx context.Context, id string) {
-	err := uc.svc.DeleteColumn(ctx, id)
+	tokens, ok := ctx.Value("tokens").(*dto.Tokens)
+	if !ok {
+		fmt.Println("failed to get tokens from context")
+	}
+
+	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
+	if err != nil {
+		// fmt.Println("Access token expired. Refreshing.")
+		refreshResp, err := uc.svc.Refresh(ctx, tokens.RefreshToken)
+		if err != nil {
+			fmt.Println("Please log in again.")
+			return
+		}
+
+		tokens.AccessToken = refreshResp.AccessToken
+
+		fn, ok := ctx.Value("saveFunc").(func(*dto.Tokens))
+		if !ok {
+			fmt.Println("failed to get saveFunc from context")
+			return
+		}
+
+		fn(tokens)
+	}
+
+	err = uc.svc.DeleteColumn(ctx, id)
 
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 		return
 	}
 
-	fmt.Println("success")
+	fmt.Println("Column successfully deleted.")
 }
 
 func (uc *ClientUseCase) DeleteCard(ctx context.Context, id string) {
-	err := uc.svc.DeleteCard(ctx, id)
+	tokens, ok := ctx.Value("tokens").(*dto.Tokens)
+	if !ok {
+		fmt.Println("failed to get tokens from context")
+	}
+
+	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
+	if err != nil {
+		// fmt.Println("Access token expired. Refreshing.")
+		refreshResp, err := uc.svc.Refresh(ctx, tokens.RefreshToken)
+		if err != nil {
+			fmt.Println("Please log in again.")
+			return
+		}
+
+		tokens.AccessToken = refreshResp.AccessToken
+
+		fn, ok := ctx.Value("saveFunc").(func(*dto.Tokens))
+		if !ok {
+			fmt.Println("failed to get saveFunc from context")
+			return
+		}
+
+		fn(tokens)
+	}
+
+	err = uc.svc.DeleteCard(ctx, id)
 
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 		return
 	}
 
-	fmt.Println("success")
+	fmt.Println("Card successfully deleted.")
 }
 
 func (uc *ClientUseCase) Stats(ctx context.Context, from, to string) {
+	tokens, ok := ctx.Value("tokens").(*dto.Tokens)
+	if !ok {
+		fmt.Println("failed to get tokens from context")
+	}
+
+	_, err := uc.svc.Validate(ctx, tokens.AccessToken)
+	if err != nil {
+		// fmt.Println("Access token expired. Refreshing.")
+		refreshResp, err := uc.svc.Refresh(ctx, tokens.RefreshToken)
+		if err != nil {
+			fmt.Println("Please log in again.")
+			return
+		}
+
+		tokens.AccessToken = refreshResp.AccessToken
+
+		fn, ok := ctx.Value("saveFunc").(func(*dto.Tokens))
+		if !ok {
+			fmt.Println("failed to get saveFunc from context")
+			return
+		}
+
+		fn(tokens)
+	}
+
 	stats, err := uc.svc.Stats(ctx, from, to)
 
 	if err != nil {

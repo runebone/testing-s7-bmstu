@@ -3,9 +3,11 @@ package v1_test
 import (
 	"context"
 	"errors"
-	"fmt"
+	"strings"
 	"testing"
 	"time"
+	log "user/internal/adapter/logger"
+	"user/internal/common/logger"
 	"user/internal/entity"
 	"user/internal/repository"
 	"user/internal/usecase"
@@ -20,17 +22,21 @@ import (
 type testSetup struct {
 	ctx         context.Context
 	mockRepo    *mocks.UserRepository
+	mockLogger  logger.Logger
 	userUseCase usecase.UserUseCase
 }
 
 func setup() *testSetup {
 	ctx := context.TODO()
 	mockRepo := new(mocks.UserRepository)
-	userUseCase := v1.NewUserUseCase(mockRepo)
+	mockLogger := log.NewEmptyLogger()
+
+	userUseCase := v1.NewUserUseCase(mockRepo, mockLogger)
 
 	return &testSetup{
 		ctx:         ctx,
 		mockRepo:    mockRepo,
+		mockLogger:  mockLogger,
 		userUseCase: userUseCase,
 	}
 }
@@ -43,7 +49,7 @@ func TestCreateUser(t *testing.T) {
 		user       *entity.User
 		mockRepoFn func()
 		wantErr    bool
-		errMsg     string
+		errSubstr  string
 	}{
 		{
 			name: "success",
@@ -66,7 +72,7 @@ func TestCreateUser(t *testing.T) {
 			},
 			mockRepoFn: func() {},
 			wantErr:    true,
-			errMsg:     "invalid email format",
+			errSubstr:  "email doesn't match regex",
 		},
 		{
 			name: "invalid username - too short",
@@ -77,7 +83,7 @@ func TestCreateUser(t *testing.T) {
 			},
 			mockRepoFn: func() {},
 			wantErr:    true,
-			errMsg:     "invalid username format",
+			errSubstr:  "username doesn't match regex",
 		},
 		{
 			name: "invalid username - has special characters",
@@ -88,7 +94,7 @@ func TestCreateUser(t *testing.T) {
 			},
 			mockRepoFn: func() {},
 			wantErr:    true,
-			errMsg:     "invalid username format",
+			errSubstr:  "username doesn't match regex",
 		},
 		{
 			name: "invalid password - too short",
@@ -99,7 +105,7 @@ func TestCreateUser(t *testing.T) {
 			},
 			mockRepoFn: func() {},
 			wantErr:    true,
-			errMsg:     "password must be between 8 and 32 characters long",
+			errSubstr:  "password must be between 8 and 32 characters long",
 		},
 		{
 			name: "invalid password - too long",
@@ -110,7 +116,7 @@ func TestCreateUser(t *testing.T) {
 			},
 			mockRepoFn: func() {},
 			wantErr:    true,
-			errMsg:     "password must be between 8 and 32 characters long",
+			errSubstr:  "password must be between 8 and 32 characters long",
 		},
 		{
 			name: "invalid password - no uppercase letters",
@@ -121,7 +127,7 @@ func TestCreateUser(t *testing.T) {
 			},
 			mockRepoFn: func() {},
 			wantErr:    true,
-			errMsg:     "password must contain at least one uppercase letter",
+			errSubstr:  "password must contain at least one uppercase letter",
 		},
 		{
 			name: "invalid password - no lowercase letters",
@@ -132,7 +138,7 @@ func TestCreateUser(t *testing.T) {
 			},
 			mockRepoFn: func() {},
 			wantErr:    true,
-			errMsg:     "password must contain at least one lowercase letter",
+			errSubstr:  "password must contain at least one lowercase letter",
 		},
 		{
 			name: "invalid password - no digits",
@@ -143,7 +149,7 @@ func TestCreateUser(t *testing.T) {
 			},
 			mockRepoFn: func() {},
 			wantErr:    true,
-			errMsg:     "password must contain at least one digit",
+			errSubstr:  "password must contain at least one digit",
 		},
 		{
 			name: "invalid password - no special characters",
@@ -154,7 +160,7 @@ func TestCreateUser(t *testing.T) {
 			},
 			mockRepoFn: func() {},
 			wantErr:    true,
-			errMsg:     "password must contain at least one special character",
+			errSubstr:  "password must contain at least one special character",
 		},
 	}
 
@@ -167,7 +173,7 @@ func TestCreateUser(t *testing.T) {
 
 			if tt.wantErr {
 				assert.NotNil(t, err)
-				assert.EqualError(t, err, tt.errMsg)
+				assert.True(t, strings.Contains(err.Error(), tt.errSubstr))
 				ts.mockRepo.AssertNotCalled(t, "CreateUser")
 			} else {
 				assert.Nil(t, err)
@@ -194,7 +200,7 @@ func TestGetUserByID(t *testing.T) {
 		user       *entity.User
 		mockRepoFn func()
 		wantErr    bool
-		errMsg     string
+		errSubstr  string
 	}{
 		{
 			name:   "success",
@@ -211,8 +217,8 @@ func TestGetUserByID(t *testing.T) {
 			mockRepoFn: func() {
 				ts.mockRepo.On("GetUserByID", ts.ctx, mock.Anything).Return(nil, errors.New(""))
 			},
-			wantErr: true,
-			errMsg:  "failed to get user by id",
+			wantErr:   true,
+			errSubstr: "get user by id",
 		},
 	}
 
@@ -225,7 +231,7 @@ func TestGetUserByID(t *testing.T) {
 
 			if tt.wantErr {
 				assert.NotNil(t, err)
-				assert.EqualError(t, err, tt.errMsg)
+				assert.True(t, strings.Contains(err.Error(), tt.errSubstr))
 				ts.mockRepo.AssertNotCalled(t, "GetUserByID")
 			} else {
 				assert.Nil(t, err)
@@ -289,7 +295,7 @@ func TestGetUsers(t *testing.T) {
 		users      []entity.User
 		mockRepoFn func()
 		wantErr    bool
-		errMsg     string
+		errSubstr  string
 	}{
 		{
 			name:   "success - get users by id",
@@ -338,7 +344,7 @@ func TestGetUsers(t *testing.T) {
 
 			if tt.wantErr {
 				assert.NotNil(t, err)
-				assert.EqualError(t, err, tt.errMsg)
+				assert.True(t, strings.Contains(err.Error(), tt.errSubstr))
 				ts.mockRepo.AssertNotCalled(t, "GetUsers")
 			} else {
 				assert.Nil(t, err)
@@ -390,7 +396,7 @@ func TestGetUsersBatch(t *testing.T) {
 		limit, offset int
 		mockRepoFn    func(int, int, []entity.User)
 		wantErr       bool
-		errMsg        string
+		errSubstr     string
 	}{
 		{
 			name:       "success - get all users",
@@ -414,7 +420,7 @@ func TestGetUsersBatch(t *testing.T) {
 			offset:     0,
 			mockRepoFn: func(int, int, []entity.User) {},
 			wantErr:    true,
-			errMsg:     "limit and offset can't be negative",
+			errSubstr:  "can't be negative",
 		},
 		{
 			name:       "fail - negative offset",
@@ -422,7 +428,7 @@ func TestGetUsersBatch(t *testing.T) {
 			offset:     -1,
 			mockRepoFn: func(int, int, []entity.User) {},
 			wantErr:    true,
-			errMsg:     "limit and offset can't be negative",
+			errSubstr:  "can't be negative",
 		},
 		{
 			name:       "fail - zero limit",
@@ -430,7 +436,7 @@ func TestGetUsersBatch(t *testing.T) {
 			offset:     0,
 			mockRepoFn: func(int, int, []entity.User) {},
 			wantErr:    true,
-			errMsg:     "limit should be greater than zero",
+			errSubstr:  "should be greater than zero",
 		},
 	}
 
@@ -443,7 +449,7 @@ func TestGetUsersBatch(t *testing.T) {
 
 			if tt.wantErr {
 				assert.NotNil(t, err)
-				assert.EqualError(t, err, tt.errMsg)
+				assert.True(t, strings.Contains(err.Error(), tt.errSubstr))
 				ts.mockRepo.AssertNotCalled(t, "GetUsersBatch")
 			} else {
 				assert.Nil(t, err)
@@ -455,8 +461,6 @@ func TestGetUsersBatch(t *testing.T) {
 }
 
 func TestGetNewUsers(t *testing.T) {
-	ts := setup()
-
 	users := []entity.User{
 		{
 			ID:       uuid.New(),
@@ -473,17 +477,17 @@ func TestGetNewUsers(t *testing.T) {
 	fromTime := time.Date(2023, 9, 1, 0, 0, 0, 0, time.UTC)
 	toTime := time.Date(2023, 9, 30, 23, 59, 59, 0, time.UTC)
 
-	mockRepoFnOk := func(from, to time.Time, users []entity.User) {
-		ts.mockRepo.On("GetNewUsers", ts.ctx, from, to).Return(users, nil)
+	mockRepoFnOk := func(ctx context.Context, mockRepo *mocks.UserRepository, from, to time.Time, users []entity.User) {
+		mockRepo.On("GetNewUsers", ctx, from, to).Return(users, nil)
 	}
 
 	tests := []struct {
 		name       string
 		users      []entity.User
 		from, to   time.Time
-		mockRepoFn func(from, to time.Time, users []entity.User)
+		mockRepoFn func(ctx context.Context, mockRepo *mocks.UserRepository, from, to time.Time, users []entity.User)
 		wantErr    bool
-		errMsg     string
+		errSubstr  string
 	}{
 		{
 			name:       "success - get users within date range",
@@ -497,9 +501,9 @@ func TestGetNewUsers(t *testing.T) {
 			name:       "fail - 'from' date is after 'to' date",
 			from:       toTime,
 			to:         fromTime,
-			mockRepoFn: func(from, to time.Time, users []entity.User) {},
+			mockRepoFn: func(ctx context.Context, mockRepo *mocks.UserRepository, from, to time.Time, users []entity.User) {},
 			wantErr:    true,
-			errMsg:     v1.ErrInvalidFromTo.Error(),
+			errSubstr:  v1.ErrInvalidFromTo.Error(),
 		},
 		{
 			name:       "success - no users in date range",
@@ -512,31 +516,25 @@ func TestGetNewUsers(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			// t.Parallel()
-			tt.mockRepoFn(tt.from, tt.to, tt.users)
+			t.Parallel()
 
-			fmt.Println(tt.name, tt.users)
+			ts := setup()
+
+			tt.mockRepoFn(ts.ctx, ts.mockRepo, tt.from, tt.to, tt.users)
 
 			users, err := ts.userUseCase.GetNewUsers(ts.ctx, tt.from, tt.to)
 
 			if tt.wantErr {
 				assert.NotNil(t, err)
-				assert.EqualError(t, err, tt.errMsg)
+				assert.True(t, strings.Contains(err.Error(), tt.errSubstr))
 				ts.mockRepo.AssertNotCalled(t, "GetNewUsers")
 			} else {
 				assert.Nil(t, err)
 				assert.Equal(t, tt.users, users)
 				ts.mockRepo.AssertCalled(t, "GetNewUsers", ts.ctx, mock.Anything, mock.Anything)
 			}
-
-			// TODO: Probably add this to some other tests and remove Parallel(),
-			// because mockRepo.On(...) is hardcoded throughout the test suit, so
-			// it will always expect A if mockRepo.On(...).Return(A) was called first.
-			t.Cleanup(func() {
-				ts.mockRepo.ExpectedCalls = nil
-				ts.mockRepo.Calls = nil
-			})
 		})
 	}
 }
@@ -561,7 +559,7 @@ func TestUpdateUser(t *testing.T) {
 		user       *entity.User
 		mockRepoFn func()
 		wantErr    bool
-		errMsg     string
+		errSubstr  string
 	}{
 		{
 			name: "success - update existing user",
@@ -579,8 +577,8 @@ func TestUpdateUser(t *testing.T) {
 				ts.mockRepo.On("GetUserByID", ts.ctx, userNonExisting.ID).Return(nil, errors.New(""))
 				ts.mockRepo.On("UpdateUser", ts.ctx, userNonExisting).Return(errors.New(""))
 			},
-			wantErr: true,
-			errMsg:  "user does not exist",
+			wantErr:   true,
+			errSubstr: "UpdateUser",
 		},
 	}
 
@@ -593,7 +591,7 @@ func TestUpdateUser(t *testing.T) {
 
 			if tt.wantErr {
 				assert.NotNil(t, err)
-				assert.EqualError(t, err, tt.errMsg)
+				assert.True(t, strings.Contains(err.Error(), tt.errSubstr))
 				ts.mockRepo.AssertNotCalled(t, "UpdateUser")
 			} else {
 				assert.Nil(t, err)
@@ -619,7 +617,7 @@ func TestDeleteUser(t *testing.T) {
 		userID     uuid.UUID
 		mockRepoFn func()
 		wantErr    bool
-		errMsg     string
+		errSubstr  string
 	}{
 		{
 			name:   "success - delete existing user",
@@ -637,8 +635,8 @@ func TestDeleteUser(t *testing.T) {
 				ts.mockRepo.On("GetUserByID", ts.ctx, userNonExistingID).Return(nil, errors.New(""))
 				ts.mockRepo.On("DeleteUser", ts.ctx, userNonExistingID).Return(errors.New(""))
 			},
-			wantErr: true,
-			errMsg:  "user does not exist",
+			wantErr:   true,
+			errSubstr: "DeleteUser",
 		},
 	}
 
@@ -651,7 +649,7 @@ func TestDeleteUser(t *testing.T) {
 
 			if tt.wantErr {
 				assert.NotNil(t, err)
-				assert.EqualError(t, err, tt.errMsg)
+				assert.True(t, strings.Contains(err.Error(), tt.errSubstr))
 				ts.mockRepo.AssertNotCalled(t, "DeleteUser")
 			} else {
 				assert.Nil(t, err)

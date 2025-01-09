@@ -1035,6 +1035,71 @@ func TestUpdateBoard(t *testing.T) {
 
 func TestUpdateColumn(t *testing.T) {
 	runner.Run(t, "TestUpdateColumn", func(pt provider.T) {
+		tests := []struct {
+			name      string
+			column    dto.Column
+			mockSetup func(mockTodoSvc *mocks.TodoService, column *dto.Column)
+			wantErr   bool
+			err       error
+		}{
+			{
+				name: "positive",
+				column: dto.Column{
+					ID:      uuid.New(),
+					UserID:  uuid.New(),
+					BoardID: uuid.New(),
+					Title:   "PositiveColumn",
+				},
+				mockSetup: func(mockTodoSvc *mocks.TodoService, column *dto.Column) {
+					mockTodoSvc.On("UpdateColumn", context.Background(), column).Return(nil)
+				},
+				wantErr: false,
+			},
+			{
+				name: "negative",
+				column: dto.Column{
+					ID:      uuid.New(),
+					UserID:  uuid.New(),
+					BoardID: uuid.New(),
+					Title:   "NegativeColumn",
+				},
+				mockSetup: func(mockTodoSvc *mocks.TodoService, column *dto.Column) {
+					mockTodoSvc.On("UpdateColumn", context.Background(), column).Return(errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrUpdateColumn,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockUserSvc := new(mocks.UserService)
+					mockAuthSvc := new(mocks.AuthService)
+					mockTodoSvc := new(mocks.TodoService)
+					logger := log.NewEmptyLogger()
+
+					uc := v1.NewAggregatorUseCase(mockUserSvc, mockAuthSvc, mockTodoSvc, logger)
+
+					tt.mockSetup(mockTodoSvc, &tt.column)
+
+					pt.WithNewStep("Call UpdateColumn", func(sCtx provider.StepCtx) {
+						err := uc.UpdateColumn(context.Background(), &tt.column)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockTodoSvc.AssertExpectations(t)
+					})
+				})
+			})
+		}
 	})
 }
 

@@ -99,7 +99,7 @@ func isValidEmail(email string) error {
 	re := regexp.MustCompile(pattern)
 
 	if !re.MatchString(email) {
-		return errors.New(fmt.Sprintf("email doesn't match regex %s", pattern))
+		return fmt.Errorf("email doesn't match regex %s", pattern)
 	}
 
 	return nil
@@ -110,7 +110,7 @@ func isValidUsername(username string) error {
 	re := regexp.MustCompile(pattern)
 
 	if !re.MatchString(username) {
-		return errors.New(fmt.Sprintf("username doesn't match regex %s", pattern))
+		return fmt.Errorf("username doesn't match regex %s", pattern)
 	}
 
 	return nil

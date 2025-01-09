@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 	log "user/internal/adapter/logger"
 	"user/internal/entity"
 	"user/internal/repository"
@@ -262,6 +263,74 @@ func TestGetUsersBatch(t *testing.T) {
 }
 
 func TestGetNewUsers(t *testing.T) {
+	runner.Run(t, "Test GetUsersBatch", func(pt provider.T) {
+		fromTime := time.Date(2023, 9, 1, 0, 0, 0, 0, time.UTC)
+		toTime := time.Date(2023, 9, 30, 23, 59, 59, 0, time.UTC)
+
+		tests := []struct {
+			name      string
+			from      time.Time
+			to        time.Time
+			mockSetup func(mockRepo *mocks.UserRepository, from, to time.Time)
+			wantErr   bool
+		}{
+			{
+				name: "positive",
+				from: fromTime,
+				to:   toTime,
+				mockSetup: func(mockRepo *mocks.UserRepository, from, to time.Time) {
+					user1 := testdata.NewUserBuilder().
+						WithUsername("User1").
+						Build()
+
+					user2 := testdata.NewUserBuilder().
+						WithUsername("User2").
+						Build()
+
+					users := []entity.User{user1, user2}
+
+					mockRepo.On("GetNewUsers", context.Background(), from, to).Return(users, nil)
+				},
+				wantErr: false,
+			},
+			{
+				name: "negative",
+				from: fromTime,
+				to:   toTime,
+				mockSetup: func(mockRepo *mocks.UserRepository, from, to time.Time) {
+					mockRepo.On("GetNewUsers", context.Background(), from, to).Return(nil, errors.New(""))
+				},
+				wantErr: true,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockRepo := new(mocks.UserRepository)
+					logger := log.NewEmptyLogger()
+					userUC := v1.NewUserUseCase(mockRepo, logger)
+
+					tt.mockSetup(mockRepo, tt.from, tt.to)
+
+					pt.WithNewStep("Call GetNewUsers", func(sCtx provider.StepCtx) {
+						_, err := userUC.GetNewUsers(context.Background(), tt.from, tt.to)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, v1.ErrGetNewUsers, "Expected ErrGetNewUsers")
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockRepo.AssertExpectations(t)
+					})
+				})
+			})
+		}
+	})
 }
 
 func TestUpdateUser(t *testing.T) {

@@ -452,6 +452,79 @@ func TestLogout(t *testing.T) {
 
 func TestGetBoards(t *testing.T) {
 	runner.Run(t, "TestGetBoards", func(pt provider.T) {
+		tests := []struct {
+			name      string
+			userID    string
+			mockSetup func(mockTodoSvc *mocks.TodoService, userID string)
+			wantErr   bool
+			err       error
+		}{
+			{
+				name:   "positive",
+				userID: "positiveUserID",
+				mockSetup: func(mockTodoSvc *mocks.TodoService, userID string) {
+					boardDTOs := make([]dto.Board, 3)
+
+					boardDTOs[0] = dto.Board{
+						ID:     uuid.New(),
+						UserID: uuid.New(),
+						Title:  "BoardZero",
+					}
+					boardDTOs[1] = dto.Board{
+						ID:     uuid.New(),
+						UserID: uuid.New(),
+						Title:  "BoardOne",
+					}
+					boardDTOs[2] = dto.Board{
+						ID:     uuid.New(),
+						UserID: uuid.New(),
+						Title:  "BoardTwo",
+					}
+
+					mockTodoSvc.On("GetBoards", context.Background(), userID).Return(boardDTOs, nil)
+				},
+				wantErr: false,
+			},
+			{
+				name:   "negative",
+				userID: "negativeUserID",
+				mockSetup: func(mockTodoSvc *mocks.TodoService, userID string) {
+					mockTodoSvc.On("GetBoards", context.Background(), userID).Return(nil, errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrGetBoards,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockUserSvc := new(mocks.UserService)
+					mockAuthSvc := new(mocks.AuthService)
+					mockTodoSvc := new(mocks.TodoService)
+					logger := log.NewEmptyLogger()
+
+					uc := v1.NewAggregatorUseCase(mockUserSvc, mockAuthSvc, mockTodoSvc, logger)
+
+					tt.mockSetup(mockTodoSvc, tt.userID)
+
+					pt.WithNewStep("Call GetBoards", func(sCtx provider.StepCtx) {
+						_, err := uc.GetBoards(context.Background(), tt.userID)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockTodoSvc.AssertExpectations(t)
+					})
+				})
+			})
+		}
 	})
 }
 

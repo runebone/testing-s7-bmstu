@@ -789,6 +789,61 @@ func TestUpdateCard(t *testing.T) {
 
 func TestDeleteBoard(t *testing.T) {
 	runner.Run(t, "TestDeleteBoard", func(pt provider.T) {
+		tests := []struct {
+			name      string
+			id        string
+			mockSetup func(mockTodoSvc *mocks.TodoService, id string)
+			wantErr   bool
+			err       error
+		}{
+			{
+				name: "positive",
+				id:   "positiveID",
+				mockSetup: func(mockTodoSvc *mocks.TodoService, id string) {
+					mockTodoSvc.On("DeleteBoard", context.Background(), id).Return(nil)
+				},
+				wantErr: false,
+			},
+			{
+				name: "negative",
+				id:   "negativeID",
+				mockSetup: func(mockTodoSvc *mocks.TodoService, id string) {
+					mockTodoSvc.On("DeleteBoard", context.Background(), id).Return(errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrDeleteBoard,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockUserSvc := new(mocks.UserService)
+					mockAuthSvc := new(mocks.AuthService)
+					mockTodoSvc := new(mocks.TodoService)
+					logger := log.NewEmptyLogger()
+
+					uc := v1.NewAggregatorUseCase(mockUserSvc, mockAuthSvc, mockTodoSvc, logger)
+
+					tt.mockSetup(mockTodoSvc, tt.id)
+
+					pt.WithNewStep("Call DeleteBoard", func(sCtx provider.StepCtx) {
+						err := uc.DeleteBoard(context.Background(), tt.id)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockTodoSvc.AssertExpectations(t)
+					})
+				})
+			})
+		}
 	})
 }
 

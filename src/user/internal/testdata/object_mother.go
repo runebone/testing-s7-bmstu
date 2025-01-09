@@ -3,6 +3,7 @@ package testdata
 import (
 	"time"
 	"user/internal/entity"
+	"user/internal/repository"
 
 	"github.com/google/uuid"
 )
@@ -28,5 +29,19 @@ func (u *UserObjectMother) InvalidEmailUser() entity.User {
 		PasswordHash: "Password@123",
 		CreatedAt:    time.Now(),
 		UpdatedAt:    time.Now(),
+	}
+}
+
+func (u *UserObjectMother) PositiveUsernameFilter() repository.UserFilter {
+	username := "PositiveUser"
+	return repository.UserFilter{
+		Username: &username,
+	}
+}
+
+func (u *UserObjectMother) NegativeUsernameFilter() repository.UserFilter {
+	username := "NegativeUser"
+	return repository.UserFilter{
+		Username: &username,
 	}
 }

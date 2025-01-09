@@ -911,20 +911,27 @@ func TestDeleteCard(t *testing.T) {
 	runner.Run(t, "TestDeleteCard", func(pt provider.T) {
 		tests := []struct {
 			name      string
-			mockSetup func()
+			id        string
+			mockSetup func(mockTodoSvc *mocks.TodoService, id string)
 			wantErr   bool
 			err       error
 		}{
 			{
-				name:      "positive",
-				mockSetup: func() {},
-				wantErr:   false,
+				name: "positive",
+				id:   "positiveID",
+				mockSetup: func(mockTodoSvc *mocks.TodoService, id string) {
+					mockTodoSvc.On("DeleteCard", context.Background(), id).Return(nil)
+				},
+				wantErr: false,
 			},
 			{
-				name:      "negative",
-				mockSetup: func() {},
-				wantErr:   true,
-				// err:       ,
+				name: "negative",
+				id:   "negativeID",
+				mockSetup: func(mockTodoSvc *mocks.TodoService, id string) {
+					mockTodoSvc.On("DeleteCard", context.Background(), id).Return(errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrDeleteCard,
 			},
 		}
 
@@ -933,26 +940,26 @@ func TestDeleteCard(t *testing.T) {
 				t.Parallel()
 
 				runner.Run(t, tt.name, func(pt provider.T) {
-					// mockUserSvc := new(mocks.UserService)
-					// mockAuthSvc := new(mocks.AuthService)
-					// mockTodoSvc := new(mocks.TodoService)
-					// logger := log.NewEmptyLogger()
+					mockUserSvc := new(mocks.UserService)
+					mockAuthSvc := new(mocks.AuthService)
+					mockTodoSvc := new(mocks.TodoService)
+					logger := log.NewEmptyLogger()
 
-					// uc := v1.NewAggregatorUseCase(mockUserSvc, mockAuthSvc, mockTodoSvc, logger)
+					uc := v1.NewAggregatorUseCase(mockUserSvc, mockAuthSvc, mockTodoSvc, logger)
 
-					// tt.mockSetup()
+					tt.mockSetup(mockTodoSvc, tt.id)
 
-					pt.WithNewStep("Call TODO", func(sCtx provider.StepCtx) {
-						// err := userUC.CreateUser(context.Background(), tt.user)
+					pt.WithNewStep("Call DeleteCard", func(sCtx provider.StepCtx) {
+						err := uc.DeleteCard(context.Background(), tt.id)
 
 						if tt.wantErr {
-							// sCtx.Assert().Error(err, "Expected error")
-							// sCtx.Assert().ErrorIs(err, tt.err)
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
 						} else {
-							// sCtx.Assert().NoError(err, "Expected no error")
+							sCtx.Assert().NoError(err, "Expected no error")
 						}
 
-						// mockRepo.AssertExpectations(t)
+						mockTodoSvc.AssertExpectations(t)
 					})
 				})
 			})

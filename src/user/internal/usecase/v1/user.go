@@ -16,7 +16,19 @@ import (
 )
 
 var (
-	ErrInvalidFromTo = errors.New("<<to>> date should be not less than <<from>>")
+	ErrInvalidFromTo         = errors.New("<<to>> date should be not less than <<from>>")
+	ErrInvalidEmailFormat    = errors.New("invalid email format")
+	ErrInvalidUsernameFormat = errors.New("invalid username format")
+	ErrInvalidPasswordFormat = errors.New("invalid password format")
+	ErrHashPassword          = errors.New("unable to hash password")
+	ErrCreateUser            = errors.New("failed to create user")
+	ErrGetUserByID           = errors.New("failed to get user by id")
+	ErrGetUsers              = errors.New("failed to get users")
+	ErrGetUsersBatch         = errors.New("failed to get users batch")
+	ErrGetNewUsers           = errors.New("failed to get new users")
+	ErrUserNotExist          = errors.New("user doesn't exist")
+	ErrUpdateUser            = errors.New("failed to update user")
+	ErrDeleteUser            = errors.New("failed to delete user")
 )
 
 type userUseCase struct {
@@ -69,7 +81,7 @@ func (u *userUseCase) CreateUser(ctx context.Context, user entity.User) error {
 	if err != nil {
 		info := "Unable to hash password"
 		u.log.Error(ctx, header+info, "password", user.PasswordHash, "err", err.Error())
-		return fmt.Errorf(header+info+": %w", err)
+		return fmt.Errorf(header+info+": %w", ErrHashPassword)
 	}
 
 	user.PasswordHash = hashedPassword
@@ -86,7 +98,7 @@ func (u *userUseCase) CreateUser(ctx context.Context, user entity.User) error {
 	if err != nil {
 		info := "Failed to create user"
 		u.log.Error(ctx, header+info, "err", err.Error())
-		return fmt.Errorf(header+info+": %w", err)
+		return fmt.Errorf(header+info+": %w", ErrCreateUser)
 	}
 
 	u.log.Info(ctx, header+"User successfully created")
@@ -99,7 +111,7 @@ func isValidEmail(email string) error {
 	re := regexp.MustCompile(pattern)
 
 	if !re.MatchString(email) {
-		return fmt.Errorf("email doesn't match regex %s", pattern)
+		return fmt.Errorf("%w: email doesn't match regex %s", ErrInvalidEmailFormat, pattern)
 	}
 
 	return nil
@@ -110,7 +122,7 @@ func isValidUsername(username string) error {
 	re := regexp.MustCompile(pattern)
 
 	if !re.MatchString(username) {
-		return fmt.Errorf("username doesn't match regex %s", pattern)
+		return fmt.Errorf("%w: username doesn't match regex %s", ErrInvalidUsernameFormat, pattern)
 	}
 
 	return nil
@@ -118,27 +130,27 @@ func isValidUsername(username string) error {
 
 func validatePassword(password string) error {
 	if len(password) < 8 || len(password) > 32 {
-		return errors.New("password must be between 8 and 32 characters long")
+		return fmt.Errorf("%w: password must be between 8 and 32 characters long", ErrInvalidPasswordFormat)
 	}
 
 	hasUpperCase := regexp.MustCompile(`[A-Z]`).MatchString(password)
 	if !hasUpperCase {
-		return errors.New("password must contain at least one uppercase letter")
+		return fmt.Errorf("%w: password must contain at least one uppercase letter", ErrInvalidPasswordFormat)
 	}
 
 	hasLowerCase := regexp.MustCompile(`[a-z]`).MatchString(password)
 	if !hasLowerCase {
-		return errors.New("password must contain at least one lowercase letter")
+		return fmt.Errorf("%w: password must contain at least one lowercase letter", ErrInvalidPasswordFormat)
 	}
 
 	hasDigit := regexp.MustCompile(`[0-9]`).MatchString(password)
 	if !hasDigit {
-		return errors.New("password must contain at least one digit")
+		return fmt.Errorf("%w: password must contain at least one digit", ErrInvalidPasswordFormat)
 	}
 
 	hasSpecialChar := regexp.MustCompile(`[!@#~$%^&*(),.?":{}|<>]`).MatchString(password)
 	if !hasSpecialChar {
-		return errors.New("password must contain at least one special character")
+		return fmt.Errorf("%w: password must contain at least one special character", ErrInvalidPasswordFormat)
 	}
 
 	return nil
@@ -159,7 +171,7 @@ func (u *userUseCase) GetUserByID(ctx context.Context, id uuid.UUID) (*entity.Us
 	if err != nil {
 		info := "Failed to get user by id"
 		u.log.Error(ctx, header+info, "err", err.Error())
-		return nil, fmt.Errorf(header+info+": %w", err)
+		return nil, fmt.Errorf(header+info+": %w", ErrGetUserByID)
 	}
 
 	u.log.Info(ctx, "Got user", "user", user)
@@ -177,7 +189,7 @@ func (u *userUseCase) GetUsers(ctx context.Context, filter repository.UserFilter
 	if err != nil {
 		info := "Failed to get users"
 		u.log.Error(ctx, header+info, "err", err.Error())
-		return nil, fmt.Errorf(header+info+": %w", err)
+		return nil, fmt.Errorf(header+info+": %w", ErrGetUsers)
 	}
 
 	u.log.Info(ctx, header+"Got users", "users", users)
@@ -207,7 +219,7 @@ func (u *userUseCase) GetUsersBatch(ctx context.Context, limit, offset int) ([]e
 	if err != nil {
 		info := "Failed to get users batch"
 		u.log.Error(ctx, header+info, "err", err.Error())
-		return nil, fmt.Errorf(header+info+": %w", err)
+		return nil, fmt.Errorf(header+info+": %w", ErrGetUsersBatch)
 	}
 
 	u.log.Info(ctx, header+"Got users", "users", users)
@@ -233,7 +245,7 @@ func (u *userUseCase) GetNewUsers(ctx context.Context, from time.Time, to time.T
 	if err != nil {
 		info := "Failed to get new users"
 		u.log.Error(ctx, header+info, "err", err.Error())
-		return nil, fmt.Errorf(header+info+": %w", err)
+		return nil, fmt.Errorf(header+info+": %w", ErrGetNewUsers)
 	}
 
 	u.log.Info(ctx, header+"Got users", "users", users)
@@ -253,13 +265,13 @@ func (u *userUseCase) UpdateUser(ctx context.Context, user *entity.User) error {
 	if err != nil {
 		info := "Failed to get user by id"
 		u.log.Error(ctx, header+info, "err", err.Error())
-		return fmt.Errorf(header+info+": %w", err)
+		return fmt.Errorf(header+info+": %w", ErrGetUserByID)
 	}
 
 	if existingUser == nil {
 		info := "User does not exist"
 		u.log.Error(ctx, header+info)
-		return errors.New(info)
+		return ErrUserNotExist
 	}
 
 	user.UpdatedAt = time.Now()
@@ -271,7 +283,7 @@ func (u *userUseCase) UpdateUser(ctx context.Context, user *entity.User) error {
 	if err != nil {
 		info := "Failed to update user"
 		u.log.Error(ctx, header+info, "err", err.Error())
-		return fmt.Errorf(header+info+": %w", err)
+		return fmt.Errorf(header+info+": %w", ErrUpdateUser)
 	}
 
 	u.log.Info(ctx, header+"User successfully updated")
@@ -291,7 +303,7 @@ func (u *userUseCase) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	if err != nil {
 		info := "Failed to get user by id"
 		u.log.Error(ctx, header+info, "err", err.Error())
-		return fmt.Errorf(header+info+": %w", err)
+		return fmt.Errorf(header+info+": %w", ErrGetUserByID)
 	}
 
 	if existingUser == nil {
@@ -307,7 +319,7 @@ func (u *userUseCase) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	if err != nil {
 		info := "Failed to delete user"
 		u.log.Error(ctx, header+info, "err", err.Error())
-		return fmt.Errorf(header+info+": %w", err)
+		return fmt.Errorf(header+info+": %w", ErrDeleteUser)
 	}
 
 	u.log.Info(ctx, header+"User successfully deleted")

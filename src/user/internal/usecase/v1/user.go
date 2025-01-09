@@ -29,6 +29,8 @@ var (
 	ErrUserNotExist          = errors.New("user doesn't exist")
 	ErrUpdateUser            = errors.New("failed to update user")
 	ErrDeleteUser            = errors.New("failed to delete user")
+	ErrNegativeLimitOrOffset = errors.New("limit and offset can't be negative")
+	ErrLimitNotPositive      = errors.New("limit should be greater than zero")
 )
 
 type userUseCase struct {
@@ -205,11 +207,11 @@ func (u *userUseCase) GetUsersBatch(ctx context.Context, limit, offset int) ([]e
 	if limit < 0 || offset < 0 {
 		info := "Limit and offset can't be negative"
 		u.log.Info(ctx, header+info, "limit", limit, "offset", offset)
-		return nil, errors.New(info)
+		return nil, ErrNegativeLimitOrOffset
 	} else if limit == 0 {
 		info := "Limit should be greater than zero"
 		u.log.Info(ctx, header+info, "limit", limit, "offset", offset)
-		return nil, errors.New(info)
+		return nil, ErrLimitNotPositive
 	}
 
 	u.log.Info(ctx, header+"Successful validation; Making request to repo", "limit", limit, "offset", offset)

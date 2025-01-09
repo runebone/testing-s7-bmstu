@@ -194,6 +194,71 @@ func TestGetUsers(t *testing.T) {
 }
 
 func TestGetUsersBatch(t *testing.T) {
+	runner.Run(t, "Test GetUsersBatch", func(pt provider.T) {
+		tests := []struct {
+			name      string
+			limit     int
+			offset    int
+			mockSetup func(mockRepo *mocks.UserRepository, limit, offset int)
+			wantErr   bool
+		}{
+			{
+				name:   "positive",
+				limit:  10,
+				offset: 0,
+				mockSetup: func(mockRepo *mocks.UserRepository, limit, offset int) {
+					user1 := testdata.NewUserBuilder().
+						WithUsername("User1").
+						Build()
+
+					user2 := testdata.NewUserBuilder().
+						WithUsername("User2").
+						Build()
+
+					users := []entity.User{user1, user2}
+
+					mockRepo.On("GetUsersBatch", context.Background(), limit, offset).Return(users, nil)
+				},
+				wantErr: false,
+			},
+			{
+				name:   "negative",
+				limit:  10,
+				offset: 0,
+				mockSetup: func(mockRepo *mocks.UserRepository, limit, offset int) {
+					mockRepo.On("GetUsersBatch", context.Background(), limit, offset).Return(nil, errors.New(""))
+				},
+				wantErr: true,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockRepo := new(mocks.UserRepository)
+					logger := log.NewEmptyLogger()
+					userUC := v1.NewUserUseCase(mockRepo, logger)
+
+					tt.mockSetup(mockRepo, tt.limit, tt.offset)
+
+					pt.WithNewStep("Call GetUsersBatch", func(sCtx provider.StepCtx) {
+						_, err := userUC.GetUsersBatch(context.Background(), tt.limit, tt.offset)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, v1.ErrGetUsersBatch, "Expected ErrGetUsers")
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockRepo.AssertExpectations(t)
+					})
+				})
+			})
+		}
+	})
 }
 
 func TestGetNewUsers(t *testing.T) {

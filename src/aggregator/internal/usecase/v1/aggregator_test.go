@@ -837,9 +837,10 @@ func TestCreateColumn(t *testing.T) {
 			{
 				name: "positive",
 				column: dto.Column{
-					ID:     uuid.New(),
-					UserID: uuid.New(),
-					Title:  "PositiveBoard",
+					ID:      uuid.New(),
+					UserID:  uuid.New(),
+					BoardID: uuid.New(),
+					Title:   "PositiveColumn",
 				},
 				mockSetup: func(mockTodoSvc *mocks.TodoService, column dto.Column) {
 					mockTodoSvc.On("CreateColumn", context.Background(), column).Return(nil)
@@ -849,9 +850,10 @@ func TestCreateColumn(t *testing.T) {
 			{
 				name: "negative",
 				column: dto.Column{
-					ID:     uuid.New(),
-					UserID: uuid.New(),
-					Title:  "NegativeBoard",
+					ID:      uuid.New(),
+					UserID:  uuid.New(),
+					BoardID: uuid.New(),
+					Title:   "NegativeColumn",
 				},
 				mockSetup: func(mockTodoSvc *mocks.TodoService, column dto.Column) {
 					mockTodoSvc.On("CreateColumn", context.Background(), column).Return(errors.New(""))
@@ -895,6 +897,71 @@ func TestCreateColumn(t *testing.T) {
 
 func TestCreateCard(t *testing.T) {
 	runner.Run(t, "TestCreateCard", func(pt provider.T) {
+		tests := []struct {
+			name      string
+			card      dto.Card
+			mockSetup func(mockTodoSvc *mocks.TodoService, card dto.Card)
+			wantErr   bool
+			err       error
+		}{
+			{
+				name: "positive",
+				card: dto.Card{
+					ID:       uuid.New(),
+					UserID:   uuid.New(),
+					ColumnID: uuid.New(),
+					Title:    "PositiveCard",
+				},
+				mockSetup: func(mockTodoSvc *mocks.TodoService, card dto.Card) {
+					mockTodoSvc.On("CreateCard", context.Background(), card).Return(nil)
+				},
+				wantErr: false,
+			},
+			{
+				name: "negative",
+				card: dto.Card{
+					ID:       uuid.New(),
+					UserID:   uuid.New(),
+					ColumnID: uuid.New(),
+					Title:    "NegativeCard",
+				},
+				mockSetup: func(mockTodoSvc *mocks.TodoService, card dto.Card) {
+					mockTodoSvc.On("CreateCard", context.Background(), card).Return(errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrCreateCard,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockUserSvc := new(mocks.UserService)
+					mockAuthSvc := new(mocks.AuthService)
+					mockTodoSvc := new(mocks.TodoService)
+					logger := log.NewEmptyLogger()
+
+					uc := v1.NewAggregatorUseCase(mockUserSvc, mockAuthSvc, mockTodoSvc, logger)
+
+					tt.mockSetup(mockTodoSvc, tt.card)
+
+					pt.WithNewStep("Call CreateCard", func(sCtx provider.StepCtx) {
+						err := uc.CreateCard(context.Background(), tt.card)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockTodoSvc.AssertExpectations(t)
+					})
+				})
+			})
+		}
 	})
 }
 

@@ -759,6 +759,69 @@ func TestGetCard(t *testing.T) {
 
 func TestCreateBoard(t *testing.T) {
 	runner.Run(t, "TestCreateBoard", func(pt provider.T) {
+		tests := []struct {
+			name      string
+			board     dto.Board
+			mockSetup func(mockTodoSvc *mocks.TodoService, board dto.Board)
+			wantErr   bool
+			err       error
+		}{
+			{
+				name: "positive",
+				board: dto.Board{
+					ID:     uuid.New(),
+					UserID: uuid.New(),
+					Title:  "PositiveBoard",
+				},
+				mockSetup: func(mockTodoSvc *mocks.TodoService, board dto.Board) {
+					mockTodoSvc.On("CreateBoard", context.Background(), board).Return(nil)
+				},
+				wantErr: false,
+			},
+			{
+				name: "negative",
+				board: dto.Board{
+					ID:     uuid.New(),
+					UserID: uuid.New(),
+					Title:  "NegativeBoard",
+				},
+				mockSetup: func(mockTodoSvc *mocks.TodoService, board dto.Board) {
+					mockTodoSvc.On("CreateBoard", context.Background(), board).Return(errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrCreateBoard,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockUserSvc := new(mocks.UserService)
+					mockAuthSvc := new(mocks.AuthService)
+					mockTodoSvc := new(mocks.TodoService)
+					logger := log.NewEmptyLogger()
+
+					uc := v1.NewAggregatorUseCase(mockUserSvc, mockAuthSvc, mockTodoSvc, logger)
+
+					tt.mockSetup(mockTodoSvc, tt.board)
+
+					pt.WithNewStep("Call CreateBoard", func(sCtx provider.StepCtx) {
+						err := uc.CreateBoard(context.Background(), tt.board)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockTodoSvc.AssertExpectations(t)
+					})
+				})
+			})
+		}
 	})
 }
 

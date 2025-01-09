@@ -85,7 +85,7 @@ func (uc *AggregatorUseCase) GetStats(ctx context.Context, from, to time.Time) (
 	if err != nil {
 		info := "Failed to get new users"
 		uc.log.Error(ctx, header+info, "err", err.Error())
-		return nil, fmt.Errorf(header+info+": %w", err)
+		return nil, fmt.Errorf(header+info+": %w", ErrGetNewUsers)
 	}
 
 	uc.log.Info(ctx, header+"Got users", "users", users)
@@ -98,7 +98,7 @@ func (uc *AggregatorUseCase) GetStats(ctx context.Context, from, to time.Time) (
 	if err != nil {
 		info := "Failed to get new cards"
 		uc.log.Error(ctx, header+info, "err", err.Error())
-		return nil, fmt.Errorf(header+info+": %w", err)
+		return nil, fmt.Errorf(header+info+": %w", ErrGetNewCards)
 	}
 
 	uc.log.Info(ctx, header+"Got cards", "cards", cards)
@@ -191,7 +191,7 @@ func (uc *AggregatorUseCase) Register(ctx context.Context, username, email, pass
 	if err != nil {
 		info := "Failed to register"
 		uc.log.Error(ctx, header+info, "err", err.Error())
-		return nil, fmt.Errorf(header+info+": %w", err)
+		return nil, fmt.Errorf(header+info+": %w", ErrRegister)
 	}
 
 	uc.log.Info(ctx, header+"Successful register; Got tokens", "tokens", tokens)
@@ -209,7 +209,7 @@ func (uc *AggregatorUseCase) Login(ctx context.Context, email, password string) 
 	if err != nil {
 		info := "Failed to login"
 		uc.log.Error(ctx, header+info, "err", err.Error())
-		return nil, fmt.Errorf(header+info+": %w", err)
+		return nil, fmt.Errorf(header+info+": %w", ErrLogin)
 	}
 
 	uc.log.Info(ctx, header+"Successful login; Got tokens", "tokens", tokens)
@@ -227,7 +227,7 @@ func (uc *AggregatorUseCase) Refresh(ctx context.Context, refreshToken string) (
 	if err != nil {
 		info := "Failed to refresh"
 		uc.log.Error(ctx, header+info, "err", err.Error())
-		return nil, fmt.Errorf(header+info+": %w", err)
+		return nil, fmt.Errorf(header+info+": %w", ErrRefresh)
 	}
 
 	uc.log.Info(ctx, header+"Successful refresh", "refreshResponse", resp)
@@ -245,7 +245,7 @@ func (uc *AggregatorUseCase) Validate(ctx context.Context, token string) (*dto.V
 	if err != nil {
 		info := "Failed to validate token"
 		uc.log.Error(ctx, header+info, "err", err.Error())
-		return nil, fmt.Errorf(header+info+": %w", err)
+		return nil, fmt.Errorf(header+info+": %w", ErrValidate)
 	}
 
 	uc.log.Info(ctx, header+"Successful validation", "validateTokenResponse", resp)
@@ -263,7 +263,7 @@ func (uc *AggregatorUseCase) Logout(ctx context.Context, refreshToken string) er
 	if err != nil {
 		info := "Failed to logout"
 		uc.log.Error(ctx, header+info, "err", err.Error())
-		return fmt.Errorf(header+info+": %w", err)
+		return fmt.Errorf(header+info+": %w", ErrLogout)
 	}
 
 	uc.log.Info(ctx, header+"Successful logout")
@@ -281,7 +281,7 @@ func (uc *AggregatorUseCase) GetBoards(ctx context.Context, userID string) ([]dt
 	if err != nil {
 		info := "Failed to get boards"
 		uc.log.Error(ctx, header+info, "err", err.Error())
-		return nil, fmt.Errorf(header+info+": %w", err)
+		return nil, fmt.Errorf(header+info+": %w", ErrGetBoards)
 	}
 
 	uc.log.Info(ctx, header+"Got boards", "boards", boards)
@@ -299,7 +299,7 @@ func (uc *AggregatorUseCase) GetColumns(ctx context.Context, boardID string) ([]
 	if err != nil {
 		info := "Failed to get columns"
 		uc.log.Error(ctx, header+info, "err", err.Error())
-		return nil, fmt.Errorf(header+info+": %w", err)
+		return nil, fmt.Errorf(header+info+": %w", ErrGetColumns)
 	}
 
 	uc.log.Info(ctx, header+"Got columns", "columns", columns)
@@ -317,7 +317,7 @@ func (uc *AggregatorUseCase) GetCards(ctx context.Context, columnID string) ([]d
 	if err != nil {
 		info := "Failed to get cards"
 		uc.log.Error(ctx, header+info, "err", err.Error())
-		return nil, fmt.Errorf(header+info+": %w", err)
+		return nil, fmt.Errorf(header+info+": %w", ErrGetCards)
 	}
 
 	uc.log.Info(ctx, header+"Got cards", "cards", cards)
@@ -335,7 +335,7 @@ func (uc *AggregatorUseCase) GetCard(ctx context.Context, id string) (*dto.Card,
 	if err != nil {
 		info := "Failed to get card"
 		uc.log.Error(ctx, header+info, "err", err.Error())
-		return nil, fmt.Errorf(header+info+": %w", err)
+		return nil, fmt.Errorf(header+info+": %w", ErrGetCard)
 	}
 
 	uc.log.Info(ctx, header+"Got card", "card", card)
@@ -353,7 +353,7 @@ func (uc *AggregatorUseCase) CreateBoard(ctx context.Context, board dto.Board) e
 	if err != nil {
 		info := "Failed to create board"
 		uc.log.Error(ctx, header+info, "err", err.Error())
-		return fmt.Errorf(header+info+": %w", err)
+		return fmt.Errorf(header+info+": %w", ErrCreateBoard)
 	}
 
 	uc.log.Info(ctx, header+"Successfully created board")
@@ -371,7 +371,7 @@ func (uc *AggregatorUseCase) CreateColumn(ctx context.Context, column dto.Column
 	if err != nil {
 		info := "Failed to create column"
 		uc.log.Error(ctx, header+info, "err", err.Error())
-		return fmt.Errorf(header+info+": %w", err)
+		return fmt.Errorf(header+info+": %w", ErrCreateColumn)
 	}
 
 	uc.log.Info(ctx, header+"Successfully created column")
@@ -389,7 +389,7 @@ func (uc *AggregatorUseCase) CreateCard(ctx context.Context, card dto.Card) erro
 	if err != nil {
 		info := "Failed to create card"
 		uc.log.Error(ctx, header+info, "err", err.Error())
-		return fmt.Errorf(header+info+": %w", err)
+		return fmt.Errorf(header+info+": %w", ErrCreateCard)
 	}
 
 	uc.log.Info(ctx, header+"Successfully created card")
@@ -407,7 +407,7 @@ func (uc *AggregatorUseCase) UpdateBoard(ctx context.Context, board *dto.Board) 
 	if err != nil {
 		info := "Failed to update board"
 		uc.log.Error(ctx, header+info, "err", err.Error())
-		return fmt.Errorf(header+info+": %w", err)
+		return fmt.Errorf(header+info+": %w", ErrUpdateBoard)
 	}
 
 	uc.log.Info(ctx, header+"Successfully updated board")
@@ -425,7 +425,7 @@ func (uc *AggregatorUseCase) UpdateColumn(ctx context.Context, column *dto.Colum
 	if err != nil {
 		info := "Failed to update column"
 		uc.log.Error(ctx, header+info, "err", err.Error())
-		return fmt.Errorf(header+info+": %w", err)
+		return fmt.Errorf(header+info+": %w", ErrUpdateColumn)
 	}
 
 	uc.log.Info(ctx, header+"Successfully updated column")
@@ -443,7 +443,7 @@ func (uc *AggregatorUseCase) UpdateCard(ctx context.Context, card *dto.Card) err
 	if err != nil {
 		info := "Failed to update card"
 		uc.log.Error(ctx, header+info, "err", err.Error())
-		return fmt.Errorf(header+info+": %w", err)
+		return fmt.Errorf(header+info+": %w", ErrUpdateCard)
 	}
 
 	uc.log.Info(ctx, header+"Successfully updated card")
@@ -461,7 +461,7 @@ func (uc *AggregatorUseCase) DeleteBoard(ctx context.Context, id string) error {
 	if err != nil {
 		info := "Failed to delete board"
 		uc.log.Error(ctx, header+info, "err", err.Error())
-		return fmt.Errorf(header+info+": %w", err)
+		return fmt.Errorf(header+info+": %w", ErrDeleteBoard)
 	}
 
 	uc.log.Info(ctx, header+"Successfully deleted board")
@@ -479,7 +479,7 @@ func (uc *AggregatorUseCase) DeleteColumn(ctx context.Context, id string) error 
 	if err != nil {
 		info := "Failed to delete column"
 		uc.log.Error(ctx, header+info, "err", err.Error())
-		return fmt.Errorf(header+info+": %w", err)
+		return fmt.Errorf(header+info+": %w", ErrDeleteColumn)
 	}
 
 	uc.log.Info(ctx, header+"Successfully deleted column")
@@ -497,7 +497,7 @@ func (uc *AggregatorUseCase) DeleteCard(ctx context.Context, id string) error {
 	if err != nil {
 		info := "Failed to delete card"
 		uc.log.Error(ctx, header+info, "err", err.Error())
-		return fmt.Errorf(header+info+": %w", err)
+		return fmt.Errorf(header+info+": %w", ErrDeleteCard)
 	}
 
 	uc.log.Info(ctx, header+"Successfully deleted card")

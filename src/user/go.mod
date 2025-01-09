@@ -9,6 +9,7 @@ require (
 	github.com/gorilla/mux v1.8.1
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/lib/pq v1.10.9
+	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/ozontech/allure-go/pkg/framework v0.6.32
 	github.com/stretchr/testify v1.9.0
 	github.com/testcontainers/testcontainers-go v0.33.0

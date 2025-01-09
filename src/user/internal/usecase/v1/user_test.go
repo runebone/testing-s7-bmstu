@@ -12,11 +12,88 @@ import (
 	v1 "user/internal/usecase/v1"
 	"user/mocks"
 
+	repo "user/internal/adapter/repository/sqlx"
+
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/runner"
 	"github.com/stretchr/testify/mock"
+
+	_ "github.com/mattn/go-sqlite3"
 )
+
+func setupTestDB(t *testing.T) *sqlx.DB {
+	db, err := sqlx.Open("sqlite3", ":memory:")
+	if err != nil {
+		t.Fatalf("failed to connect to database: %v", err)
+	}
+
+	_, err = db.Exec(`CREATE TABLE users (
+		id TEXT PRIMARY KEY,
+		username VARCHAR(255) NOT NULL UNIQUE,
+		email VARCHAR(255) NOT NULL UNIQUE,
+		role VARCHAR(255) DEFAULT 'user',
+		password_hash VARCHAR(255) NOT NULL,
+		created_at TIMESTAMP,
+		updated_at TIMESTAMP
+	)`)
+
+	if err != nil {
+		t.Fatalf("failed to create table: %v", err)
+	}
+
+	return db
+}
+
+func TestCreateUser_Classic(t *testing.T) {
+	runner.Run(t, "Test CreateUser", func(pt provider.T) {
+		objectMother := &testdata.UserObjectMother{}
+
+		tests := []struct {
+			name    string
+			user    entity.User
+			wantErr bool
+			err     error
+		}{
+			{
+				name:    "positive",
+				user:    objectMother.ValidUser(),
+				wantErr: false,
+			},
+			{
+				name:    "negative",
+				user:    objectMother.InvalidEmailUser(),
+				wantErr: true,
+				err:     v1.ErrInvalidEmailFormat,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					db := setupTestDB(t)
+					repo := repo.NewSQLXUserRepository(db)
+					logger := log.NewEmptyLogger()
+					userUC := v1.NewUserUseCase(repo, logger)
+
+					pt.WithNewStep("Call CreateUser", func(sCtx provider.StepCtx) {
+						err := userUC.CreateUser(context.Background(), tt.user)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+					})
+				})
+			})
+		}
+	})
+}
 
 func TestCreateUser(t *testing.T) {
 	runner.Run(t, "Test CreateUser", func(pt provider.T) {

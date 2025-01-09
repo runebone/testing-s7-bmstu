@@ -568,7 +568,7 @@ func TestGetColumns(t *testing.T) {
 			},
 			{
 				name:    "negative",
-				boardID: "negativeUserID",
+				boardID: "negativeBoardID",
 				mockSetup: func(mockTodoSvc *mocks.TodoService, boardID string) {
 					mockTodoSvc.On("GetColumns", context.Background(), boardID).Return(nil, errors.New(""))
 				},
@@ -611,6 +611,82 @@ func TestGetColumns(t *testing.T) {
 
 func TestGetCards(t *testing.T) {
 	runner.Run(t, "TestGetCards", func(pt provider.T) {
+		tests := []struct {
+			name      string
+			columnID  string
+			mockSetup func(mockTodoSvc *mocks.TodoService, columnID string)
+			wantErr   bool
+			err       error
+		}{
+			{
+				name:     "positive",
+				columnID: "positiveColumnID",
+				mockSetup: func(mockTodoSvc *mocks.TodoService, columnID string) {
+					cardDTOs := make([]dto.Card, 3)
+
+					cardDTOs[0] = dto.Card{
+						ID:       uuid.New(),
+						UserID:   uuid.New(),
+						ColumnID: uuid.New(),
+						Title:    "CardZero",
+					}
+					cardDTOs[1] = dto.Card{
+						ID:       uuid.New(),
+						UserID:   uuid.New(),
+						ColumnID: uuid.New(),
+						Title:    "CardOne",
+					}
+					cardDTOs[2] = dto.Card{
+						ID:       uuid.New(),
+						UserID:   uuid.New(),
+						ColumnID: uuid.New(),
+						Title:    "CardTwo",
+					}
+
+					mockTodoSvc.On("GetCards", context.Background(), columnID).Return(cardDTOs, nil)
+				},
+				wantErr: false,
+			},
+			{
+				name:     "negative",
+				columnID: "negativeColumnID",
+				mockSetup: func(mockTodoSvc *mocks.TodoService, columnID string) {
+					mockTodoSvc.On("GetCards", context.Background(), columnID).Return(nil, errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrGetCards,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockUserSvc := new(mocks.UserService)
+					mockAuthSvc := new(mocks.AuthService)
+					mockTodoSvc := new(mocks.TodoService)
+					logger := log.NewEmptyLogger()
+
+					uc := v1.NewAggregatorUseCase(mockUserSvc, mockAuthSvc, mockTodoSvc, logger)
+
+					tt.mockSetup(mockTodoSvc, tt.columnID)
+
+					pt.WithNewStep("Call GetCards", func(sCtx provider.StepCtx) {
+						_, err := uc.GetCards(context.Background(), tt.columnID)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockTodoSvc.AssertExpectations(t)
+					})
+				})
+			})
+		}
 	})
 }
 

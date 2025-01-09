@@ -27,6 +27,7 @@ func TestCreateUser(t *testing.T) {
 			user      entity.User
 			mockSetup func(mockRepo *mocks.UserRepository)
 			wantErr   bool
+			err       error
 		}{
 			{
 				name: "positive",
@@ -41,6 +42,7 @@ func TestCreateUser(t *testing.T) {
 				user:      objectMother.InvalidEmailUser(),
 				mockSetup: func(mockRepo *mocks.UserRepository) {},
 				wantErr:   true,
+				err:       v1.ErrInvalidEmailFormat,
 			},
 		}
 
@@ -60,6 +62,7 @@ func TestCreateUser(t *testing.T) {
 
 						if tt.wantErr {
 							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
 						} else {
 							sCtx.Assert().NoError(err, "Expected no error")
 						}
@@ -79,6 +82,7 @@ func TestGetUserByID(t *testing.T) {
 			id        uuid.UUID
 			mockSetup func(mockRepo *mocks.UserRepository, id uuid.UUID)
 			wantErr   bool
+			err       error
 		}{
 			{
 				name: "positive",
@@ -99,6 +103,7 @@ func TestGetUserByID(t *testing.T) {
 					mockRepo.On("GetUserByID", context.Background(), id).Return(nil, errors.New(""))
 				},
 				wantErr: true,
+				err:     v1.ErrGetUserByID,
 			},
 		}
 
@@ -118,7 +123,7 @@ func TestGetUserByID(t *testing.T) {
 
 						if tt.wantErr {
 							sCtx.Assert().Error(err, "Expected error")
-							sCtx.Assert().ErrorIs(err, v1.ErrGetUserByID, "Expected ErrGetUserByID")
+							sCtx.Assert().ErrorIs(err, tt.err)
 						} else {
 							sCtx.Assert().NoError(err, "Expected no error")
 						}
@@ -140,6 +145,7 @@ func TestGetUsers(t *testing.T) {
 			filter    repository.UserFilter
 			mockSetup func(mockRepo *mocks.UserRepository, filter repository.UserFilter)
 			wantErr   bool
+			err       error
 		}{
 			{
 				name:   "positive",
@@ -162,6 +168,7 @@ func TestGetUsers(t *testing.T) {
 					mockRepo.On("GetUsers", context.Background(), filter).Return(nil, errors.New(""))
 				},
 				wantErr: true,
+				err:     v1.ErrGetUsers,
 			},
 		}
 
@@ -181,7 +188,7 @@ func TestGetUsers(t *testing.T) {
 
 						if tt.wantErr {
 							sCtx.Assert().Error(err, "Expected error")
-							sCtx.Assert().ErrorIs(err, v1.ErrGetUsers, "Expected ErrGetUsers")
+							sCtx.Assert().ErrorIs(err, tt.err)
 						} else {
 							sCtx.Assert().NoError(err, "Expected no error")
 						}
@@ -202,6 +209,7 @@ func TestGetUsersBatch(t *testing.T) {
 			offset    int
 			mockSetup func(mockRepo *mocks.UserRepository, limit, offset int)
 			wantErr   bool
+			err       error
 		}{
 			{
 				name:   "positive",
@@ -230,6 +238,7 @@ func TestGetUsersBatch(t *testing.T) {
 					mockRepo.On("GetUsersBatch", context.Background(), limit, offset).Return(nil, errors.New(""))
 				},
 				wantErr: true,
+				err:     v1.ErrGetUsersBatch,
 			},
 		}
 
@@ -249,7 +258,7 @@ func TestGetUsersBatch(t *testing.T) {
 
 						if tt.wantErr {
 							sCtx.Assert().Error(err, "Expected error")
-							sCtx.Assert().ErrorIs(err, v1.ErrGetUsersBatch, "Expected ErrGetUsers")
+							sCtx.Assert().ErrorIs(err, tt.err)
 						} else {
 							sCtx.Assert().NoError(err, "Expected no error")
 						}
@@ -273,6 +282,7 @@ func TestGetNewUsers(t *testing.T) {
 			to        time.Time
 			mockSetup func(mockRepo *mocks.UserRepository, from, to time.Time)
 			wantErr   bool
+			err       error
 		}{
 			{
 				name: "positive",
@@ -301,6 +311,7 @@ func TestGetNewUsers(t *testing.T) {
 					mockRepo.On("GetNewUsers", context.Background(), from, to).Return(nil, errors.New(""))
 				},
 				wantErr: true,
+				err:     v1.ErrGetNewUsers,
 			},
 		}
 
@@ -320,7 +331,7 @@ func TestGetNewUsers(t *testing.T) {
 
 						if tt.wantErr {
 							sCtx.Assert().Error(err, "Expected error")
-							sCtx.Assert().ErrorIs(err, v1.ErrGetNewUsers, "Expected ErrGetNewUsers")
+							sCtx.Assert().ErrorIs(err, tt.err)
 						} else {
 							sCtx.Assert().NoError(err, "Expected no error")
 						}

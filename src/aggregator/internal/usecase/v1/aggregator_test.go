@@ -392,6 +392,61 @@ func TestValidate(t *testing.T) {
 
 func TestLogout(t *testing.T) {
 	runner.Run(t, "TestLogout", func(pt provider.T) {
+		tests := []struct {
+			name         string
+			refreshToken string
+			mockSetup    func(mockAuthSvc *mocks.AuthService, refreshToken string)
+			wantErr      bool
+			err          error
+		}{
+			{
+				name:         "positive",
+				refreshToken: "PositiveToken",
+				mockSetup: func(mockAuthSvc *mocks.AuthService, refreshToken string) {
+					mockAuthSvc.On("Logout", context.Background(), refreshToken).Return(nil)
+				},
+				wantErr: false,
+			},
+			{
+				name:         "negative",
+				refreshToken: "NegativeToken",
+				mockSetup: func(mockAuthSvc *mocks.AuthService, refreshToken string) {
+					mockAuthSvc.On("Logout", context.Background(), refreshToken).Return(errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrLogout,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockUserSvc := new(mocks.UserService)
+					mockAuthSvc := new(mocks.AuthService)
+					mockTodoSvc := new(mocks.TodoService)
+					logger := log.NewEmptyLogger()
+
+					uc := v1.NewAggregatorUseCase(mockUserSvc, mockAuthSvc, mockTodoSvc, logger)
+
+					tt.mockSetup(mockAuthSvc, tt.refreshToken)
+
+					pt.WithNewStep("Call Logout", func(sCtx provider.StepCtx) {
+						err := uc.Logout(context.Background(), tt.refreshToken)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockAuthSvc.AssertExpectations(t)
+					})
+				})
+			})
+		}
 	})
 }
 

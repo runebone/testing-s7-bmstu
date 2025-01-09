@@ -263,6 +263,65 @@ func TestLogin(t *testing.T) {
 
 func TestRefresh(t *testing.T) {
 	runner.Run(t, "TestRefresh", func(pt provider.T) {
+		tests := []struct {
+			name         string
+			refreshToken string
+			mockSetup    func(mockAuthSvc *mocks.AuthService, refreshToken string)
+			wantErr      bool
+			err          error
+		}{
+			{
+				name:         "positive",
+				refreshToken: "PositiveToken",
+				mockSetup: func(mockAuthSvc *mocks.AuthService, refreshToken string) {
+					resp := dto.RefreshResponse{
+						AccessToken: "AccessToken",
+					}
+
+					mockAuthSvc.On("Refresh", context.Background(), refreshToken).Return(&resp, nil)
+				},
+				wantErr: false,
+			},
+			{
+				name:         "negative",
+				refreshToken: "NegativeToken",
+				mockSetup: func(mockAuthSvc *mocks.AuthService, refreshToken string) {
+					mockAuthSvc.On("Refresh", context.Background(), refreshToken).Return(nil, errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrRefresh,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockUserSvc := new(mocks.UserService)
+					mockAuthSvc := new(mocks.AuthService)
+					mockTodoSvc := new(mocks.TodoService)
+					logger := log.NewEmptyLogger()
+
+					uc := v1.NewAggregatorUseCase(mockUserSvc, mockAuthSvc, mockTodoSvc, logger)
+
+					tt.mockSetup(mockAuthSvc, tt.refreshToken)
+
+					pt.WithNewStep("Call Refresh", func(sCtx provider.StepCtx) {
+						_, err := uc.Refresh(context.Background(), tt.refreshToken)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockAuthSvc.AssertExpectations(t)
+					})
+				})
+			})
+		}
 	})
 }
 

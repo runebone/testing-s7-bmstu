@@ -6,6 +6,7 @@ import (
 	"testing"
 	log "user/internal/adapter/logger"
 	"user/internal/entity"
+	"user/internal/repository"
 	"user/internal/testdata"
 	v1 "user/internal/usecase/v1"
 	"user/mocks"
@@ -130,6 +131,66 @@ func TestGetUserByID(t *testing.T) {
 }
 
 func TestGetUsers(t *testing.T) {
+	runner.Run(t, "Test GetUsers", func(pt provider.T) {
+		objectMother := &testdata.UserObjectMother{}
+
+		tests := []struct {
+			name      string
+			filter    repository.UserFilter
+			mockSetup func(mockRepo *mocks.UserRepository, filter repository.UserFilter)
+			wantErr   bool
+		}{
+			{
+				name:   "positive",
+				filter: objectMother.PositiveUsernameFilter(),
+				mockSetup: func(mockRepo *mocks.UserRepository, filter repository.UserFilter) {
+					user := testdata.NewUserBuilder().
+						WithUsername(*filter.Username).
+						Build()
+
+					users := []entity.User{user}
+
+					mockRepo.On("GetUsers", context.Background(), filter).Return(users, nil)
+				},
+				wantErr: false,
+			},
+			{
+				name:   "negative",
+				filter: objectMother.NegativeUsernameFilter(),
+				mockSetup: func(mockRepo *mocks.UserRepository, filter repository.UserFilter) {
+					mockRepo.On("GetUsers", context.Background(), filter).Return(nil, errors.New(""))
+				},
+				wantErr: true,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockRepo := new(mocks.UserRepository)
+					logger := log.NewEmptyLogger()
+					userUC := v1.NewUserUseCase(mockRepo, logger)
+
+					tt.mockSetup(mockRepo, tt.filter)
+
+					pt.WithNewStep("Call GetUsers", func(sCtx provider.StepCtx) {
+						_, err := userUC.GetUsers(context.Background(), tt.filter)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, v1.ErrGetUsers, "Expected ErrGetUsers")
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockRepo.AssertExpectations(t)
+					})
+				})
+			})
+		}
+	})
 }
 
 func TestGetUsersBatch(t *testing.T) {

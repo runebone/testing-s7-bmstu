@@ -334,6 +334,64 @@ func TestGetNewUsers(t *testing.T) {
 }
 
 func TestUpdateUser(t *testing.T) {
+	runner.Run(t, "Test UpdateUser", func(pt provider.T) {
+		objectMother := &testdata.UserObjectMother{}
+
+		tests := []struct {
+			name      string
+			user      entity.User
+			mockSetup func(mockRepo *mocks.UserRepository, user *entity.User)
+			wantErr   bool
+			err       error
+		}{
+			{
+				name: "positive",
+				user: objectMother.ValidUser(),
+				mockSetup: func(mockRepo *mocks.UserRepository, user *entity.User) {
+					mockRepo.On("GetUserByID", context.Background(), user.ID).Return(user, nil)
+					mockRepo.On("UpdateUser", context.Background(), user).Return(nil)
+				},
+				wantErr: false,
+			},
+			{
+				name: "negative",
+				user: objectMother.ValidUser(),
+				mockSetup: func(mockRepo *mocks.UserRepository, user *entity.User) {
+					mockRepo.On("GetUserByID", context.Background(), user.ID).Return(user, nil)
+					mockRepo.On("UpdateUser", context.Background(), user).Return(errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrUpdateUser,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockRepo := new(mocks.UserRepository)
+					logger := log.NewEmptyLogger()
+					userUC := v1.NewUserUseCase(mockRepo, logger)
+
+					tt.mockSetup(mockRepo, &tt.user)
+
+					pt.WithNewStep("Call UpdateUser", func(sCtx provider.StepCtx) {
+						err := userUC.UpdateUser(context.Background(), &tt.user)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockRepo.AssertExpectations(t)
+					})
+				})
+			})
+		}
+	})
 }
 
 func TestDeleteUser(t *testing.T) {

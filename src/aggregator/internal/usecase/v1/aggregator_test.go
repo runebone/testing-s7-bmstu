@@ -5,6 +5,7 @@ import (
 	"aggregator/internal/dto"
 	"aggregator/mocks"
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -125,20 +126,38 @@ func TestRegister(t *testing.T) {
 	runner.Run(t, "TestRegister", func(pt provider.T) {
 		tests := []struct {
 			name      string
-			mockSetup func()
+			username  string
+			email     string
+			password  string
+			mockSetup func(mockAuthSvc *mocks.AuthService, username, email, password string)
 			wantErr   bool
 			err       error
 		}{
 			{
-				name:      "positive",
-				mockSetup: func() {},
-				wantErr:   false,
+				name:     "positive",
+				username: "PositiveUsername",
+				email:    "positive@email.com",
+				password: "P0s1t1v3P@ssw0rD",
+				mockSetup: func(mockAuthSvc *mocks.AuthService, username, email, password string) {
+					tokens := dto.Tokens{
+						AccessToken:  "AccessToken",
+						RefreshToken: "RefreshToken",
+					}
+
+					mockAuthSvc.On("Register", context.Background(), username, email, password).Return(&tokens, nil)
+				},
+				wantErr: false,
 			},
 			{
-				name:      "negative",
-				mockSetup: func() {},
-				wantErr:   true,
-				// err:       ,
+				name:     "negative",
+				username: "NegativeUsername",
+				email:    "negative@email.com",
+				password: "N3g@t1v3P@ssw0rD",
+				mockSetup: func(mockAuthSvc *mocks.AuthService, username, email, password string) {
+					mockAuthSvc.On("Register", context.Background(), username, email, password).Return(nil, errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrRegister,
 			},
 		}
 
@@ -147,26 +166,26 @@ func TestRegister(t *testing.T) {
 				t.Parallel()
 
 				runner.Run(t, tt.name, func(pt provider.T) {
-					// mockUserSvc := new(mocks.UserService)
-					// mockAuthSvc := new(mocks.AuthService)
-					// mockTodoSvc := new(mocks.TodoService)
-					// logger := log.NewEmptyLogger()
+					mockUserSvc := new(mocks.UserService)
+					mockAuthSvc := new(mocks.AuthService)
+					mockTodoSvc := new(mocks.TodoService)
+					logger := log.NewEmptyLogger()
 
-					// uc := v1.NewAggregatorUseCase(mockUserSvc, mockAuthSvc, mockTodoSvc, logger)
+					uc := v1.NewAggregatorUseCase(mockUserSvc, mockAuthSvc, mockTodoSvc, logger)
 
-					// tt.mockSetup()
+					tt.mockSetup(mockAuthSvc, tt.username, tt.email, tt.password)
 
-					pt.WithNewStep("Call TODO", func(sCtx provider.StepCtx) {
-						// err := userUC.CreateUser(context.Background(), tt.user)
+					pt.WithNewStep("Call Register", func(sCtx provider.StepCtx) {
+						_, err := uc.Register(context.Background(), tt.username, tt.email, tt.password)
 
 						if tt.wantErr {
-							// sCtx.Assert().Error(err, "Expected error")
-							// sCtx.Assert().ErrorIs(err, tt.err)
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
 						} else {
-							// sCtx.Assert().NoError(err, "Expected no error")
+							sCtx.Assert().NoError(err, "Expected no error")
 						}
 
-						// mockRepo.AssertExpectations(t)
+						mockAuthSvc.AssertExpectations(t)
 					})
 				})
 			})

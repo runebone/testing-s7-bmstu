@@ -252,6 +252,69 @@ func TestRefresh(t *testing.T) {
 	})
 }
 
+func TestValidateToken(t *testing.T) {
+	runner.Run(t, "TestValidateToken", func(pt provider.T) {
+		tests := []struct {
+			name      string
+			token     string
+			mockSetup func(mockTokenRepo *mocks.TokenRepository, mockUserSvc *mocks.UserService, mockTokenSvc *mocks.TokenService, token string)
+			wantErr   bool
+			err       error
+		}{
+			{
+				name:  "positive",
+				token: "PositiveToken",
+				mockSetup: func(mockTokenRepo *mocks.TokenRepository, mockUserSvc *mocks.UserService, mockTokenSvc *mocks.TokenService, token string) {
+					userID := uuid.New()
+					role := "user"
+
+					mockTokenSvc.On("ValidateToken", context.Background(), token).Return(userID.String(), role, nil)
+				},
+				wantErr: false,
+			},
+			{
+				name:  "negative",
+				token: "NegativeToken",
+				mockSetup: func(mockTokenRepo *mocks.TokenRepository, mockUserSvc *mocks.UserService, mockTokenSvc *mocks.TokenService, token string) {
+					mockTokenSvc.On("ValidateToken", context.Background(), token).Return("", "", errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrValidateToken,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockTokenRepo := new(mocks.TokenRepository)
+					mockUserSvc := new(mocks.UserService)
+					mockTokenSvc := new(mocks.TokenService)
+					logger := log.NewEmptyLogger()
+
+					uc := v1.NewAuthUseCase(mockTokenRepo, mockUserSvc, mockTokenSvc, logger)
+
+					tt.mockSetup(mockTokenRepo, mockUserSvc, mockTokenSvc, tt.token)
+
+					pt.WithNewStep("Call ValidateToken", func(sCtx provider.StepCtx) {
+						_, _, err := uc.ValidateToken(context.Background(), tt.token)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockUserSvc.AssertExpectations(t)
+					})
+				})
+			})
+		}
+	})
+}
+
 func hashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(bytes), err

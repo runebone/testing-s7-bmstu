@@ -506,3 +506,90 @@ func TestGetBoardsByUser(t *testing.T) {
 		}
 	})
 }
+
+func TestGetColumnsByBoard(t *testing.T) {
+	runner.Run(t, "TestGetColumnsByBoard", func(pt provider.T) {
+		tests := []struct {
+			name      string
+			boardID   uuid.UUID
+			limit     int
+			offset    int
+			mockSetup func(mockColumnRepo *mocks.ColumnRepository, boardID uuid.UUID, limit, offset int)
+			wantErr   bool
+			err       error
+		}{
+			{
+				name:    "positive",
+				boardID: uuid.New(),
+				limit:   3,
+				offset:  0,
+				mockSetup: func(mockColumnRepo *mocks.ColumnRepository, boardID uuid.UUID, limit, offset int) {
+					columnEntities := make([]entity.Column, 3)
+
+					columnEntities[0] = entity.Column{
+						ID:      uuid.New(),
+						UserID:  uuid.New(),
+						BoardID: uuid.New(),
+						Title:   "ColumnZero",
+					}
+					columnEntities[1] = entity.Column{
+						ID:      uuid.New(),
+						UserID:  uuid.New(),
+						BoardID: uuid.New(),
+						Title:   "ColumnOne",
+					}
+					columnEntities[2] = entity.Column{
+						ID:      uuid.New(),
+						UserID:  uuid.New(),
+						BoardID: uuid.New(),
+						Title:   "ColumnTwo",
+					}
+
+					mockColumnRepo.On("GetColumnsByBoard", context.Background(), boardID, limit, offset).Return(columnEntities, nil)
+				},
+				wantErr: false,
+			},
+			{
+				name:    "negative",
+				boardID: uuid.New(),
+				limit:   3,
+				offset:  0,
+				mockSetup: func(mockColumnRepo *mocks.ColumnRepository, boardID uuid.UUID, limit, offset int) {
+					mockColumnRepo.On("GetColumnsByBoard", context.Background(), boardID, limit, offset).Return(nil, errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrGetColumnsByBoard,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockBoardRepo := new(mocks.BoardRepository)
+					mockColumnRepo := new(mocks.ColumnRepository)
+					mockCardRepo := new(mocks.CardRepository)
+					logger := log.NewEmptyLogger()
+
+					uc := v1.NewTodoUseCase(mockBoardRepo, mockColumnRepo, mockCardRepo, logger)
+
+					tt.mockSetup(mockColumnRepo, tt.boardID, tt.limit, tt.offset)
+
+					pt.WithNewStep("Call GetColumnsByBoard", func(sCtx provider.StepCtx) {
+						_, err := uc.GetColumnsByBoard(context.Background(), tt.boardID, tt.limit, tt.offset)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockColumnRepo.AssertExpectations(t)
+					})
+				})
+			})
+		}
+	})
+}

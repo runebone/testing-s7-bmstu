@@ -3,3 +3,4 @@ logs
 cli/main
 cli/cli.log
 tokens.json
+**/allure-results/**

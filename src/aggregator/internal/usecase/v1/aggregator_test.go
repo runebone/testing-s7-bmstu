@@ -3,6 +3,7 @@ package v1_test
 import (
 	log "aggregator/internal/adapter/logger"
 	"aggregator/internal/dto"
+	"aggregator/internal/testdata"
 	"aggregator/mocks"
 	"context"
 	"errors"
@@ -21,6 +22,8 @@ func TestGetStats(t *testing.T) {
 		fromTime := time.Date(2023, 9, 1, 0, 0, 0, 0, time.UTC)
 		toTime := time.Date(2023, 9, 30, 23, 59, 59, 0, time.UTC)
 
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			from      time.Time
@@ -37,17 +40,17 @@ func TestGetStats(t *testing.T) {
 					userDTOs := make([]dto.User, 3)
 
 					userDTOs[0] = dto.User{
-						ID:       uuid.New(),
+						ID:       mom.GetUUID(0),
 						Email:    "user@zero.com",
 						Username: "UserZero",
 					}
 					userDTOs[1] = dto.User{
-						ID:       uuid.New(),
+						ID:       mom.GetUUID(1),
 						Email:    "user@one.com",
 						Username: "UserOne",
 					}
 					userDTOs[2] = dto.User{
-						ID:       uuid.New(),
+						ID:       mom.GetUUID(2),
 						Email:    "user@two.com",
 						Username: "UserTwo",
 					}
@@ -57,21 +60,21 @@ func TestGetStats(t *testing.T) {
 					cardDTOs := make([]dto.Card, 3)
 
 					cardDTOs[0] = dto.Card{
-						ID:       uuid.New(),
-						UserID:   uuid.New(),
-						ColumnID: uuid.New(),
+						ID:       mom.GetUUID(4),
+						UserID:   mom.GetUUID(3),
+						ColumnID: mom.GetUUID(5),
 						Title:    "TitleZero",
 					}
 					cardDTOs[1] = dto.Card{
-						ID:       uuid.New(),
+						ID:       mom.GetUUID(6),
 						UserID:   userDTOs[1].ID,
-						ColumnID: uuid.New(),
+						ColumnID: mom.GetUUID(7),
 						Title:    "TitleOne",
 					}
 					cardDTOs[2] = dto.Card{
-						ID:       uuid.New(),
+						ID:       mom.GetUUID(8),
 						UserID:   userDTOs[2].ID,
-						ColumnID: uuid.New(),
+						ColumnID: mom.GetUUID(9),
 						Title:    "TitleTwo",
 					}
 
@@ -327,6 +330,8 @@ func TestRefresh(t *testing.T) {
 
 func TestValidate(t *testing.T) {
 	runner.Run(t, "TestValidate", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			token     string
@@ -339,7 +344,7 @@ func TestValidate(t *testing.T) {
 				token: "PositiveToken",
 				mockSetup: func(mockAuthSvc *mocks.AuthService, token string) {
 					resp := dto.ValidateTokenResponse{
-						UserID: uuid.New().String(),
+						UserID: mom.GetUUID(0).String(),
 						Role:   "User",
 					}
 
@@ -452,6 +457,8 @@ func TestLogout(t *testing.T) {
 
 func TestGetBoards(t *testing.T) {
 	runner.Run(t, "TestGetBoards", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			userID    string
@@ -461,23 +468,25 @@ func TestGetBoards(t *testing.T) {
 		}{
 			{
 				name:   "positive",
-				userID: "positiveUserID",
+				userID: mom.GetUUID(0).String(),
 				mockSetup: func(mockTodoSvc *mocks.TodoService, userID string) {
 					boardDTOs := make([]dto.Board, 3)
 
+					uid, _ := uuid.Parse(userID)
+
 					boardDTOs[0] = dto.Board{
-						ID:     uuid.New(),
-						UserID: uuid.New(),
+						ID:     mom.GetUUID(1),
+						UserID: uid,
 						Title:  "BoardZero",
 					}
 					boardDTOs[1] = dto.Board{
-						ID:     uuid.New(),
-						UserID: uuid.New(),
+						ID:     mom.GetUUID(2),
+						UserID: uid,
 						Title:  "BoardOne",
 					}
 					boardDTOs[2] = dto.Board{
-						ID:     uuid.New(),
-						UserID: uuid.New(),
+						ID:     mom.GetUUID(3),
+						UserID: uid,
 						Title:  "BoardTwo",
 					}
 
@@ -487,7 +496,7 @@ func TestGetBoards(t *testing.T) {
 			},
 			{
 				name:   "negative",
-				userID: "negativeUserID",
+				userID: mom.GetUUID(0).String(),
 				mockSetup: func(mockTodoSvc *mocks.TodoService, userID string) {
 					mockTodoSvc.On("GetBoards", context.Background(), userID).Return(nil, errors.New(""))
 				},
@@ -530,6 +539,8 @@ func TestGetBoards(t *testing.T) {
 
 func TestGetColumns(t *testing.T) {
 	runner.Run(t, "TestGetColumns", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			boardID   string
@@ -539,26 +550,28 @@ func TestGetColumns(t *testing.T) {
 		}{
 			{
 				name:    "positive",
-				boardID: "positiveBoardID",
+				boardID: mom.GetUUID(0).String(),
 				mockSetup: func(mockTodoSvc *mocks.TodoService, boardID string) {
 					columnDTOs := make([]dto.Column, 3)
 
+					bid, _ := uuid.Parse(boardID)
+
 					columnDTOs[0] = dto.Column{
-						ID:      uuid.New(),
-						UserID:  uuid.New(),
-						BoardID: uuid.New(),
+						ID:      mom.GetUUID(1),
+						UserID:  mom.GetUUID(2),
+						BoardID: bid,
 						Title:   "columnZero",
 					}
 					columnDTOs[1] = dto.Column{
-						ID:      uuid.New(),
-						UserID:  uuid.New(),
-						BoardID: uuid.New(),
+						ID:      mom.GetUUID(3),
+						UserID:  mom.GetUUID(4),
+						BoardID: bid,
 						Title:   "columnOne",
 					}
 					columnDTOs[2] = dto.Column{
-						ID:      uuid.New(),
-						UserID:  uuid.New(),
-						BoardID: uuid.New(),
+						ID:      mom.GetUUID(5),
+						UserID:  mom.GetUUID(6),
+						BoardID: bid,
 						Title:   "columnTwo",
 					}
 
@@ -568,7 +581,7 @@ func TestGetColumns(t *testing.T) {
 			},
 			{
 				name:    "negative",
-				boardID: "negativeBoardID",
+				boardID: mom.GetUUID(0).String(),
 				mockSetup: func(mockTodoSvc *mocks.TodoService, boardID string) {
 					mockTodoSvc.On("GetColumns", context.Background(), boardID).Return(nil, errors.New(""))
 				},
@@ -611,6 +624,8 @@ func TestGetColumns(t *testing.T) {
 
 func TestGetCards(t *testing.T) {
 	runner.Run(t, "TestGetCards", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			columnID  string
@@ -620,26 +635,28 @@ func TestGetCards(t *testing.T) {
 		}{
 			{
 				name:     "positive",
-				columnID: "positiveColumnID",
+				columnID: mom.GetUUID(0).String(),
 				mockSetup: func(mockTodoSvc *mocks.TodoService, columnID string) {
 					cardDTOs := make([]dto.Card, 3)
 
+					cid, _ := uuid.Parse(columnID)
+
 					cardDTOs[0] = dto.Card{
-						ID:       uuid.New(),
-						UserID:   uuid.New(),
-						ColumnID: uuid.New(),
+						ID:       mom.GetUUID(1),
+						UserID:   mom.GetUUID(2),
+						ColumnID: cid,
 						Title:    "CardZero",
 					}
 					cardDTOs[1] = dto.Card{
-						ID:       uuid.New(),
-						UserID:   uuid.New(),
-						ColumnID: uuid.New(),
+						ID:       mom.GetUUID(3),
+						UserID:   mom.GetUUID(4),
+						ColumnID: cid,
 						Title:    "CardOne",
 					}
 					cardDTOs[2] = dto.Card{
-						ID:       uuid.New(),
-						UserID:   uuid.New(),
-						ColumnID: uuid.New(),
+						ID:       mom.GetUUID(5),
+						UserID:   mom.GetUUID(6),
+						ColumnID: cid,
 						Title:    "CardTwo",
 					}
 
@@ -649,7 +666,7 @@ func TestGetCards(t *testing.T) {
 			},
 			{
 				name:     "negative",
-				columnID: "negativeColumnID",
+				columnID: mom.GetUUID(0).String(),
 				mockSetup: func(mockTodoSvc *mocks.TodoService, columnID string) {
 					mockTodoSvc.On("GetCards", context.Background(), columnID).Return(nil, errors.New(""))
 				},
@@ -692,6 +709,8 @@ func TestGetCards(t *testing.T) {
 
 func TestGetCard(t *testing.T) {
 	runner.Run(t, "TestGetCard", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			id        string
@@ -701,12 +720,14 @@ func TestGetCard(t *testing.T) {
 		}{
 			{
 				name: "positive",
-				id:   "positiveID",
+				id:   mom.GetUUID(0).String(),
 				mockSetup: func(mockTodoSvc *mocks.TodoService, id string) {
+					cid, _ := uuid.Parse(id)
+
 					cardDTO := dto.Card{
-						ID:       uuid.New(),
-						UserID:   uuid.New(),
-						ColumnID: uuid.New(),
+						ID:       cid,
+						UserID:   mom.GetUUID(1),
+						ColumnID: mom.GetUUID(2),
 						Title:    "Card",
 					}
 
@@ -716,7 +737,7 @@ func TestGetCard(t *testing.T) {
 			},
 			{
 				name: "negative",
-				id:   "negativeID",
+				id:   mom.GetUUID(0).String(),
 				mockSetup: func(mockTodoSvc *mocks.TodoService, id string) {
 					mockTodoSvc.On("GetCard", context.Background(), id).Return(nil, errors.New(""))
 				},
@@ -759,6 +780,8 @@ func TestGetCard(t *testing.T) {
 
 func TestCreateBoard(t *testing.T) {
 	runner.Run(t, "TestCreateBoard", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			board     dto.Board
@@ -769,8 +792,8 @@ func TestCreateBoard(t *testing.T) {
 			{
 				name: "positive",
 				board: dto.Board{
-					ID:     uuid.New(),
-					UserID: uuid.New(),
+					ID:     mom.GetUUID(0),
+					UserID: mom.GetUUID(1),
 					Title:  "PositiveBoard",
 				},
 				mockSetup: func(mockTodoSvc *mocks.TodoService, board dto.Board) {
@@ -781,8 +804,8 @@ func TestCreateBoard(t *testing.T) {
 			{
 				name: "negative",
 				board: dto.Board{
-					ID:     uuid.New(),
-					UserID: uuid.New(),
+					ID:     mom.GetUUID(0),
+					UserID: mom.GetUUID(1),
 					Title:  "NegativeBoard",
 				},
 				mockSetup: func(mockTodoSvc *mocks.TodoService, board dto.Board) {
@@ -827,6 +850,8 @@ func TestCreateBoard(t *testing.T) {
 
 func TestCreateColumn(t *testing.T) {
 	runner.Run(t, "TestCreateColumn", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			column    dto.Column
@@ -837,9 +862,9 @@ func TestCreateColumn(t *testing.T) {
 			{
 				name: "positive",
 				column: dto.Column{
-					ID:      uuid.New(),
-					UserID:  uuid.New(),
-					BoardID: uuid.New(),
+					ID:      mom.GetUUID(0),
+					UserID:  mom.GetUUID(1),
+					BoardID: mom.GetUUID(2),
 					Title:   "PositiveColumn",
 				},
 				mockSetup: func(mockTodoSvc *mocks.TodoService, column dto.Column) {
@@ -850,9 +875,9 @@ func TestCreateColumn(t *testing.T) {
 			{
 				name: "negative",
 				column: dto.Column{
-					ID:      uuid.New(),
-					UserID:  uuid.New(),
-					BoardID: uuid.New(),
+					ID:      mom.GetUUID(0),
+					UserID:  mom.GetUUID(1),
+					BoardID: mom.GetUUID(2),
 					Title:   "NegativeColumn",
 				},
 				mockSetup: func(mockTodoSvc *mocks.TodoService, column dto.Column) {
@@ -897,6 +922,8 @@ func TestCreateColumn(t *testing.T) {
 
 func TestCreateCard(t *testing.T) {
 	runner.Run(t, "TestCreateCard", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			card      dto.Card
@@ -907,9 +934,9 @@ func TestCreateCard(t *testing.T) {
 			{
 				name: "positive",
 				card: dto.Card{
-					ID:       uuid.New(),
-					UserID:   uuid.New(),
-					ColumnID: uuid.New(),
+					ID:       mom.GetUUID(0),
+					UserID:   mom.GetUUID(1),
+					ColumnID: mom.GetUUID(2),
 					Title:    "PositiveCard",
 				},
 				mockSetup: func(mockTodoSvc *mocks.TodoService, card dto.Card) {
@@ -920,9 +947,9 @@ func TestCreateCard(t *testing.T) {
 			{
 				name: "negative",
 				card: dto.Card{
-					ID:       uuid.New(),
-					UserID:   uuid.New(),
-					ColumnID: uuid.New(),
+					ID:       mom.GetUUID(0),
+					UserID:   mom.GetUUID(1),
+					ColumnID: mom.GetUUID(2),
 					Title:    "NegativeCard",
 				},
 				mockSetup: func(mockTodoSvc *mocks.TodoService, card dto.Card) {
@@ -967,6 +994,8 @@ func TestCreateCard(t *testing.T) {
 
 func TestUpdateBoard(t *testing.T) {
 	runner.Run(t, "TestUpdateBoard", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			board     dto.Board
@@ -977,8 +1006,8 @@ func TestUpdateBoard(t *testing.T) {
 			{
 				name: "positive",
 				board: dto.Board{
-					ID:     uuid.New(),
-					UserID: uuid.New(),
+					ID:     mom.GetUUID(0),
+					UserID: mom.GetUUID(1),
 					Title:  "PositiveBoard",
 				},
 				mockSetup: func(mockTodoSvc *mocks.TodoService, board *dto.Board) {
@@ -989,8 +1018,8 @@ func TestUpdateBoard(t *testing.T) {
 			{
 				name: "negative",
 				board: dto.Board{
-					ID:     uuid.New(),
-					UserID: uuid.New(),
+					ID:     mom.GetUUID(0),
+					UserID: mom.GetUUID(1),
 					Title:  "NegativeBoard",
 				},
 				mockSetup: func(mockTodoSvc *mocks.TodoService, board *dto.Board) {
@@ -1035,6 +1064,8 @@ func TestUpdateBoard(t *testing.T) {
 
 func TestUpdateColumn(t *testing.T) {
 	runner.Run(t, "TestUpdateColumn", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			column    dto.Column
@@ -1045,9 +1076,9 @@ func TestUpdateColumn(t *testing.T) {
 			{
 				name: "positive",
 				column: dto.Column{
-					ID:      uuid.New(),
-					UserID:  uuid.New(),
-					BoardID: uuid.New(),
+					ID:      mom.GetUUID(0),
+					UserID:  mom.GetUUID(1),
+					BoardID: mom.GetUUID(2),
 					Title:   "PositiveColumn",
 				},
 				mockSetup: func(mockTodoSvc *mocks.TodoService, column *dto.Column) {
@@ -1058,9 +1089,9 @@ func TestUpdateColumn(t *testing.T) {
 			{
 				name: "negative",
 				column: dto.Column{
-					ID:      uuid.New(),
-					UserID:  uuid.New(),
-					BoardID: uuid.New(),
+					ID:      mom.GetUUID(0),
+					UserID:  mom.GetUUID(1),
+					BoardID: mom.GetUUID(2),
 					Title:   "NegativeColumn",
 				},
 				mockSetup: func(mockTodoSvc *mocks.TodoService, column *dto.Column) {
@@ -1105,6 +1136,8 @@ func TestUpdateColumn(t *testing.T) {
 
 func TestUpdateCard(t *testing.T) {
 	runner.Run(t, "TestUpdateCard", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			card      dto.Card
@@ -1115,9 +1148,9 @@ func TestUpdateCard(t *testing.T) {
 			{
 				name: "positive",
 				card: dto.Card{
-					ID:       uuid.New(),
-					UserID:   uuid.New(),
-					ColumnID: uuid.New(),
+					ID:       mom.GetUUID(0),
+					UserID:   mom.GetUUID(1),
+					ColumnID: mom.GetUUID(2),
 					Title:    "PositiveCard",
 				},
 				mockSetup: func(mockTodoSvc *mocks.TodoService, card *dto.Card) {
@@ -1128,9 +1161,9 @@ func TestUpdateCard(t *testing.T) {
 			{
 				name: "negative",
 				card: dto.Card{
-					ID:       uuid.New(),
-					UserID:   uuid.New(),
-					ColumnID: uuid.New(),
+					ID:       mom.GetUUID(0),
+					UserID:   mom.GetUUID(1),
+					ColumnID: mom.GetUUID(2),
 					Title:    "NegativeCard",
 				},
 				mockSetup: func(mockTodoSvc *mocks.TodoService, card *dto.Card) {
@@ -1175,6 +1208,8 @@ func TestUpdateCard(t *testing.T) {
 
 func TestDeleteBoard(t *testing.T) {
 	runner.Run(t, "TestDeleteBoard", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			id        string
@@ -1184,7 +1219,7 @@ func TestDeleteBoard(t *testing.T) {
 		}{
 			{
 				name: "positive",
-				id:   "positiveID",
+				id:   mom.GetUUID(0).String(),
 				mockSetup: func(mockTodoSvc *mocks.TodoService, id string) {
 					mockTodoSvc.On("DeleteBoard", context.Background(), id).Return(nil)
 				},
@@ -1192,7 +1227,7 @@ func TestDeleteBoard(t *testing.T) {
 			},
 			{
 				name: "negative",
-				id:   "negativeID",
+				id:   mom.GetUUID(0).String(),
 				mockSetup: func(mockTodoSvc *mocks.TodoService, id string) {
 					mockTodoSvc.On("DeleteBoard", context.Background(), id).Return(errors.New(""))
 				},
@@ -1235,6 +1270,8 @@ func TestDeleteBoard(t *testing.T) {
 
 func TestDeleteColumn(t *testing.T) {
 	runner.Run(t, "TestDeleteColumn", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			id        string
@@ -1244,7 +1281,7 @@ func TestDeleteColumn(t *testing.T) {
 		}{
 			{
 				name: "positive",
-				id:   "positiveID",
+				id:   mom.GetUUID(0).String(),
 				mockSetup: func(mockTodoSvc *mocks.TodoService, id string) {
 					mockTodoSvc.On("DeleteColumn", context.Background(), id).Return(nil)
 				},
@@ -1252,7 +1289,7 @@ func TestDeleteColumn(t *testing.T) {
 			},
 			{
 				name: "negative",
-				id:   "negativeID",
+				id:   mom.GetUUID(0).String(),
 				mockSetup: func(mockTodoSvc *mocks.TodoService, id string) {
 					mockTodoSvc.On("DeleteColumn", context.Background(), id).Return(errors.New(""))
 				},
@@ -1295,6 +1332,8 @@ func TestDeleteColumn(t *testing.T) {
 
 func TestDeleteCard(t *testing.T) {
 	runner.Run(t, "TestDeleteCard", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			id        string
@@ -1304,7 +1343,7 @@ func TestDeleteCard(t *testing.T) {
 		}{
 			{
 				name: "positive",
-				id:   "positiveID",
+				id:   mom.GetUUID(0).String(),
 				mockSetup: func(mockTodoSvc *mocks.TodoService, id string) {
 					mockTodoSvc.On("DeleteCard", context.Background(), id).Return(nil)
 				},
@@ -1312,7 +1351,7 @@ func TestDeleteCard(t *testing.T) {
 			},
 			{
 				name: "negative",
-				id:   "negativeID",
+				id:   mom.GetUUID(0).String(),
 				mockSetup: func(mockTodoSvc *mocks.TodoService, id string) {
 					mockTodoSvc.On("DeleteCard", context.Background(), id).Return(errors.New(""))
 				},

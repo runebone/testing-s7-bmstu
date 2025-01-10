@@ -187,6 +187,71 @@ func TestLogin(t *testing.T) {
 	})
 }
 
+func TestRefresh(t *testing.T) {
+	runner.Run(t, "TestRefresh", func(pt provider.T) {
+		tests := []struct {
+			name         string
+			refreshToken string
+			mockSetup    func(mockTokenRepo *mocks.TokenRepository, mockUserSvc *mocks.UserService, mockTokenSvc *mocks.TokenService, refreshToken string)
+			wantErr      bool
+			err          error
+		}{
+			{
+				name:         "positive",
+				refreshToken: "PositiveRefreshToken",
+				mockSetup: func(mockTokenRepo *mocks.TokenRepository, mockUserSvc *mocks.UserService, mockTokenSvc *mocks.TokenService, refreshToken string) {
+					userID := uuid.New()
+					role := "user"
+					accessToken := "PositiveAccessToken"
+
+					mockTokenSvc.On("ValidateToken", context.Background(), refreshToken).Return(userID.String(), role, nil)
+					mockTokenSvc.On("GenerateAccessToken", context.Background(), userID.String(), role).Return(accessToken, nil)
+				},
+				wantErr: false,
+			},
+			{
+				name:         "negative",
+				refreshToken: "NegativeRefreshToken",
+				mockSetup: func(mockTokenRepo *mocks.TokenRepository, mockUserSvc *mocks.UserService, mockTokenSvc *mocks.TokenService, refreshToken string) {
+					mockTokenSvc.On("ValidateToken", context.Background(), refreshToken).Return("", "", errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrValidateToken,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockTokenRepo := new(mocks.TokenRepository)
+					mockUserSvc := new(mocks.UserService)
+					mockTokenSvc := new(mocks.TokenService)
+					logger := log.NewEmptyLogger()
+
+					uc := v1.NewAuthUseCase(mockTokenRepo, mockUserSvc, mockTokenSvc, logger)
+
+					tt.mockSetup(mockTokenRepo, mockUserSvc, mockTokenSvc, tt.refreshToken)
+
+					pt.WithNewStep("Call Refresh", func(sCtx provider.StepCtx) {
+						_, err := uc.Refresh(context.Background(), tt.refreshToken)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockUserSvc.AssertExpectations(t)
+					})
+				})
+			})
+		}
+	})
+}
+
 func hashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(bytes), err

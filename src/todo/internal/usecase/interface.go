@@ -14,10 +14,10 @@ type TodoUseCase interface {
 	CreateCard(ctx context.Context, card *entity.Card) error
 
 	GetBoardByID(ctx context.Context, id uuid.UUID) (*entity.Board, error)
-	GetBoardsByUser(ctx context.Context, userID uuid.UUID, limit, offset int) ([]entity.Board, error)
 	GetColumnByID(ctx context.Context, id uuid.UUID) (*entity.Column, error)
-	GetColumnsByBoard(ctx context.Context, boardID uuid.UUID, limit, offset int) ([]entity.Column, error)
 	GetCardByID(ctx context.Context, id uuid.UUID) (*entity.Card, error)
+	GetBoardsByUser(ctx context.Context, userID uuid.UUID, limit, offset int) ([]entity.Board, error)
+	GetColumnsByBoard(ctx context.Context, boardID uuid.UUID, limit, offset int) ([]entity.Column, error)
 	GetCardsByColumn(ctx context.Context, columnID uuid.UUID, limit, offset int) ([]entity.Card, error)
 	GetNewCards(ctx context.Context, from, to time.Time) ([]entity.Card, error)
 

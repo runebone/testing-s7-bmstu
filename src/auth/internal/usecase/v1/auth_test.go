@@ -9,9 +9,9 @@ import (
 	"errors"
 	"testing"
 
+	"auth/internal/testdata"
 	v1 "auth/internal/usecase/v1"
 
-	"github.com/google/uuid"
 	"github.com/ozontech/allure-go/pkg/framework/provider"
 	"github.com/ozontech/allure-go/pkg/framework/runner"
 	"github.com/stretchr/testify/mock"
@@ -20,6 +20,8 @@ import (
 
 func TestRegister(t *testing.T) {
 	runner.Run(t, "TestRegister", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name         string
 			username     string
@@ -41,7 +43,7 @@ func TestRegister(t *testing.T) {
 				mockSetup: func(mockTokenRepo *mocks.TokenRepository, mockUserSvc *mocks.UserService, mockTokenSvc *mocks.TokenService, username, email, password, accessToken, refreshToken string) {
 					mockUserSvc.On("CreateUser", context.Background(), username, email, password).Return(nil)
 
-					userID := uuid.New()
+					userID := mom.GetUUID(0)
 					role := "user"
 					pwdHash, _ := hashPassword(password)
 					userDTO := &dto.User{
@@ -108,6 +110,8 @@ func TestRegister(t *testing.T) {
 
 func TestLogin(t *testing.T) {
 	runner.Run(t, "TestLogin", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name         string
 			email        string
@@ -125,7 +129,7 @@ func TestLogin(t *testing.T) {
 				accessToken:  "PositiveAccessToken",
 				refreshToken: "PositiveRefreshToken",
 				mockSetup: func(mockTokenRepo *mocks.TokenRepository, mockUserSvc *mocks.UserService, mockTokenSvc *mocks.TokenService, email, password, accessToken, refreshToken string) {
-					userID := uuid.New()
+					userID := mom.GetUUID(0)
 					role := "user"
 					pwdHash, _ := hashPassword(password)
 					userDTO := &dto.User{
@@ -190,6 +194,8 @@ func TestLogin(t *testing.T) {
 
 func TestRefresh(t *testing.T) {
 	runner.Run(t, "TestRefresh", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name         string
 			refreshToken string
@@ -201,7 +207,7 @@ func TestRefresh(t *testing.T) {
 				name:         "positive",
 				refreshToken: "PositiveRefreshToken",
 				mockSetup: func(mockTokenRepo *mocks.TokenRepository, mockUserSvc *mocks.UserService, mockTokenSvc *mocks.TokenService, refreshToken string) {
-					userID := uuid.New()
+					userID := mom.GetUUID(0)
 					role := "user"
 					accessToken := "PositiveAccessToken"
 
@@ -255,6 +261,8 @@ func TestRefresh(t *testing.T) {
 
 func TestValidateToken(t *testing.T) {
 	runner.Run(t, "TestValidateToken", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			token     string
@@ -266,7 +274,7 @@ func TestValidateToken(t *testing.T) {
 				name:  "positive",
 				token: "PositiveToken",
 				mockSetup: func(mockTokenRepo *mocks.TokenRepository, mockUserSvc *mocks.UserService, mockTokenSvc *mocks.TokenService, token string) {
-					userID := uuid.New()
+					userID := mom.GetUUID(0)
 					role := "user"
 
 					mockTokenSvc.On("ValidateToken", context.Background(), token).Return(userID.String(), role, nil)
@@ -318,6 +326,8 @@ func TestValidateToken(t *testing.T) {
 
 func TestLogout(t *testing.T) {
 	runner.Run(t, "TestLogout", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name         string
 			refreshToken string
@@ -330,8 +340,8 @@ func TestLogout(t *testing.T) {
 				refreshToken: "PositiveRefreshToken",
 				mockSetup: func(mockTokenRepo *mocks.TokenRepository, mockUserSvc *mocks.UserService, mockTokenSvc *mocks.TokenService, refreshToken string) {
 					token := &entity.Token{
-						ID:     uuid.New(),
-						UserID: uuid.New(),
+						ID:     mom.GetUUID(0),
+						UserID: mom.GetUUID(1),
 						Token:  refreshToken,
 					}
 

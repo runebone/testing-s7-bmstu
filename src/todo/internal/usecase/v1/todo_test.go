@@ -836,3 +836,73 @@ func TestUpdateBoard(t *testing.T) {
 		}
 	})
 }
+
+func TestUpdateColumn(t *testing.T) {
+	runner.Run(t, "TestUpdateColumn", func(pt provider.T) {
+		tests := []struct {
+			name      string
+			column    entity.Column
+			mockSetup func(mockColumnRepo *mocks.ColumnRepository, column *entity.Column)
+			wantErr   bool
+			err       error
+		}{
+			{
+				name: "positive",
+				column: entity.Column{
+					ID:      uuid.New(),
+					UserID:  uuid.New(),
+					BoardID: uuid.New(),
+					Title:   "PositiveColumn",
+				},
+				mockSetup: func(mockColumnRepo *mocks.ColumnRepository, column *entity.Column) {
+					mockColumnRepo.On("UpdateColumn", context.Background(), column).Return(nil)
+				},
+				wantErr: false,
+			},
+			{
+				name: "negative",
+				column: entity.Column{
+					ID:      uuid.New(),
+					UserID:  uuid.New(),
+					BoardID: uuid.New(),
+					Title:   "NegativeColumn",
+				},
+				mockSetup: func(mockColumnRepo *mocks.ColumnRepository, column *entity.Column) {
+					mockColumnRepo.On("UpdateColumn", context.Background(), column).Return(errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrUpdateColumn,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockBoardRepo := new(mocks.BoardRepository)
+					mockColumnRepo := new(mocks.ColumnRepository)
+					mockCardRepo := new(mocks.CardRepository)
+					logger := log.NewEmptyLogger()
+
+					uc := v1.NewTodoUseCase(mockBoardRepo, mockColumnRepo, mockCardRepo, logger)
+
+					tt.mockSetup(mockColumnRepo, &tt.column)
+
+					pt.WithNewStep("Call UpdateColumn", func(sCtx provider.StepCtx) {
+						err := uc.UpdateColumn(context.Background(), &tt.column)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockCardRepo.AssertExpectations(t)
+					})
+				})
+			})
+		}
+	})
+}

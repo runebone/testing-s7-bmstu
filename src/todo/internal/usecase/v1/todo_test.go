@@ -222,3 +222,70 @@ func TestCreateCard(t *testing.T) {
 		}
 	})
 }
+
+func TestGetCardByID(t *testing.T) {
+	runner.Run(t, "TestGetCardByID", func(pt provider.T) {
+		tests := []struct {
+			name      string
+			id        uuid.UUID
+			mockSetup func(mockCardRepo *mocks.CardRepository, id uuid.UUID)
+			wantErr   bool
+			err       error
+		}{
+			{
+				name: "positive",
+				id:   uuid.New(),
+				mockSetup: func(mockCardRepo *mocks.CardRepository, id uuid.UUID) {
+					cardEntity := entity.Card{
+						ID:       uuid.New(),
+						UserID:   uuid.New(),
+						ColumnID: uuid.New(),
+						Title:    "Card",
+					}
+
+					mockCardRepo.On("GetCardByID", context.Background(), id).Return(&cardEntity, nil)
+				},
+				wantErr: false,
+			},
+			{
+				name: "negative",
+				id:   uuid.New(),
+				mockSetup: func(mockCardRepo *mocks.CardRepository, id uuid.UUID) {
+					mockCardRepo.On("GetCardByID", context.Background(), id).Return(nil, errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrGetCardByID,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockBoardRepo := new(mocks.BoardRepository)
+					mockColumnRepo := new(mocks.ColumnRepository)
+					mockCardRepo := new(mocks.CardRepository)
+					logger := log.NewEmptyLogger()
+
+					uc := v1.NewTodoUseCase(mockBoardRepo, mockColumnRepo, mockCardRepo, logger)
+
+					tt.mockSetup(mockCardRepo, tt.id)
+
+					pt.WithNewStep("Call GetCardByID", func(sCtx provider.StepCtx) {
+						_, err := uc.GetCardByID(context.Background(), tt.id)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockCardRepo.AssertExpectations(t)
+					})
+				})
+			})
+		}
+	})
+}

@@ -3,6 +3,7 @@ package v1_test
 import (
 	log "auth/internal/adapter/logger"
 	"auth/internal/dto"
+	"auth/internal/entity"
 	"auth/mocks"
 	"context"
 	"errors"
@@ -299,6 +300,73 @@ func TestValidateToken(t *testing.T) {
 
 					pt.WithNewStep("Call ValidateToken", func(sCtx provider.StepCtx) {
 						_, _, err := uc.ValidateToken(context.Background(), tt.token)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockUserSvc.AssertExpectations(t)
+					})
+				})
+			})
+		}
+	})
+}
+
+func TestLogout(t *testing.T) {
+	runner.Run(t, "TestLogout", func(pt provider.T) {
+		tests := []struct {
+			name         string
+			refreshToken string
+			mockSetup    func(mockTokenRepo *mocks.TokenRepository, mockUserSvc *mocks.UserService, mockTokenSvc *mocks.TokenService, refreshToken string)
+			wantErr      bool
+			err          error
+		}{
+			{
+				name:         "positive",
+				refreshToken: "PositiveRefreshToken",
+				mockSetup: func(mockTokenRepo *mocks.TokenRepository, mockUserSvc *mocks.UserService, mockTokenSvc *mocks.TokenService, refreshToken string) {
+					token := &entity.Token{
+						ID:     uuid.New(),
+						UserID: uuid.New(),
+						Token:  refreshToken,
+					}
+
+					mockTokenRepo.On("FindByToken", context.Background(), refreshToken).Return(token, nil)
+					mockTokenRepo.On("Delete", context.Background(), token.ID.String()).Return(nil)
+				},
+				wantErr: false,
+			},
+			{
+				name:         "negative",
+				refreshToken: "NegativeRefreshToken",
+				mockSetup: func(mockTokenRepo *mocks.TokenRepository, mockUserSvc *mocks.UserService, mockTokenSvc *mocks.TokenService, refreshToken string) {
+					mockTokenRepo.On("FindByToken", context.Background(), refreshToken).Return(nil, errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrFindRefreshToken,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockTokenRepo := new(mocks.TokenRepository)
+					mockUserSvc := new(mocks.UserService)
+					mockTokenSvc := new(mocks.TokenService)
+					logger := log.NewEmptyLogger()
+
+					uc := v1.NewAuthUseCase(mockTokenRepo, mockUserSvc, mockTokenSvc, logger)
+
+					tt.mockSetup(mockTokenRepo, mockUserSvc, mockTokenSvc, tt.refreshToken)
+
+					pt.WithNewStep("Call Logout", func(sCtx provider.StepCtx) {
+						err := uc.Logout(context.Background(), tt.refreshToken)
 
 						if tt.wantErr {
 							sCtx.Assert().Error(err, "Expected error")

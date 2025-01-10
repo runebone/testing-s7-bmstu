@@ -154,6 +154,8 @@ func TestCreateUser(t *testing.T) {
 
 func TestGetUserByID(t *testing.T) {
 	runner.Run(t, "Test GetUserByID", func(pt provider.T) {
+		objectMother := &testdata.UserObjectMother{}
+
 		tests := []struct {
 			name      string
 			id        uuid.UUID
@@ -163,7 +165,7 @@ func TestGetUserByID(t *testing.T) {
 		}{
 			{
 				name: "positive",
-				id:   uuid.New(),
+				id:   objectMother.GetUUID(0),
 				mockSetup: func(mockRepo *mocks.UserRepository, id uuid.UUID) {
 					user := testdata.NewUserBuilder().
 						WithUsername("PositiveUser").
@@ -175,7 +177,7 @@ func TestGetUserByID(t *testing.T) {
 			},
 			{
 				name: "negative",
-				id:   uuid.New(),
+				id:   objectMother.GetUUID(0),
 				mockSetup: func(mockRepo *mocks.UserRepository, id uuid.UUID) {
 					mockRepo.On("GetUserByID", context.Background(), id).Return(nil, errors.New(""))
 				},
@@ -484,6 +486,8 @@ func TestUpdateUser(t *testing.T) {
 
 func TestDeleteUser(t *testing.T) {
 	runner.Run(t, "Test DeleteUser", func(pt provider.T) {
+		objectMother := &testdata.UserObjectMother{}
+
 		tests := []struct {
 			name      string
 			id        uuid.UUID
@@ -493,7 +497,7 @@ func TestDeleteUser(t *testing.T) {
 		}{
 			{
 				name: "positive",
-				id:   uuid.New(),
+				id:   objectMother.GetUUID(0),
 				mockSetup: func(mockRepo *mocks.UserRepository, id uuid.UUID) {
 					user := testdata.NewUserBuilder().WithID(id).Build()
 					mockRepo.On("GetUserByID", context.Background(), id).Return(&user, nil)
@@ -503,7 +507,7 @@ func TestDeleteUser(t *testing.T) {
 			},
 			{
 				name: "negative",
-				id:   uuid.New(),
+				id:   objectMother.GetUUID(0),
 				mockSetup: func(mockRepo *mocks.UserRepository, id uuid.UUID) {
 					user := testdata.NewUserBuilder().WithID(id).Build()
 					mockRepo.On("GetUserByID", context.Background(), id).Return(&user, nil)

@@ -144,6 +144,24 @@ func (_m *CardRepository) GetNewCards(ctx context.Context, from time.Time, to ti
 	return r0, r1
 }
 
+// MoveCard provides a mock function with given fields: ctx, card
+func (_m *CardRepository) MoveCard(ctx context.Context, card *entity.Card) error {
+	ret := _m.Called(ctx, card)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MoveCard")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *entity.Card) error); ok {
+		r0 = rf(ctx, card)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // UpdateCard provides a mock function with given fields: ctx, card
 func (_m *CardRepository) UpdateCard(ctx context.Context, card *entity.Card) error {
 	ret := _m.Called(ctx, card)

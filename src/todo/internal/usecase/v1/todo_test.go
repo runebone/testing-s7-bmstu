@@ -9,6 +9,7 @@ import (
 	"todo/internal/entity"
 	"todo/mocks"
 
+	"todo/internal/testdata"
 	v1 "todo/internal/usecase/v1"
 
 	"github.com/google/uuid"
@@ -18,6 +19,8 @@ import (
 
 func TestCreateBoard(t *testing.T) {
 	runner.Run(t, "TestCreateBoard", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			board     entity.Board
@@ -28,8 +31,8 @@ func TestCreateBoard(t *testing.T) {
 			{
 				name: "positive",
 				board: entity.Board{
-					ID:     uuid.New(),
-					UserID: uuid.New(),
+					ID:     mom.GetUUID(0),
+					UserID: mom.GetUUID(1),
 					Title:  "PositiveBoard",
 				},
 				mockSetup: func(mockBoardRepo *mocks.BoardRepository, board *entity.Board) {
@@ -40,8 +43,8 @@ func TestCreateBoard(t *testing.T) {
 			{
 				name: "negative",
 				board: entity.Board{
-					ID:     uuid.New(),
-					UserID: uuid.New(),
+					ID:     mom.GetUUID(0),
+					UserID: mom.GetUUID(1),
 					Title:  "NegativeBoard",
 				},
 				mockSetup: func(mockBoardRepo *mocks.BoardRepository, board *entity.Board) {
@@ -86,6 +89,8 @@ func TestCreateBoard(t *testing.T) {
 
 func TestCreateColumn(t *testing.T) {
 	runner.Run(t, "TestCreateColumn", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			column    entity.Column
@@ -96,9 +101,9 @@ func TestCreateColumn(t *testing.T) {
 			{
 				name: "positive",
 				column: entity.Column{
-					ID:      uuid.New(),
-					UserID:  uuid.New(),
-					BoardID: uuid.New(),
+					ID:      mom.GetUUID(0),
+					UserID:  mom.GetUUID(1),
+					BoardID: mom.GetUUID(2),
 					Title:   "PositiveColumn",
 				},
 				mockSetup: func(mockColumnRepo *mocks.ColumnRepository, column *entity.Column) {
@@ -109,9 +114,9 @@ func TestCreateColumn(t *testing.T) {
 			{
 				name: "negative",
 				column: entity.Column{
-					ID:      uuid.New(),
-					UserID:  uuid.New(),
-					BoardID: uuid.New(),
+					ID:      mom.GetUUID(0),
+					UserID:  mom.GetUUID(1),
+					BoardID: mom.GetUUID(2),
 					Title:   "NegativeColumn",
 				},
 				mockSetup: func(mockColumnRepo *mocks.ColumnRepository, column *entity.Column) {
@@ -156,6 +161,8 @@ func TestCreateColumn(t *testing.T) {
 
 func TestCreateCard(t *testing.T) {
 	runner.Run(t, "TestCreateCard", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			card      entity.Card
@@ -166,9 +173,9 @@ func TestCreateCard(t *testing.T) {
 			{
 				name: "positive",
 				card: entity.Card{
-					ID:       uuid.New(),
-					UserID:   uuid.New(),
-					ColumnID: uuid.New(),
+					ID:       mom.GetUUID(0),
+					UserID:   mom.GetUUID(1),
+					ColumnID: mom.GetUUID(2),
 					Title:    "PositiveCard",
 				},
 				mockSetup: func(mockCardRepo *mocks.CardRepository, card *entity.Card) {
@@ -179,9 +186,9 @@ func TestCreateCard(t *testing.T) {
 			{
 				name: "negative",
 				card: entity.Card{
-					ID:       uuid.New(),
-					UserID:   uuid.New(),
-					ColumnID: uuid.New(),
+					ID:       mom.GetUUID(0),
+					UserID:   mom.GetUUID(1),
+					ColumnID: mom.GetUUID(2),
 					Title:    "NegativeCard",
 				},
 				mockSetup: func(mockCardRepo *mocks.CardRepository, card *entity.Card) {
@@ -226,6 +233,8 @@ func TestCreateCard(t *testing.T) {
 
 func TestGetBoardByID(t *testing.T) {
 	runner.Run(t, "TestGetBoardByID", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			id        uuid.UUID
@@ -235,11 +244,11 @@ func TestGetBoardByID(t *testing.T) {
 		}{
 			{
 				name: "positive",
-				id:   uuid.New(),
+				id:   mom.GetUUID(0),
 				mockSetup: func(mockBoardRepo *mocks.BoardRepository, id uuid.UUID) {
 					boardEntity := entity.Board{
-						ID:     uuid.New(),
-						UserID: uuid.New(),
+						ID:     id,
+						UserID: mom.GetUUID(1),
 						Title:  "Board",
 					}
 
@@ -249,7 +258,7 @@ func TestGetBoardByID(t *testing.T) {
 			},
 			{
 				name: "negative",
-				id:   uuid.New(),
+				id:   mom.GetUUID(0),
 				mockSetup: func(mockBoardRepo *mocks.BoardRepository, id uuid.UUID) {
 					mockBoardRepo.On("GetBoardByID", context.Background(), id).Return(nil, errors.New(""))
 				},
@@ -292,6 +301,8 @@ func TestGetBoardByID(t *testing.T) {
 
 func TestGetColumnByID(t *testing.T) {
 	runner.Run(t, "TestGetColumnByID", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			id        uuid.UUID
@@ -301,12 +312,12 @@ func TestGetColumnByID(t *testing.T) {
 		}{
 			{
 				name: "positive",
-				id:   uuid.New(),
+				id:   mom.GetUUID(0),
 				mockSetup: func(mockColumnRepo *mocks.ColumnRepository, id uuid.UUID) {
 					columnEntity := entity.Column{
-						ID:      uuid.New(),
-						UserID:  uuid.New(),
-						BoardID: uuid.New(),
+						ID:      id,
+						UserID:  mom.GetUUID(1),
+						BoardID: mom.GetUUID(2),
 						Title:   "Column",
 					}
 
@@ -316,7 +327,7 @@ func TestGetColumnByID(t *testing.T) {
 			},
 			{
 				name: "negative",
-				id:   uuid.New(),
+				id:   mom.GetUUID(0),
 				mockSetup: func(mockColumnRepo *mocks.ColumnRepository, id uuid.UUID) {
 					mockColumnRepo.On("GetColumnByID", context.Background(), id).Return(nil, errors.New(""))
 				},
@@ -359,6 +370,8 @@ func TestGetColumnByID(t *testing.T) {
 
 func TestGetCardByID(t *testing.T) {
 	runner.Run(t, "TestGetCardByID", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			id        uuid.UUID
@@ -368,12 +381,12 @@ func TestGetCardByID(t *testing.T) {
 		}{
 			{
 				name: "positive",
-				id:   uuid.New(),
+				id:   mom.GetUUID(0),
 				mockSetup: func(mockCardRepo *mocks.CardRepository, id uuid.UUID) {
 					cardEntity := entity.Card{
-						ID:       uuid.New(),
-						UserID:   uuid.New(),
-						ColumnID: uuid.New(),
+						ID:       id,
+						UserID:   mom.GetUUID(1),
+						ColumnID: mom.GetUUID(2),
 						Title:    "Card",
 					}
 
@@ -383,7 +396,7 @@ func TestGetCardByID(t *testing.T) {
 			},
 			{
 				name: "negative",
-				id:   uuid.New(),
+				id:   mom.GetUUID(0),
 				mockSetup: func(mockCardRepo *mocks.CardRepository, id uuid.UUID) {
 					mockCardRepo.On("GetCardByID", context.Background(), id).Return(nil, errors.New(""))
 				},
@@ -426,6 +439,8 @@ func TestGetCardByID(t *testing.T) {
 
 func TestGetBoardsByUser(t *testing.T) {
 	runner.Run(t, "TestGetBoardsByUser", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			userID    uuid.UUID
@@ -437,25 +452,25 @@ func TestGetBoardsByUser(t *testing.T) {
 		}{
 			{
 				name:   "positive",
-				userID: uuid.New(),
+				userID: mom.GetUUID(0),
 				limit:  3,
 				offset: 0,
 				mockSetup: func(mockBoardRepo *mocks.BoardRepository, userID uuid.UUID, limit, offset int) {
 					boardEntities := make([]entity.Board, 3)
 
 					boardEntities[0] = entity.Board{
-						ID:     uuid.New(),
-						UserID: uuid.New(),
+						ID:     mom.GetUUID(1),
+						UserID: userID,
 						Title:  "BoardZero",
 					}
 					boardEntities[1] = entity.Board{
-						ID:     uuid.New(),
-						UserID: uuid.New(),
+						ID:     mom.GetUUID(2),
+						UserID: userID,
 						Title:  "BoardOne",
 					}
 					boardEntities[2] = entity.Board{
-						ID:     uuid.New(),
-						UserID: uuid.New(),
+						ID:     mom.GetUUID(3),
+						UserID: userID,
 						Title:  "BoardTwo",
 					}
 
@@ -465,7 +480,7 @@ func TestGetBoardsByUser(t *testing.T) {
 			},
 			{
 				name:   "negative",
-				userID: uuid.New(),
+				userID: mom.GetUUID(0),
 				limit:  3,
 				offset: 0,
 				mockSetup: func(mockBoardRepo *mocks.BoardRepository, userID uuid.UUID, limit, offset int) {
@@ -510,6 +525,8 @@ func TestGetBoardsByUser(t *testing.T) {
 
 func TestGetColumnsByBoard(t *testing.T) {
 	runner.Run(t, "TestGetColumnsByBoard", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			boardID   uuid.UUID
@@ -521,28 +538,28 @@ func TestGetColumnsByBoard(t *testing.T) {
 		}{
 			{
 				name:    "positive",
-				boardID: uuid.New(),
+				boardID: mom.GetUUID(0),
 				limit:   3,
 				offset:  0,
 				mockSetup: func(mockColumnRepo *mocks.ColumnRepository, boardID uuid.UUID, limit, offset int) {
 					columnEntities := make([]entity.Column, 3)
 
 					columnEntities[0] = entity.Column{
-						ID:      uuid.New(),
-						UserID:  uuid.New(),
-						BoardID: uuid.New(),
+						ID:      mom.GetUUID(1),
+						UserID:  mom.GetUUID(2),
+						BoardID: boardID,
 						Title:   "ColumnZero",
 					}
 					columnEntities[1] = entity.Column{
-						ID:      uuid.New(),
-						UserID:  uuid.New(),
-						BoardID: uuid.New(),
+						ID:      mom.GetUUID(3),
+						UserID:  mom.GetUUID(4),
+						BoardID: boardID,
 						Title:   "ColumnOne",
 					}
 					columnEntities[2] = entity.Column{
-						ID:      uuid.New(),
-						UserID:  uuid.New(),
-						BoardID: uuid.New(),
+						ID:      mom.GetUUID(5),
+						UserID:  mom.GetUUID(6),
+						BoardID: boardID,
 						Title:   "ColumnTwo",
 					}
 
@@ -552,7 +569,7 @@ func TestGetColumnsByBoard(t *testing.T) {
 			},
 			{
 				name:    "negative",
-				boardID: uuid.New(),
+				boardID: mom.GetUUID(0),
 				limit:   3,
 				offset:  0,
 				mockSetup: func(mockColumnRepo *mocks.ColumnRepository, boardID uuid.UUID, limit, offset int) {
@@ -597,6 +614,8 @@ func TestGetColumnsByBoard(t *testing.T) {
 
 func TestGetCardsByColumn(t *testing.T) {
 	runner.Run(t, "TestGetCardsByColumn", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			columnID  uuid.UUID
@@ -608,28 +627,28 @@ func TestGetCardsByColumn(t *testing.T) {
 		}{
 			{
 				name:     "positive",
-				columnID: uuid.New(),
+				columnID: mom.GetUUID(0),
 				limit:    3,
 				offset:   0,
 				mockSetup: func(mockCardRepo *mocks.CardRepository, columnID uuid.UUID, limit, offset int) {
 					cardEntities := make([]entity.Card, 3)
 
 					cardEntities[0] = entity.Card{
-						ID:       uuid.New(),
-						UserID:   uuid.New(),
-						ColumnID: uuid.New(),
+						ID:       mom.GetUUID(1),
+						UserID:   mom.GetUUID(2),
+						ColumnID: columnID,
 						Title:    "CardZero",
 					}
 					cardEntities[1] = entity.Card{
-						ID:       uuid.New(),
-						UserID:   uuid.New(),
-						ColumnID: uuid.New(),
+						ID:       mom.GetUUID(3),
+						UserID:   mom.GetUUID(4),
+						ColumnID: columnID,
 						Title:    "CardOne",
 					}
 					cardEntities[2] = entity.Card{
-						ID:       uuid.New(),
-						UserID:   uuid.New(),
-						ColumnID: uuid.New(),
+						ID:       mom.GetUUID(5),
+						UserID:   mom.GetUUID(6),
+						ColumnID: columnID,
 						Title:    "CardTwo",
 					}
 
@@ -639,7 +658,7 @@ func TestGetCardsByColumn(t *testing.T) {
 			},
 			{
 				name:     "negative",
-				columnID: uuid.New(),
+				columnID: mom.GetUUID(0),
 				limit:    3,
 				offset:   0,
 				mockSetup: func(mockCardRepo *mocks.CardRepository, columnID uuid.UUID, limit, offset int) {
@@ -684,6 +703,8 @@ func TestGetCardsByColumn(t *testing.T) {
 
 func TestGetNewCards(t *testing.T) {
 	runner.Run(t, "TestGetNewCards", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		fromTime := time.Date(2023, 9, 1, 0, 0, 0, 0, time.UTC)
 		toTime := time.Date(2023, 9, 30, 23, 59, 59, 0, time.UTC)
 
@@ -703,21 +724,21 @@ func TestGetNewCards(t *testing.T) {
 					cardEntities := make([]entity.Card, 3)
 
 					cardEntities[0] = entity.Card{
-						ID:       uuid.New(),
-						UserID:   uuid.New(),
-						ColumnID: uuid.New(),
+						ID:       mom.GetUUID(0),
+						UserID:   mom.GetUUID(1),
+						ColumnID: mom.GetUUID(2),
 						Title:    "CardZero",
 					}
 					cardEntities[1] = entity.Card{
-						ID:       uuid.New(),
-						UserID:   uuid.New(),
-						ColumnID: uuid.New(),
+						ID:       mom.GetUUID(3),
+						UserID:   mom.GetUUID(4),
+						ColumnID: mom.GetUUID(5),
 						Title:    "CardOne",
 					}
 					cardEntities[2] = entity.Card{
-						ID:       uuid.New(),
-						UserID:   uuid.New(),
-						ColumnID: uuid.New(),
+						ID:       mom.GetUUID(6),
+						UserID:   mom.GetUUID(7),
+						ColumnID: mom.GetUUID(8),
 						Title:    "CardTwo",
 					}
 
@@ -771,6 +792,8 @@ func TestGetNewCards(t *testing.T) {
 
 func TestUpdateBoard(t *testing.T) {
 	runner.Run(t, "TestUpdateBoard", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			board     entity.Board
@@ -781,8 +804,8 @@ func TestUpdateBoard(t *testing.T) {
 			{
 				name: "positive",
 				board: entity.Board{
-					ID:     uuid.New(),
-					UserID: uuid.New(),
+					ID:     mom.GetUUID(0),
+					UserID: mom.GetUUID(1),
 					Title:  "PositiveBoard",
 				},
 				mockSetup: func(mockBoardRepo *mocks.BoardRepository, board *entity.Board) {
@@ -793,8 +816,8 @@ func TestUpdateBoard(t *testing.T) {
 			{
 				name: "negative",
 				board: entity.Board{
-					ID:     uuid.New(),
-					UserID: uuid.New(),
+					ID:     mom.GetUUID(0),
+					UserID: mom.GetUUID(1),
 					Title:  "NegativeBoard",
 				},
 				mockSetup: func(mockBoardRepo *mocks.BoardRepository, board *entity.Board) {
@@ -839,6 +862,8 @@ func TestUpdateBoard(t *testing.T) {
 
 func TestUpdateColumn(t *testing.T) {
 	runner.Run(t, "TestUpdateColumn", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			column    entity.Column
@@ -849,9 +874,9 @@ func TestUpdateColumn(t *testing.T) {
 			{
 				name: "positive",
 				column: entity.Column{
-					ID:      uuid.New(),
-					UserID:  uuid.New(),
-					BoardID: uuid.New(),
+					ID:      mom.GetUUID(0),
+					UserID:  mom.GetUUID(1),
+					BoardID: mom.GetUUID(2),
 					Title:   "PositiveColumn",
 				},
 				mockSetup: func(mockColumnRepo *mocks.ColumnRepository, column *entity.Column) {
@@ -862,9 +887,9 @@ func TestUpdateColumn(t *testing.T) {
 			{
 				name: "negative",
 				column: entity.Column{
-					ID:      uuid.New(),
-					UserID:  uuid.New(),
-					BoardID: uuid.New(),
+					ID:      mom.GetUUID(0),
+					UserID:  mom.GetUUID(1),
+					BoardID: mom.GetUUID(2),
 					Title:   "NegativeColumn",
 				},
 				mockSetup: func(mockColumnRepo *mocks.ColumnRepository, column *entity.Column) {
@@ -909,6 +934,8 @@ func TestUpdateColumn(t *testing.T) {
 
 func TestUpdateCard(t *testing.T) {
 	runner.Run(t, "TestUpdateCard", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			card      entity.Card
@@ -919,8 +946,8 @@ func TestUpdateCard(t *testing.T) {
 			{
 				name: "positive",
 				card: entity.Card{
-					ID:       uuid.New(),
-					UserID:   uuid.New(),
+					ID:       mom.GetUUID(0),
+					UserID:   mom.GetUUID(1),
 					ColumnID: uuid.Nil,
 					Title:    "PositiveCard",
 				},
@@ -932,9 +959,9 @@ func TestUpdateCard(t *testing.T) {
 			{
 				name: "positive move",
 				card: entity.Card{
-					ID:       uuid.New(),
-					UserID:   uuid.New(),
-					ColumnID: uuid.New(),
+					ID:       mom.GetUUID(0),
+					UserID:   mom.GetUUID(1),
+					ColumnID: mom.GetUUID(2),
 					Title:    "PositiveCard",
 				},
 				mockSetup: func(mockCardRepo *mocks.CardRepository, card *entity.Card) {
@@ -945,8 +972,8 @@ func TestUpdateCard(t *testing.T) {
 			{
 				name: "negative",
 				card: entity.Card{
-					ID:       uuid.New(),
-					UserID:   uuid.New(),
+					ID:       mom.GetUUID(0),
+					UserID:   mom.GetUUID(1),
 					ColumnID: uuid.Nil,
 					Title:    "NegativeCard",
 				},
@@ -959,9 +986,9 @@ func TestUpdateCard(t *testing.T) {
 			{
 				name: "negative move",
 				card: entity.Card{
-					ID:       uuid.New(),
-					UserID:   uuid.New(),
-					ColumnID: uuid.New(),
+					ID:       mom.GetUUID(0),
+					UserID:   mom.GetUUID(1),
+					ColumnID: mom.GetUUID(2),
 					Title:    "NegativeCard",
 				},
 				mockSetup: func(mockCardRepo *mocks.CardRepository, card *entity.Card) {
@@ -1006,6 +1033,8 @@ func TestUpdateCard(t *testing.T) {
 
 func TestDeleteBoard(t *testing.T) {
 	runner.Run(t, "TestDeleteBoard", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			id        uuid.UUID
@@ -1015,7 +1044,7 @@ func TestDeleteBoard(t *testing.T) {
 		}{
 			{
 				name: "positive",
-				id:   uuid.New(),
+				id:   mom.GetUUID(0),
 				mockSetup: func(mockBoardRepo *mocks.BoardRepository, id uuid.UUID) {
 					mockBoardRepo.On("DeleteBoard", context.Background(), id).Return(nil)
 				},
@@ -1023,7 +1052,7 @@ func TestDeleteBoard(t *testing.T) {
 			},
 			{
 				name: "negative",
-				id:   uuid.New(),
+				id:   mom.GetUUID(0),
 				mockSetup: func(mockBoardRepo *mocks.BoardRepository, id uuid.UUID) {
 					mockBoardRepo.On("DeleteBoard", context.Background(), id).Return(errors.New(""))
 				},
@@ -1066,6 +1095,8 @@ func TestDeleteBoard(t *testing.T) {
 
 func TestDeleteColumn(t *testing.T) {
 	runner.Run(t, "TestDeleteColumn", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			id        uuid.UUID
@@ -1075,7 +1106,7 @@ func TestDeleteColumn(t *testing.T) {
 		}{
 			{
 				name: "positive",
-				id:   uuid.New(),
+				id:   mom.GetUUID(0),
 				mockSetup: func(mockColumnRepo *mocks.ColumnRepository, id uuid.UUID) {
 					mockColumnRepo.On("DeleteColumn", context.Background(), id).Return(nil)
 				},
@@ -1083,7 +1114,7 @@ func TestDeleteColumn(t *testing.T) {
 			},
 			{
 				name: "negative",
-				id:   uuid.New(),
+				id:   mom.GetUUID(0),
 				mockSetup: func(mockColumnRepo *mocks.ColumnRepository, id uuid.UUID) {
 					mockColumnRepo.On("DeleteColumn", context.Background(), id).Return(errors.New(""))
 				},
@@ -1126,6 +1157,8 @@ func TestDeleteColumn(t *testing.T) {
 
 func TestDeleteCard(t *testing.T) {
 	runner.Run(t, "TestDeleteCard", func(pt provider.T) {
+		mom := &testdata.ObjectMother{}
+
 		tests := []struct {
 			name      string
 			id        uuid.UUID
@@ -1135,7 +1168,7 @@ func TestDeleteCard(t *testing.T) {
 		}{
 			{
 				name: "positive",
-				id:   uuid.New(),
+				id:   mom.GetUUID(0),
 				mockSetup: func(mockCardRepo *mocks.CardRepository, id uuid.UUID) {
 					mockCardRepo.On("DeleteCard", context.Background(), id).Return(nil)
 				},
@@ -1143,7 +1176,7 @@ func TestDeleteCard(t *testing.T) {
 			},
 			{
 				name: "negative",
-				id:   uuid.New(),
+				id:   mom.GetUUID(0),
 				mockSetup: func(mockCardRepo *mocks.CardRepository, id uuid.UUID) {
 					mockCardRepo.On("DeleteCard", context.Background(), id).Return(errors.New(""))
 				},

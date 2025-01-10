@@ -289,6 +289,73 @@ func TestGetBoardByID(t *testing.T) {
 	})
 }
 
+func TestGetColumnByID(t *testing.T) {
+	runner.Run(t, "TestGetColumnByID", func(pt provider.T) {
+		tests := []struct {
+			name      string
+			id        uuid.UUID
+			mockSetup func(mockColumnRepo *mocks.ColumnRepository, id uuid.UUID)
+			wantErr   bool
+			err       error
+		}{
+			{
+				name: "positive",
+				id:   uuid.New(),
+				mockSetup: func(mockColumnRepo *mocks.ColumnRepository, id uuid.UUID) {
+					columnEntity := entity.Column{
+						ID:      uuid.New(),
+						UserID:  uuid.New(),
+						BoardID: uuid.New(),
+						Title:   "Column",
+					}
+
+					mockColumnRepo.On("GetColumnByID", context.Background(), id).Return(&columnEntity, nil)
+				},
+				wantErr: false,
+			},
+			{
+				name: "negative",
+				id:   uuid.New(),
+				mockSetup: func(mockColumnRepo *mocks.ColumnRepository, id uuid.UUID) {
+					mockColumnRepo.On("GetColumnByID", context.Background(), id).Return(nil, errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrGetColumnByID,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockBoardRepo := new(mocks.BoardRepository)
+					mockColumnRepo := new(mocks.ColumnRepository)
+					mockCardRepo := new(mocks.CardRepository)
+					logger := log.NewEmptyLogger()
+
+					uc := v1.NewTodoUseCase(mockBoardRepo, mockColumnRepo, mockCardRepo, logger)
+
+					tt.mockSetup(mockColumnRepo, tt.id)
+
+					pt.WithNewStep("Call GetColumnByID", func(sCtx provider.StepCtx) {
+						_, err := uc.GetColumnByID(context.Background(), tt.id)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockColumnRepo.AssertExpectations(t)
+					})
+				})
+			})
+		}
+	})
+}
+
 func TestGetCardByID(t *testing.T) {
 	runner.Run(t, "TestGetCardByID", func(pt provider.T) {
 		tests := []struct {

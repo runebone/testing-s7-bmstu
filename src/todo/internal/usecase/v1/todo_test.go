@@ -906,3 +906,100 @@ func TestUpdateColumn(t *testing.T) {
 		}
 	})
 }
+
+func TestUpdateCard(t *testing.T) {
+	runner.Run(t, "TestUpdateCard", func(pt provider.T) {
+		tests := []struct {
+			name      string
+			card      entity.Card
+			mockSetup func(mockCardRepo *mocks.CardRepository, card *entity.Card)
+			wantErr   bool
+			err       error
+		}{
+			{
+				name: "positive",
+				card: entity.Card{
+					ID:       uuid.New(),
+					UserID:   uuid.New(),
+					ColumnID: uuid.Nil,
+					Title:    "PositiveCard",
+				},
+				mockSetup: func(mockCardRepo *mocks.CardRepository, card *entity.Card) {
+					mockCardRepo.On("UpdateCard", context.Background(), card).Return(nil)
+				},
+				wantErr: false,
+			},
+			{
+				name: "positive move",
+				card: entity.Card{
+					ID:       uuid.New(),
+					UserID:   uuid.New(),
+					ColumnID: uuid.New(),
+					Title:    "PositiveCard",
+				},
+				mockSetup: func(mockCardRepo *mocks.CardRepository, card *entity.Card) {
+					mockCardRepo.On("MoveCard", context.Background(), card).Return(nil)
+				},
+				wantErr: false,
+			},
+			{
+				name: "negative",
+				card: entity.Card{
+					ID:       uuid.New(),
+					UserID:   uuid.New(),
+					ColumnID: uuid.Nil,
+					Title:    "NegativeCard",
+				},
+				mockSetup: func(mockCardRepo *mocks.CardRepository, card *entity.Card) {
+					mockCardRepo.On("UpdateCard", context.Background(), card).Return(errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrUpdateCard,
+			},
+			{
+				name: "negative move",
+				card: entity.Card{
+					ID:       uuid.New(),
+					UserID:   uuid.New(),
+					ColumnID: uuid.New(),
+					Title:    "NegativeCard",
+				},
+				mockSetup: func(mockCardRepo *mocks.CardRepository, card *entity.Card) {
+					mockCardRepo.On("MoveCard", context.Background(), card).Return(errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrUpdateCard,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockBoardRepo := new(mocks.BoardRepository)
+					mockColumnRepo := new(mocks.ColumnRepository)
+					mockCardRepo := new(mocks.CardRepository)
+					logger := log.NewEmptyLogger()
+
+					uc := v1.NewTodoUseCase(mockBoardRepo, mockColumnRepo, mockCardRepo, logger)
+
+					tt.mockSetup(mockCardRepo, &tt.card)
+
+					pt.WithNewStep("Call UpdateCard", func(sCtx provider.StepCtx) {
+						err := uc.UpdateCard(context.Background(), &tt.card)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockCardRepo.AssertExpectations(t)
+					})
+				})
+			})
+		}
+	})
+}

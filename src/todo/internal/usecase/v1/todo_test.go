@@ -422,3 +422,87 @@ func TestGetCardByID(t *testing.T) {
 		}
 	})
 }
+
+func TestGetBoardsByUser(t *testing.T) {
+	runner.Run(t, "TestGetBoardsByUser", func(pt provider.T) {
+		tests := []struct {
+			name      string
+			userID    uuid.UUID
+			limit     int
+			offset    int
+			mockSetup func(mockBoardRepo *mocks.BoardRepository, userID uuid.UUID, limit, offset int)
+			wantErr   bool
+			err       error
+		}{
+			{
+				name:   "positive",
+				userID: uuid.New(),
+				limit:  3,
+				offset: 0,
+				mockSetup: func(mockBoardRepo *mocks.BoardRepository, userID uuid.UUID, limit, offset int) {
+					boardEntities := make([]entity.Board, 3)
+
+					boardEntities[0] = entity.Board{
+						ID:     uuid.New(),
+						UserID: uuid.New(),
+						Title:  "BoardZero",
+					}
+					boardEntities[1] = entity.Board{
+						ID:     uuid.New(),
+						UserID: uuid.New(),
+						Title:  "BoardOne",
+					}
+					boardEntities[2] = entity.Board{
+						ID:     uuid.New(),
+						UserID: uuid.New(),
+						Title:  "BoardTwo",
+					}
+
+					mockBoardRepo.On("GetBoardsByUser", context.Background(), userID, limit, offset).Return(boardEntities, nil)
+				},
+				wantErr: false,
+			},
+			{
+				name:   "negative",
+				userID: uuid.New(),
+				limit:  3,
+				offset: 0,
+				mockSetup: func(mockBoardRepo *mocks.BoardRepository, userID uuid.UUID, limit, offset int) {
+					mockBoardRepo.On("GetBoardsByUser", context.Background(), userID, limit, offset).Return(nil, errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrGetBoardsByUser,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockBoardRepo := new(mocks.BoardRepository)
+					mockColumnRepo := new(mocks.ColumnRepository)
+					mockCardRepo := new(mocks.CardRepository)
+					logger := log.NewEmptyLogger()
+
+					uc := v1.NewTodoUseCase(mockBoardRepo, mockColumnRepo, mockCardRepo, logger)
+
+					tt.mockSetup(mockBoardRepo, tt.userID, tt.limit, tt.offset)
+
+					pt.WithNewStep("Call GetBoardsByUser", func(sCtx provider.StepCtx) {
+						_, err := uc.GetBoardsByUser(context.Background(), tt.userID, tt.limit, tt.offset)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockBoardRepo.AssertExpectations(t)
+					})
+				})
+			})
+		}
+	})
+}

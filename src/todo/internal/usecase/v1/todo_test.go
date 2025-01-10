@@ -1123,3 +1123,63 @@ func TestDeleteColumn(t *testing.T) {
 		}
 	})
 }
+
+func TestDeleteCard(t *testing.T) {
+	runner.Run(t, "TestDeleteCard", func(pt provider.T) {
+		tests := []struct {
+			name      string
+			id        uuid.UUID
+			mockSetup func(mockCardRepo *mocks.CardRepository, id uuid.UUID)
+			wantErr   bool
+			err       error
+		}{
+			{
+				name: "positive",
+				id:   uuid.New(),
+				mockSetup: func(mockCardRepo *mocks.CardRepository, id uuid.UUID) {
+					mockCardRepo.On("DeleteCard", context.Background(), id).Return(nil)
+				},
+				wantErr: false,
+			},
+			{
+				name: "negative",
+				id:   uuid.New(),
+				mockSetup: func(mockCardRepo *mocks.CardRepository, id uuid.UUID) {
+					mockCardRepo.On("DeleteCard", context.Background(), id).Return(errors.New(""))
+				},
+				wantErr: true,
+				err:     v1.ErrDeleteCard,
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+
+				runner.Run(t, tt.name, func(pt provider.T) {
+					mockBoardRepo := new(mocks.BoardRepository)
+					mockColumnRepo := new(mocks.ColumnRepository)
+					mockCardRepo := new(mocks.CardRepository)
+					logger := log.NewEmptyLogger()
+
+					uc := v1.NewTodoUseCase(mockBoardRepo, mockColumnRepo, mockCardRepo, logger)
+
+					tt.mockSetup(mockCardRepo, tt.id)
+
+					pt.WithNewStep("Call DeleteCard", func(sCtx provider.StepCtx) {
+						err := uc.DeleteCard(context.Background(), tt.id)
+
+						if tt.wantErr {
+							sCtx.Assert().Error(err, "Expected error")
+							sCtx.Assert().ErrorIs(err, tt.err)
+						} else {
+							sCtx.Assert().NoError(err, "Expected no error")
+						}
+
+						mockCardRepo.AssertExpectations(t)
+					})
+				})
+			})
+		}
+	})
+}
